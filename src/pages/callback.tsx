@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthHandler } from "@/features/auth/hooks/use-auth-handler";
 
@@ -13,7 +13,15 @@ export default function CallbackPage() {
   );
   const [message, setMessage] = useState("Processing authorization…");
 
+  const processedRef = useRef(false);
+
   useEffect(() => {
+    if (processedRef.current) {
+      return;
+    }
+
+    processedRef.current = true;
+
     const process = async () => {
       try {
         await handleCallback(window.location.search);
