@@ -7,17 +7,20 @@ type AuthGuardValue = ReturnType<typeof useAuth>;
 const AuthGuardContext = createContext<AuthGuardValue | null>(null);
 
 export function AuthGuard({ children }: { children: ReactNode }) {
-  const { did, isConnecting, isConnected, isError } = useAuth();
+  const { did, isConnecting, isConnected, isError, isInitializing } = useAuth();
 
   const navigate = useNavigate();
   // Keep legacy DID store in sync so existing code relying on it continues to work.
   useEffect(() => {
-    console.log("isConnected", isConnected);
-    console.log("isConnecting", isConnecting);
-    if (!isConnected) {
+    // Avoid redirect until SDK initialization completes
+    if (isInitializing) {
+      return;
+    }
+
+    if (!isConnecting && !isConnected) {
       navigate("/login");
     }
-  }, [isConnected, navigate]);
+  }, [isInitializing, isConnecting, isConnected, navigate]);
 
   return (
     <AuthGuardContext.Provider
@@ -26,6 +29,7 @@ export function AuthGuard({ children }: { children: ReactNode }) {
         isConnecting,
         isConnected,
         isError,
+        isInitializing,
       }}
     >
       {children}
