@@ -5,6 +5,7 @@ import ArtifactPage from "./pages/artifact";
 import CallbackPage from "./pages/callback";
 import ChatPage from "./pages/chat";
 import LoginPage from "./pages/login";
+import McpDebugPage from "./pages/mcp-debug";
 
 const router = createBrowserRouter([
   {
@@ -17,6 +18,8 @@ const router = createBrowserRouter([
           { index: true, element: <Navigate to="/chat" replace /> },
           { path: "artifact", element: <ArtifactPage /> },
           { path: "chat", element: <ChatPage /> },
+          // MCP Debug page – only enabled in development mode
+          ...(import.meta.env.DEV ? [{ path: "mcp-debug", element: <McpDebugPage /> }] : []),
         ],
       },
       { path: "login", element: <LoginPage /> },
