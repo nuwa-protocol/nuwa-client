@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { getMcpClient, closeMcpClient, McpTransportType } from '../services/factory';
+import { createNuwaMCPClient, NuwaMCPClient } from '../';
+import { McpTransportType } from '../services/factory';
 import Form from '@rjsf/core';
 import validator from '@rjsf/validator-ajv8';
 
@@ -26,6 +27,10 @@ export default function McpDebugPanel() {
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
   const [formData, setFormData] = useState<any>({});
   const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [prompts, setPrompts] = useState<string[]>([]);
+  const [promptsMap, setPromptsMap] = useState<Record<string, any>>({});
+  const [resources, setResources] = useState<string[]>([]);
+  const [client, setClient] = useState<NuwaMCPClient | null>(null);
 
   const pushLog = (entry: LogEntry) => setLogs((prev) => [...prev, entry]);
 
@@ -40,34 +45,78 @@ export default function McpDebugPanel() {
   const handleConnect = async () => {
     try {
       pushLog({ type: 'info', message: `Connecting to ${url} ...` });
-      const client = await getMcpClient(url, transport === '' ? undefined : (transport as McpTransportType));
+      const newClient = await createNuwaMCPClient(url, transport === '' ? undefined : (transport as McpTransportType));
+      setClient(newClient);
       setConnected(true);
       pushLog({ type: 'info', message: 'Connected.' });
 
-      const list = await client.tools();
-      const names = Object.keys(list);
-      setTools(names);
-      setToolsMap(list as any);
-      pushLog({ type: 'info', message: `Fetched tools: ${names.join(', ')}` });
+      // Get tools from client
+      try {
+        const list = await newClient.tools();
+        const names = Object.keys(list);
+        setTools(names);
+        setToolsMap(list);
+        pushLog({ type: 'info', message: `Fetched tools: ${names.join(', ')}` });
+      } catch (err) {
+        pushLog({ type: 'info', message: `No tools available: ${String(err)}` });
+      }
+
+      // fetch prompts
+      try {
+        const ps = await newClient.prompts();
+        setPrompts(Object.keys(ps));
+        setPromptsMap(ps);
+        pushLog({ type: 'info', message: `Fetched prompts: ${Object.keys(ps).join(', ')}` });
+      } catch (err) {
+        pushLog({ type: 'error', message: `Failed to fetch prompts: ${String(err)}` });
+      }
+
+      // fetch resources
+      try {
+        const rs = await newClient.resources();
+        const resourceKeys = Object.keys(rs);
+        setResources(resourceKeys);
+        pushLog({ type: 'info', message: `Fetched resources: ${resourceKeys.join(', ')}` });
+      } catch (err) {
+        pushLog({ type: 'error', message: `Failed to fetch resources: ${String(err)}` });
+      }
     } catch (err) {
       pushLog({ type: 'error', message: String(err) });
     }
   };
 
   const handlePing = async () => {
+    if (!client) {
+      pushLog({ type: 'error', message: 'Not connected' });
+      return;
+    }
+
     try {
-      const client = await getMcpClient(url);
-      await client.ping?.(); // some clients have ping method
-      pushLog({ type: 'info', message: 'Ping OK' });
+      // Try ping on raw client if available
+      if (client.raw && typeof client.raw.ping === 'function') {
+        await client.raw.ping();
+        pushLog({ type: 'info', message: 'Ping OK' });
+      } else {
+        // Fallback: try a simple prompts() call as a health check
+        await client.prompts();
+        pushLog({ type: 'info', message: 'Health check OK (via prompts call)' });
+      }
     } catch (err) {
       pushLog({ type: 'error', message: `Ping failed: ${String(err)}` });
     }
   };
 
   const handleDisconnect = async () => {
-    await closeMcpClient(url);
-    setConnected(false);
-    pushLog({ type: 'info', message: 'Disconnected.' });
+    if (!client) return;
+    
+    try {
+      await client.close();
+      setClient(null);
+      setConnected(false);
+      pushLog({ type: 'info', message: 'Disconnected.' });
+    } catch (err) {
+      pushLog({ type: 'error', message: `Disconnect error: ${String(err)}` });
+    }
   };
 
   const handleExecute = async (payload: any) => {
@@ -82,7 +131,7 @@ export default function McpDebugPanel() {
     } else {
       args = payload ?? {};
     }
-    if (!selectedTool) return;
+    if (!selectedTool || !client) return;
     const tool = toolsMap[selectedTool];
     if (!tool) return;
     try {
@@ -91,6 +140,36 @@ export default function McpDebugPanel() {
       pushLog({ type: 'info', message: `Result: ${safeStringify(res)}` });
     } catch (err) {
       pushLog({ type: 'error', message: `Execution error: ${String(err)}` });
+    }
+  };
+
+  const handleExecutePrompt = async (promptName: string) => {
+    if (!client) return;
+    try {
+      pushLog({ type: 'info', message: `Executing prompt ${promptName}` });
+      // Use the execute method if available on the prompt
+      const prompt = promptsMap[promptName];
+      if (prompt && prompt.execute) {
+        const result = await prompt.execute({});
+        pushLog({ type: 'info', message: `Prompt result: ${safeStringify(result)}` });
+      } else {
+        // Fallback to direct getPrompt call
+        const result = await client.getPrompt(promptName, {});
+        pushLog({ type: 'info', message: `Prompt result: ${safeStringify(result)}` });
+      }
+    } catch (err) {
+      pushLog({ type: 'error', message: `Prompt execution error: ${String(err)}` });
+    }
+  };
+
+  const handleReadResource = async (resourceUri: string) => {
+    if (!client) return;
+    try {
+      pushLog({ type: 'info', message: `Reading resource ${resourceUri}` });
+      const result = await client.readResource(resourceUri);
+      pushLog({ type: 'info', message: `Resource content: ${safeStringify(result)}` });
+    } catch (err) {
+      pushLog({ type: 'error', message: `Resource read error: ${String(err)}` });
     }
   };
 
@@ -129,7 +208,7 @@ export default function McpDebugPanel() {
       <div className="flex space-x-4">
         <div className="w-1/4">
           <h2 className="font-semibold mb-1">Tools</h2>
-          <ul className="border divide-y text-sm">
+          <ul className="border divide-y text-sm max-h-40 overflow-auto">
             {tools.map((t) => (
               <li
                 key={t}
@@ -137,6 +216,37 @@ export default function McpDebugPanel() {
                 onClick={() => setSelectedTool(t)}
               >
                 {t}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="w-1/4">
+          <h2 className="font-semibold mb-1">Prompts</h2>
+          <ul className="border divide-y text-sm max-h-40 overflow-auto">
+            {prompts.map((p) => (
+              <li key={p} className="px-2 py-1 flex justify-between items-center">
+                <span>{p}</span>
+                <button 
+                  className="text-xs bg-blue-500 text-white px-1 rounded"
+                  onClick={() => handleExecutePrompt(p)}
+                >
+                  Execute
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          <h2 className="font-semibold mb-1 mt-4">Resources</h2>
+          <ul className="border divide-y text-sm max-h-40 overflow-auto">
+            {resources.map((r) => (
+              <li key={r} className="px-2 py-1 break-words flex justify-between items-center">
+                <span className="truncate flex-1">{r}</span>
+                <button 
+                  className="text-xs bg-blue-500 text-white px-1 rounded ml-1 flex-shrink-0"
+                  onClick={() => handleReadResource(r)}
+                >
+                  Read
+                </button>
               </li>
             ))}
           </ul>
