@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { createNuwaMCPClient, NuwaMCPClient } from '../';
-import { McpTransportType } from '../services/factory';
+import { createNuwaMCPClient, NuwaMCPClient } from '@/features/mcp';
+import { McpTransportType } from '@/features/mcp';
 import Form from '@rjsf/core';
 import validator from '@rjsf/validator-ajv8';
 
