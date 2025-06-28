@@ -13,10 +13,9 @@ import type { Document } from '@/features/documents/stores';
 interface ArtifactViewerProps {
   chatId: string;
   status: UseChatHelpers['status'];
-  width?: number;
 }
 
-export function ArtifactViewer({ chatId, status, width }: ArtifactViewerProps) {
+export function ArtifactViewer({ chatId, status }: ArtifactViewerProps) {
   const {
     currentDocument: artifact,
     setCurrentDocument,
@@ -26,14 +25,13 @@ export function ArtifactViewer({ chatId, status, width }: ArtifactViewerProps) {
   const {
     documentsMap,
     getDocuments,
-    updateDocument: updateDocumentInStore,
+    updateDocumentContent,
   } = useDocuments();
 
   // Use document store instead of SWR
   const [versionedDocuments, setVersionedDocuments] = useState<Array<Document>>(
     [],
   );
-  const [isDocumentsFetching, setIsDocumentsFetching] = useState(false);
 
   useEffect(() => {
     if (artifact.documentId !== 'init' && artifact.status !== 'streaming') {
@@ -78,10 +76,7 @@ export function ArtifactViewer({ chatId, status, width }: ArtifactViewerProps) {
 
       if (document.content !== updatedContent) {
         // Update document in local store
-        updateDocumentInStore(artifact.documentId, {
-          content: updatedContent,
-          updatedAt: Date.now(),
-        });
+        updateDocumentContent(artifact.documentId, updatedContent);
 
         setIsContentDirty(false);
 
@@ -102,7 +97,7 @@ export function ArtifactViewer({ chatId, status, width }: ArtifactViewerProps) {
         });
       }
     },
-    [artifact, document, updateDocumentInStore],
+    [artifact, document, updateDocumentContent],
   );
 
   const debouncedHandleContentChange = useDebounceCallback(
@@ -188,7 +183,6 @@ export function ArtifactViewer({ chatId, status, width }: ArtifactViewerProps) {
     <div
       data-testid="artifact-viewer"
       className="dark:bg-muted bg-background h-dvh flex flex-col overflow-y-scroll md:border-r dark:border-zinc-700 border-zinc-200 transition-all duration-300 ease-in-out animate-fade-in"
-      style={{ width: width || 'calc(100dvw - 400px)' }}
     >
       <div className="p-2 flex flex-row justify-between items-start">
         <div className="flex flex-row gap-4 items-start">
@@ -243,7 +237,7 @@ export function ArtifactViewer({ chatId, status, width }: ArtifactViewerProps) {
           isInline={false}
           isCurrentVersion={isCurrentVersion}
           getDocumentContentById={getDocumentContentById}
-          isLoading={isDocumentsFetching && !artifact.content}
+          isLoading={!artifact.content}
           metadata={metadata}
           setMetadata={setMetadata}
         />

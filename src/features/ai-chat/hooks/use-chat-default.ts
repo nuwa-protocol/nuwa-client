@@ -8,7 +8,8 @@ import { useNavigate } from "react-router-dom";
 
 export const useChatDefault = (
   chatId: string,
-  initialMessages: UIMessage[]
+  initialMessages: UIMessage[],
+  handleOnResponse?: (response: any) => void
 ) => {
   const navigate = useNavigate();
   const handleUseChatError = (error: Error) => {
@@ -50,9 +51,7 @@ export const useChatDefault = (
       messages: body.messages,
     }),
     onError: handleUseChatError,
-    onResponse: () => {
-      navigate(`/chat?cid=${chatId}`);
-    },
+    onResponse: handleOnResponse,
   });
 
   return {

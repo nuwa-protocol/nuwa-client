@@ -210,10 +210,6 @@ export const en = {
         redo: 'Redo change',
         copy: 'Copy text',
       },
-      toolbar: {
-        polish: 'Polish writing',
-        suggestions: 'Writing suggestions',
-      },
       addPolish: 'Add final polish',
       requestSuggestions: 'Request suggestions',
       polishPrompt:
@@ -230,10 +226,6 @@ export const en = {
         undo: 'Undo change',
         redo: 'Redo change',
         copy: 'Copy code',
-      },
-      toolbar: {
-        comments: 'Add comments',
-        logs: 'Add logs',
       },
       run: 'Run',
       executeCode: 'Execute code',
@@ -257,11 +249,7 @@ export const en = {
         undo: 'Undo change',
         redo: 'Redo change',
         copy: 'Copy table as CSV',
-      },
-      toolbar: {
-        format: 'Format and clean data',
-        analyze: 'Analyze and visualize data',
-      },
+      }
     },
 
     image: {
@@ -296,7 +284,7 @@ export const en = {
       profile: {
         title: 'Profile',
         description: 'Manage your profile information',
-        subtitle: 'This is how others will see you on the site.',
+        subtitle: 'This is the information about your Nuwa assistant.',
       },
       placeholders: {
         title: 'Placeholders',
@@ -307,6 +295,10 @@ export const en = {
         title: 'System',
         description: 'System settings and maintenance',
         subtitle: 'Manage system-level settings and data.',
+      },
+      general: {
+        title: "General",
+        subtitle: "General application settings.",
       },
     },
     profile: {
@@ -359,6 +351,14 @@ export const en = {
           documents: 'Created documents and artifacts',
         },
       },
+      devMode: {
+        title: 'Developer Mode',
+        description: 'Enable or disable developer mode.'
+      },
+      language: {
+        title: 'Language',
+        description: 'Select your preferred language.'
+      }
     },
   },
 };

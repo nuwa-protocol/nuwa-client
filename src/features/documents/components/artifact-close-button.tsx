@@ -1,4 +1,4 @@
-import { CrossIcon } from "lucide-react";
+import { X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { memo } from "react";
 import { useCurrentDocument } from "@/features/documents/hooks/use-document-current";
@@ -18,7 +18,7 @@ function PureArtifactCloseButton({ chatId }: { chatId: string }) {
         closeCurrentDocument();
       }}
     >
-      <CrossIcon size={18} />
+      <X size={18} />
     </Button>
   );
 }

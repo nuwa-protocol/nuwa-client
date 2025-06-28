@@ -1,15 +1,14 @@
 'use client';
 
 import { useCallback } from 'react';
-import { DocumentStateStore, type Document } from '@/features/documents/stores';
+import { DocumentStateStore } from '@/features/documents/stores';
 import { useDocuments } from './use-documents';
 
 export const useDocument = (id: string) => {
   const store = DocumentStateStore();
   const {
-    updateDocument,
+    updateDocumentContent,
     deleteDocument,
-    setDocumentContent,
     addNewVersion,
     deleteAfterTimestamp,
   } = useDocuments();
@@ -18,17 +17,11 @@ export const useDocument = (id: string) => {
 
   return {
     document,
-    updateDocument: useCallback(
-      (updates: Partial<Omit<Document, 'id' | 'createdAt'>>) => {
-        updateDocument(id, updates);
-      },
-      [updateDocument, id],
-    ),
-    setContent: useCallback(
+    updateContent: useCallback(
       (content: string) => {
-        setDocumentContent(id, content);
+        updateDocumentContent(id, content);
       },
-      [setDocumentContent, id],
+      [updateDocumentContent, id],
     ),
     deleteDocument: useCallback(() => {
       deleteDocument(id);

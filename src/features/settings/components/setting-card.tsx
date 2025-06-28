@@ -150,6 +150,11 @@ export function SettingCard(props: SettingCardProps) {
       );
       break;
     case "info":
+      const MAX_INFO_LENGTH = 20;
+      const truncatedInfo =
+        props.info.length > MAX_INFO_LENGTH
+          ? props.info.slice(0, MAX_INFO_LENGTH) + "..."
+          : props.info;
       content = (
         <Tooltip>
           <TooltipTrigger asChild>
@@ -168,12 +173,10 @@ export function SettingCard(props: SettingCardProps) {
               }}
             >
               <CopyIcon size={14} />
-              <span>{props.info}</span>
+              <span>{truncatedInfo}</span>
             </Button>
           </TooltipTrigger>
-          {props.copyLabel && (
-            <TooltipContent>{props.copyLabel}</TooltipContent>
-          )}
+          <TooltipContent>{props.info}</TooltipContent>
         </Tooltip>
       );
       break;

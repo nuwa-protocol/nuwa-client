@@ -22,6 +22,7 @@ interface UserSettings {
   language: Locale;
   name: string;
   avatar: string | null;
+  devMode: boolean;
 }
 
 // settings interface
@@ -75,6 +76,7 @@ export const SettingsStateStore = create<SettingsState>()(
         language: "en",
         name: "",
         avatar: null,
+        devMode: false,
       },
       setSettings: (settings: UserSettings) => {
         set({ settings });
@@ -107,6 +109,7 @@ export const SettingsStateStore = create<SettingsState>()(
             language: "en",
             name: "",
             avatar: null,
+            devMode: false,
           },
           sidebarCollapsed: false,
           sidebarMode: "pinned",

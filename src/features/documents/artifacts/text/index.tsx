@@ -4,8 +4,6 @@ import { createRedoAction } from './actions/redo';
 import { createUndoAction } from './actions/undo';
 import { createVersionChangeAction } from './actions/version-change';
 import { TextContent } from './components/text-content';
-import { createPolishToolbarItem } from './toolbar/polish';
-import { createSuggestionsToolbarItem } from './toolbar/suggestions';
 
 export const createTextArtifact = () => {
   return new Artifact<'text'>({
@@ -19,7 +17,6 @@ export const createTextArtifact = () => {
       createRedoAction(),
       createCopyAction(),
     ],
-    toolbar: [createPolishToolbarItem(), createSuggestionsToolbarItem()],
   });
 };
 

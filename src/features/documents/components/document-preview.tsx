@@ -32,7 +32,6 @@ export function DocumentPreview({
   const { currentDocument: artifact, setCurrentDocument } =
     useCurrentDocument();
   const { getDocument } = useDocuments();
-  const navigate = useNavigate();
 
   // Use document store instead of SWR
   const documents = useMemo(() => {
@@ -119,7 +118,7 @@ const LoadingSkeleton = ({ artifactKind }: { artifactKind: ArtifactKind }) => (
         <div className="animate-pulse rounded-lg h-4 bg-muted-foreground/20 w-24" />
       </div>
       <div>
-        <FullscreenIcon />
+        <FullscreenIcon size={16} />
       </div>
     </div>
     {artifactKind === 'image' ? (

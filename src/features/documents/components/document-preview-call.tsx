@@ -1,11 +1,6 @@
 import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  FileIcon,
-  LoaderIcon,
-  MessageCircleIcon,
-  PencilIcon,
-} from 'lucide-react';
+import { FileIcon, LoaderIcon, PencilIcon } from 'lucide-react';
 
 import { toast } from '@/shared/components/toast';
 
@@ -69,11 +64,9 @@ function PureDocumentToolCall({
       <div className="flex flex-row gap-3 items-start">
         <div className="text-zinc-500 mt-1">
           {type === 'create' ? (
-            <FileIcon />
+            <FileIcon size={16} />
           ) : type === 'update' ? (
-            <PencilIcon />
-          ) : type === 'request-suggestions' ? (
-            <MessageCircleIcon />
+            <PencilIcon size={16} />
           ) : null}
         </div>
 

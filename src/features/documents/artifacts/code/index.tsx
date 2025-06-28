@@ -5,8 +5,6 @@ import { createRunCodeAction } from './actions/run-code';
 import { createUndoAction } from './actions/undo';
 import { createRedoAction } from './actions/redo';
 import { createCopyAction } from './actions/copy';
-import { createCommentsToolbarItem } from './toolbar/comments';
-import { createLogsToolbarItem } from './toolbar/logs';
 
 // export functions for external use
 export { generateCodeContent } from './generator';
@@ -29,8 +27,7 @@ export const createCodeArtifact = () => {
     createUndoAction(),
     createRedoAction(),
     createCopyAction(),
-  ],
-  toolbar: [createCommentsToolbarItem(), createLogsToolbarItem()],
+  ]
   });
 };
 

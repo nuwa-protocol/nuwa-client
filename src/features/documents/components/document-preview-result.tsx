@@ -1,4 +1,4 @@
-import { FileIcon, MessageCircleIcon, PencilIcon } from 'lucide-react';
+import { FileIcon, PencilIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { memo } from 'react';
 
@@ -73,12 +73,10 @@ function PureDocumentToolResult({
     >
       <div className="text-muted-foreground mt-1">
         {type === 'create' ? (
-          <FileIcon />
+          <FileIcon size={16} />
         ) : type === 'update' ? (
-          <PencilIcon />
-        ) : type === 'request-suggestions' ? (
-          <MessageCircleIcon />
-        ) : null}
+          <PencilIcon size={16} />
+        ) :  null}
       </div>
       <div className="text-left">
         {`${getActionText(type, 'past', t)} "${result.title}"`}

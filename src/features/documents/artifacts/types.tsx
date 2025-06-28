@@ -1,4 +1,3 @@
-import type { UseChatHelpers } from '@ai-sdk/react';
 import type { ComponentType, Dispatch, ReactNode, SetStateAction } from 'react';
 
 export type DataStreamDelta = {
@@ -33,15 +32,6 @@ export type ArtifactAction<M = any> = {
   isDisabled?: (context: ArtifactActionContext<M>) => boolean;
 };
 
-export type ArtifactToolbarContext = {
-  appendMessage: UseChatHelpers['append'];
-};
-
-export type ArtifactToolbarItem = {
-  description: string;
-  icon: ReactNode;
-  onClick: (context: ArtifactToolbarContext) => void;
-};
 
 export interface ArtifactContent<M = any> {
   title: string;
@@ -68,7 +58,6 @@ type ArtifactConfig<T extends string, M = any> = {
   description: string;
   content: ComponentType<ArtifactContent<M>>;
   actions: Array<ArtifactAction<M>>;
-  toolbar: ArtifactToolbarItem[];
   initialize?: (parameters: InitializeParameters<M>) => void;
 };
 
@@ -77,7 +66,6 @@ export class Artifact<T extends string, M = any> {
   readonly description: string;
   readonly content: ComponentType<ArtifactContent<M>>;
   readonly actions: Array<ArtifactAction<M>>;
-  readonly toolbar: ArtifactToolbarItem[];
   readonly initialize?: (parameters: InitializeParameters) => void;
 
   constructor(config: ArtifactConfig<T, M>) {
@@ -85,7 +73,6 @@ export class Artifact<T extends string, M = any> {
     this.description = config.description;
     this.content = config.content;
     this.actions = config.actions || [];
-    this.toolbar = config.toolbar || [];
     this.initialize = config.initialize || (async () => ({}));
   }
 }

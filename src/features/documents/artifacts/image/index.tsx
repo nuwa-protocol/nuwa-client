@@ -10,7 +10,6 @@ export const createImageArtifact = () => {
     description: 'Image artifact for displaying images',
   content: ImageContent,
     actions: [createUndoAction(), createRedoAction(), createCopyAction()],
-    toolbar: [],
   });
 };
 

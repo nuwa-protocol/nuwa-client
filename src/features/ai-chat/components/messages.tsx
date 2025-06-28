@@ -14,6 +14,7 @@ interface MessagesProps {
   setMessages: UseChatHelpers['setMessages'];
   reload: UseChatHelpers['reload'];
   isReadonly: boolean;
+  isArtifact: boolean;
 }
 
 function PureMessages({
@@ -23,6 +24,7 @@ function PureMessages({
   setMessages,
   reload,
   isReadonly,
+  isArtifact
 }: MessagesProps) {
   const {
     containerRef: messagesContainerRef,
@@ -40,7 +42,7 @@ function PureMessages({
       ref={messagesContainerRef}
       className="flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll pt-4 relative"
     >
-      {messages.length === 0 && <Greeting />}
+      {messages.length === 0 && !isArtifact && <Greeting />}
 
       {messages.map((message, index) => (
         <PreviewMessage
@@ -54,6 +56,7 @@ function PureMessages({
           requiresScrollPadding={
             hasSentMessage && index === messages.length - 1
           }
+          isArtifact={isArtifact}
         />
       ))}
 

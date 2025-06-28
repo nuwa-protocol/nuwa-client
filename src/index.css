@@ -104,18 +104,6 @@
   }
 }
 
-@layer base {
-  * {
-    /* 修复：使用原生 CSS 而不是 @apply */
-    border: 1px solid hsl(var(--border));
-  }
-
-  body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-  }
-}
-
 .skeleton {
   * {
     pointer-events: none !important;
@@ -202,4 +190,15 @@
 .hide-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
+}
+
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

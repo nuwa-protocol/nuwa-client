@@ -25,16 +25,15 @@ export const useDocuments = () => {
     [],
   );
 
-  // 更新文档（包含自动设置 updatedAt）
-  const updateDocument = useCallback(
-    (id: string, updates: Partial<Omit<Document, 'id' | 'createdAt'>>) => {
+  // 更新文档内容
+  const updateDocumentContent = useCallback(
+    (id: string, content: string) => {
       const existingDocument = store.getDocument(id);
       if (!existingDocument) return;
 
       const updatedDocument: Document = {
         ...existingDocument,
-        ...updates,
-        updatedAt: Date.now(),
+        content,
       };
 
       store.updateDocument(id, updatedDocument);
@@ -48,14 +47,6 @@ export const useDocuments = () => {
       store.deleteDocument(id);
     },
     [store],
-  );
-
-  // 设置文档内容
-  const setDocumentContent = useCallback(
-    (id: string, content: string) => {
-      updateDocument(id, { content });
-    },
-    [updateDocument],
   );
 
   // 添加新版本文档
@@ -107,9 +98,8 @@ export const useDocuments = () => {
     getDocuments: store.getDocuments,
     createDocument,
     createDocumentWithId,
-    updateDocument,
+    updateDocumentContent,
     deleteDocument,
-    setDocumentContent,
     addNewVersion,
     deleteAfterTimestamp,
     getSortedDocuments,

@@ -6,6 +6,7 @@ import { MultimodalInput } from './multimodal-input';
 import { Messages } from './messages';
 import Header from '@/layout/components/header';
 import { useChatDefault } from '@/features/ai-chat/hooks/use-chat-default';
+import { useNavigate } from 'react-router-dom';
 
 export function Chat({
   id,
@@ -16,6 +17,13 @@ export function Chat({
   initialMessages: Array<UIMessage>;
   isReadonly: boolean;
 }) {
+  const navigate = useNavigate();
+
+  const handleOnResponse = (response: any) => {
+    navigate(`/chat?cid=${id}`);
+  };
+
+
   const {
     messages,
     setMessages: setChatMessages,
@@ -26,7 +34,7 @@ export function Chat({
     status,
     stop,
     reload,
-  } = useChatDefault(id, initialMessages);
+  } = useChatDefault(id, initialMessages, handleOnResponse);
 
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
 
@@ -44,6 +52,7 @@ export function Chat({
           setMessages={setChatMessages}
           reload={reload}
           isReadonly={isReadonly}
+          isArtifact={false}
         />
 
         <form
