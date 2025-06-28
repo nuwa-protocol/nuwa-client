@@ -18,8 +18,7 @@ const router = createBrowserRouter([
           { index: true, element: <Navigate to="/chat" replace /> },
           { path: "artifact", element: <ArtifactPage /> },
           { path: "chat", element: <ChatPage /> },
-          // MCP Debug page – only enabled in development mode
-          ...(import.meta.env.DEV ? [{ path: "mcp-debug", element: <McpDebugPage /> }] : []),
+          { path: "mcp-debug", element: <McpDebugPage /> },
         ],
       },
       { path: "login", element: <LoginPage /> },
