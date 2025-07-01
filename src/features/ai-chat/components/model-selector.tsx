@@ -84,7 +84,7 @@ export const ModelSelector: React.FC = () => {
   }, [groupedModels, search]);
 
   if (loading) {
-    return <Skeleton className="h-10 w-full" />;
+    return <Skeleton className="h-8 w-32 bg-muted-foreground" />;
   }
 
   if (error) {
