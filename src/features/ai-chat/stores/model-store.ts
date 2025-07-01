@@ -14,9 +14,9 @@ export const DEFAULT_SELECTED_MODEL: Model = {
   model_slug: 'gpt-4o-mini',
   mode: 'chat',
   max: {
-    tokens: 16384,
-    input_tokens: 128000,
-    output_tokens: 16384,
+    totalTokens: 16384,
+    inputTokens: 128000,
+    outputTokens: 16384,
   },
   cost: {
     inputPerMillionTokens: 0.15,
