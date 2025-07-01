@@ -21,10 +21,15 @@ const PROVIDER_TABS = [
   'Free',
 ];
 
+const PROVIDER_GROUP_MAP: { [tab: string]: string[] } = {
+  OpenAI: ['openai'],
+  Anthropic: ['anthropic'],
+  Google: ['google'],
+  Meta: ['meta', 'llama'],
+};
+
 function isFreeModel(model: Model): boolean {
-  const { cost } = model;
-  if (!cost) return false;
-  return cost.input_cost_per_million_token === 0 && cost.output_cost_per_million_token === 0;
+  return model.name.includes('free');
 }
 
 export const ModelSelector: React.FC = () => {
@@ -58,9 +63,13 @@ export const ModelSelector: React.FC = () => {
         groups['Free'].push(model);
         continue;
       }
-      const provider = model.provider;
-      if (PROVIDER_TABS.includes(provider) && provider !== 'Free' && provider !== 'All' && provider !== 'Favorite') {
-        groups[provider].push(model);
+      let matched = false;
+      for (const tab of Object.keys(PROVIDER_GROUP_MAP)) {
+        if (PROVIDER_GROUP_MAP[tab].some(keyword => model.provider.toLowerCase().includes(keyword))) {
+          groups[tab].push(model);
+          matched = true;
+          break;
+        }
       }
     }
     return groups;

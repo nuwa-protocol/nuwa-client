@@ -19,8 +19,8 @@ export const DEFAULT_SELECTED_MODEL: Model = {
     output_tokens: 16384,
   },
   cost: {
-    input_cost_per_million_token: 0.15,
-    output_cost_per_million_token: 0.6,
+    inputPerMillionTokens: 0.15,
+    outputPerMillionTokens: 0.6,
   },
   supports: {
     system_messages: true,

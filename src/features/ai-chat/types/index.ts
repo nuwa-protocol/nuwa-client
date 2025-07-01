@@ -88,13 +88,13 @@ export interface Model {
   model_slug: string;
   mode: string;
   max: {
-    tokens: number | null;
-    input_tokens: number | null;
-    output_tokens: number | null;
+    totalTokens: number | null;
+    inputTokens: number | null;
+    outputTokens: number | null;
   };
   cost: {
-    input_cost_per_million_token: number | null;
-    output_cost_per_million_token: number | null;
+    inputPerMillionTokens: number | null;
+    outputPerMillionTokens: number | null;
   };
   supports: {
     system_messages: boolean | null;
