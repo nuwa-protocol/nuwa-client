@@ -158,7 +158,7 @@ export const ModelSelector: React.FC = () => {
                 )}
                 {filteredModels[provider]?.map((model) => (
                   <div
-                    key={model.name}
+                    key={model.id}
                     className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-accent transition-colors ${selectedModel?.name === model.name ? 'bg-accent' : ''}`}
                   >
                     <button
