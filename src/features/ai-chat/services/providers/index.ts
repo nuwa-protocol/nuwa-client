@@ -28,13 +28,13 @@ const createDynamicProvider = () => {
 
   return customProvider({
     languageModels: {
-      'chat-model': openai(selectedModel.name),
+      'chat-model': openai(selectedModel.id),
       'chat-model-reasoning': wrapLanguageModel({
         model: openai('gpt-4o-mini'),
         middleware: extractReasoningMiddleware({ tagName: 'think' }),
       }),
       'title-model': openai('gpt-4o-mini'),
-      'artifact-model': openai(selectedModel.name),
+      'artifact-model': openai(selectedModel.id),
     },
     imageModels: {
       'small-model': openai.image('gpt-4o-mini'),

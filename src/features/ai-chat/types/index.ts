@@ -83,6 +83,7 @@ export interface LitellmModelAPIResponse {
 }
 
 export interface Model {
+  id: string;
   name: string;
   provider: string;
   model_slug: string;

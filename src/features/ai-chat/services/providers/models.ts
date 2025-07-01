@@ -21,6 +21,7 @@ function mapLitellmResponseToModels(
     }
 
     return {
+      id: item.model_name,
       name,
       provider,
       model_slug: item.model_info.id,
