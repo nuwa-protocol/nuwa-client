@@ -1,22 +1,20 @@
+import { createOpenAI } from '@ai-sdk/openai';
 import {
   customProvider,
   extractReasoningMiddleware,
   wrapLanguageModel,
 } from 'ai';
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-import { createOpenAI } from '@ai-sdk/openai';
-
-import { createAuthorizedFetch } from './fetch';
 import { ModelStateStore } from '../../stores/model-store';
+import { createAuthorizedFetch } from './fetch';
 
 // Base URL of Nuwa LLM Gateway
 const BASE_URL = 'https://test-llm.nuwa.dev/api/v1';
 
-const openrouter = createOpenRouter({
-  apiKey: 'NOT_USED',
-  baseURL: BASE_URL,
-  fetch: createAuthorizedFetch(),
-});
+// const openrouter = createOpenRouter({
+//   apiKey: 'NOT_USED',
+//   baseURL: BASE_URL,
+//   fetch: createAuthorizedFetch(),
+// });
 
 const openai = createOpenAI({
   apiKey: 'NOT_USED',
@@ -27,24 +25,22 @@ const openai = createOpenAI({
 // Function to create provider with current selected model
 const createDynamicProvider = () => {
   const selectedModel = ModelStateStore.getState().selectedModel;
-  
+
   return customProvider({
     languageModels: {
-      'chat-model': openrouter(selectedModel.id),
+      'chat-model': openai(selectedModel.name),
       'chat-model-reasoning': wrapLanguageModel({
-        model: openrouter('gpt-4o-mini'),
+        model: openai('gpt-4o-mini'),
         middleware: extractReasoningMiddleware({ tagName: 'think' }),
       }),
-      'title-model': openrouter('gpt-4o-mini'),
-      'artifact-model': openrouter(selectedModel.id),
+      'title-model': openai('gpt-4o-mini'),
+      'artifact-model': openai(selectedModel.name),
     },
     imageModels: {
       'small-model': openai.image('gpt-4o-mini'),
     },
   });
 };
-
-
 
 // Export a provider that dynamically resolves models
 export const myProvider = {

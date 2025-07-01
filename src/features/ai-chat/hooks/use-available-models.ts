@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { fetchAvailableModels } from '../services/providers/models';
-import type { OpenRouterModelsResponse, OpenRouterModel } from '../types';
+import type { Model } from '../types';
 
 export function useAvailableModels() {
-  const [models, setModels] = useState<OpenRouterModel[] | null>(null);
+  const [models, setModels] = useState<Model[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -12,9 +12,9 @@ export function useAvailableModels() {
     setLoading(true);
     setError(null);
     fetchAvailableModels()
-      .then((data: OpenRouterModelsResponse) => {
+      .then((data: Model[]) => {
         if (isMounted) {
-          setModels(data.data);
+          setModels(data);
           setLoading(false);
         }
       })
@@ -34,4 +34,4 @@ export function useAvailableModels() {
     loading,
     error,
   };
-} 
+}

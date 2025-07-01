@@ -3,25 +3,25 @@ import {
   type Message,
   smoothStream,
   streamText,
-} from "ai";
-import { ChatStateStore } from "@/features/ai-chat/stores/chat-store";
-import { ModelStateStore } from "@/features/ai-chat/stores/model-store";
-import { generateUUID } from "@/shared/utils";
-import { systemPrompt } from "../prompts";
-import { myProvider } from "../providers";
-import { createDocument } from "../tools/create-document";
-import { updateDocument } from "../tools/update-document";
+} from 'ai';
+import { ChatStateStore } from '@/features/ai-chat/stores/chat-store';
+import { ModelStateStore } from '@/features/ai-chat/stores/model-store';
+import { generateUUID } from '@/shared/utils';
+import { systemPrompt } from '../prompts';
+import { myProvider } from '../providers';
+import { createDocument } from '../tools/create-document';
+import { updateDocument } from '../tools/update-document';
 
 // Default model to use
-const DEFAULT_CHAT_MODEL = "chat-model";
+const DEFAULT_CHAT_MODEL = 'chat-model';
 
 // Error handling function
 function errorHandler(error: unknown) {
   if (error == null) {
-    return "unknown error";
+    return 'unknown error';
   }
 
-  if (typeof error === "string") {
+  if (typeof error === 'string') {
     return error;
   }
 
@@ -42,8 +42,7 @@ const handleAIRequest = async ({
   messages: Message[];
   signal?: AbortSignal;
 }) => {
-  const { updateMessages, createStreamId } =
-    ChatStateStore.getState();
+  const { updateMessages, createStreamId } = ChatStateStore.getState();
 
   await updateMessages(sessionId, messages);
 
@@ -59,11 +58,10 @@ const handleAIRequest = async ({
     system: systemPrompt(),
     messages,
     maxSteps: 5,
-    experimental_activeTools: selectedModel.supported_parameters.includes("tools") ? [
-      "createDocument",
-      "updateDocument",
-    ]:[],
-    experimental_transform: smoothStream({ chunking: "word" }),
+    experimental_activeTools: selectedModel.supports.function_calling
+      ? ['createDocument', 'updateDocument']
+      : [],
+    experimental_transform: smoothStream({ chunking: 'word' }),
     experimental_generateMessageId: generateUUID,
     tools: {
       createDocument: createDocument(),

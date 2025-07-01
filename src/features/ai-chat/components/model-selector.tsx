@@ -1,14 +1,15 @@
-import React, { useState, useMemo } from 'react';
-import { useAvailableModels, useSelectedModel } from '../hooks';
-import { useFavoriteModels } from '../hooks/use-favorite-models';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from '@/shared/components/ui/dialog';
+import { StarIcon } from 'lucide-react';
+import type React from 'react';
+import { useMemo, useState } from 'react';
+import { Button } from '@/shared/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
 import { Skeleton } from '@/shared/components/ui/skeleton';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/shared/components/ui/tabs';
-import { Button } from '@/shared/components/ui/button';
-import { StarIcon } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import { useAvailableModels, useSelectedModel } from '../hooks';
+import { useFavoriteModels } from '../hooks/use-favorite-models';
+import type { Model } from '../types';
 import { ModelAvatar } from './model-avatar';
-import type { OpenRouterModel } from '../types';
 
 const PROVIDER_TABS = [
   'Favorite',
@@ -20,27 +21,10 @@ const PROVIDER_TABS = [
   'Free',
 ];
 
-function isFreeModel(model: OpenRouterModel): boolean {
-  const { pricing } = model;
-  if (!pricing) return false;
-  return [
-    pricing.prompt,
-    pricing.completion,
-    pricing.image,
-    pricing.request,
-    pricing.web_search,
-    pricing.internal_reasoning,
-  ].every((v) => v === '0');
-}
-
-function getProviderName(model: OpenRouterModel): string {
-  const match = model.name.match(/^(.*?):/);
-  return match ? match[1].trim() : 'Others';
-}
-
-function getModelName(model: OpenRouterModel): string {
-  const match = model.name.match(/^.*?:\s*(.*)$/);
-  return match ? match[1].trim() : model.name;
+function isFreeModel(model: Model): boolean {
+  const { cost } = model;
+  if (!cost) return false;
+  return cost.input_cost_per_million_token === 0 && cost.output_cost_per_million_token === 0;
 }
 
 export const ModelSelector: React.FC = () => {
@@ -51,16 +35,16 @@ export const ModelSelector: React.FC = () => {
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState('Favorite');
 
-  // Find the current selected OpenRouterModel based on selectedModel.id
+  // Find the current selected Model based on selectedModel.id
   const currentModel = useMemo(() => {
     if (!selectedModel || !models) return null;
-    return models.find(m => m.id === selectedModel.id) || null;
+    return models.find(m => m.name === selectedModel.name) || null;
   }, [selectedModel, models]);
 
   // Group models by provider, with Free logic
   const groupedModels = useMemo(() => {
     if (!models) return {};
-    const groups: Record<string, OpenRouterModel[]> = {
+    const groups: Record<string, Model[]> = {
       Favorite: favoriteModels,
       All: [...models],
       OpenAI: [],
@@ -74,7 +58,7 @@ export const ModelSelector: React.FC = () => {
         groups['Free'].push(model);
         continue;
       }
-      const provider = getProviderName(model);
+      const provider = model.provider;
       if (PROVIDER_TABS.includes(provider) && provider !== 'Free' && provider !== 'All' && provider !== 'Favorite') {
         groups[provider].push(model);
       }
@@ -86,13 +70,14 @@ export const ModelSelector: React.FC = () => {
   const filteredModels = useMemo(() => {
     if (!models) return {};
     const s = search.toLowerCase();
-    const filtered: Record<string, OpenRouterModel[]> = {};
+    const filtered: Record<string, Model[]> = {};
     for (const provider of PROVIDER_TABS) {
       filtered[provider] = (groupedModels[provider] || []).filter(
         (m) =>
-          getModelName(m).toLowerCase().includes(s) ||
-          getProviderName(m).toLowerCase().includes(s) ||
-          m.id.toLowerCase().includes(s)
+          m.name.toLowerCase().includes(s) ||
+          m.provider.toLowerCase().includes(s) ||
+          m.name.toLowerCase().includes(s) ||
+          m.model_slug.toLowerCase().includes(s)
       );
     }
     return filtered;
@@ -125,7 +110,7 @@ export const ModelSelector: React.FC = () => {
             <>
               <ModelAvatar model={currentModel} size="sm" />
               <span className="truncate max-w-[100px] text-sm">
-                {getModelName(selectedModel)}
+                {currentModel.name}
               </span>
             </>
           ) : (
@@ -159,13 +144,13 @@ export const ModelSelector: React.FC = () => {
           {PROVIDER_TABS.map((provider) => (
             <TabsContent key={provider} value={provider} >
               <div className="h-[400px] overflow-y-auto space-y-2 hide-scrollbar">
-                {filteredModels[provider] && filteredModels[provider].length === 0 && (
+                {filteredModels[provider]?.length === 0 && (
                   <div className="text-center text-muted-foreground py-8">No models found</div>
                 )}
-                {filteredModels[provider] && filteredModels[provider].map((model) => (
+                {filteredModels[provider]?.map((model) => (
                   <div
-                    key={model.id}
-                    className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-accent transition-colors ${selectedModel?.id === model.id ? 'bg-accent' : ''}`}
+                    key={model.name}
+                    className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-accent transition-colors ${selectedModel?.name === model.name ? 'bg-accent' : ''}`}
                   >
                     <button
                       className="flex items-center gap-3 flex-1"
@@ -177,8 +162,8 @@ export const ModelSelector: React.FC = () => {
                     >
                       <ModelAvatar model={model} size="md" />
                       <div className="flex flex-col items-start">
-                        <span className="font-medium text-base">{getModelName(model)}</span>
-                        <span className="text-xs text-muted-foreground">{getProviderName(model)}</span>
+                        <span className="font-medium text-base">{model.name}</span>
+                        <span className="text-xs text-muted-foreground">{model.provider}</span>
                       </div>
                     </button>
                     <Button
@@ -191,7 +176,7 @@ export const ModelSelector: React.FC = () => {
                       className="p-1 h-8 w-8"
                     >
                       <StarIcon
-                        className={`w-4 h-4 ${isFavorite(model.id) ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`}
+                        className={`w-4 h-4 ${isFavorite(model.name) ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`}
                       />
                     </Button>
                   </div>
