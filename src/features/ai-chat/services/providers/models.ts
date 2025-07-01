@@ -12,8 +12,8 @@ function mapLitellmResponseToModels(
     let provider: string = item.model_info.litellm_provider;
     if (item.model_name.includes('/')) {
       if (item.model_name.split('/').length === 3) {
-        name = `${item.model_name.split('/')[2]} (${item.model_name.split('/')[0]})`;
-        provider = item.model_name.split('/')[1];
+        name = `${item.model_name.split('/')[2]}`;
+        provider = `${item.model_name.split('/')[1]} (${item.model_name.split('/')[0]})`;
       } else if (item.model_name.split('/').length === 2) {
         name = item.model_name.split('/')[1];
         provider = item.model_name.split('/')[0];
