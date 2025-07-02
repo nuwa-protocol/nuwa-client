@@ -9,7 +9,7 @@ import type { Model } from '../types';
 
 // default selected model
 export const DEFAULT_SELECTED_MODEL: Model = {
-  id: 'gpt-4o-mini',
+  id: 'openai/gpt-4o-mini',
   name: 'gpt-4o-mini',
   provider: 'openai',
   model_slug: 'gpt-4o-mini',

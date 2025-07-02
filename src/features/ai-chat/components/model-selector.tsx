@@ -84,9 +84,7 @@ export const ModelSelector: React.FC = () => {
       filtered[provider] = (groupedModels[provider] || []).filter(
         (m) =>
           m.name.toLowerCase().includes(s) ||
-          m.provider.toLowerCase().includes(s) ||
-          m.name.toLowerCase().includes(s) ||
-          m.model_slug.toLowerCase().includes(s)
+          m.provider.toLowerCase().includes(s)
       );
     }
     return filtered;
@@ -127,7 +125,7 @@ export const ModelSelector: React.FC = () => {
           )}
         </button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl" aria-describedby="model-selector-dialog">
         <DialogHeader className="sr-only">
           <DialogTitle>Select a Model</DialogTitle>
         </DialogHeader>
@@ -158,7 +156,7 @@ export const ModelSelector: React.FC = () => {
                 )}
                 {filteredModels[provider]?.map((model) => (
                   <div
-                    key={model.id}
+                    key={model.provider + model.name}
                     className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-accent transition-colors ${selectedModel?.name === model.name ? 'bg-accent' : ''}`}
                   >
                     <button

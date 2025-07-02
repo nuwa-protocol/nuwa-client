@@ -12,9 +12,6 @@ import { myProvider } from '../providers';
 import { createDocument } from '../tools/create-document';
 import { updateDocument } from '../tools/update-document';
 
-// Default model to use
-const DEFAULT_CHAT_MODEL = 'chat-model';
-
 // Error handling function
 function errorHandler(error: unknown) {
   if (error == null) {
@@ -54,7 +51,7 @@ const handleAIRequest = async ({
   const selectedModel = ModelStateStore.getState().selectedModel;
 
   const result = streamText({
-    model: myProvider.languageModel(DEFAULT_CHAT_MODEL),
+    model: myProvider.languageModel('chat-model'),
     system: systemPrompt(),
     messages,
     maxSteps: 5,
@@ -80,6 +77,8 @@ const handleAIRequest = async ({
 
   const dataStreamResponse = result.toDataStreamResponse({
     getErrorMessage: errorHandler,
+    sendReasoning: selectedModel.supports.reasoning ?? false,
+    sendSources: selectedModel.supports.web_search ?? false,
   });
 
   return dataStreamResponse;

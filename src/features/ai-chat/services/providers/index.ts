@@ -1,55 +1,25 @@
-import { createOpenAI } from '@ai-sdk/openai';
-import {
-  customProvider,
-  extractReasoningMiddleware,
-  wrapLanguageModel,
-} from 'ai';
 import { ModelStateStore } from '../../stores/model-store';
-import { createAuthorizedFetch } from './fetch';
+import { providerRegistry } from './provider';
 
-// Base URL of Nuwa LLM Gateway
-const BASE_URL = 'https://test-llm.nuwa.dev/api/v1';
-
-// const openrouter = createOpenRouter({
-//   apiKey: 'NOT_USED',
-//   baseURL: BASE_URL,
-//   fetch: createAuthorizedFetch(),
-// });
-
-const openai = createOpenAI({
-  apiKey: 'NOT_USED',
-  baseURL: BASE_URL,
-  fetch: createAuthorizedFetch(),
-});
-
-// Function to create provider with current selected model
-const createDynamicProvider = () => {
-  const selectedModel = ModelStateStore.getState().selectedModel;
-
-  return customProvider({
-    languageModels: {
-      'chat-model': openai(selectedModel.id),
-      'chat-model-reasoning': wrapLanguageModel({
-        model: openai('gpt-4o-mini'),
-        middleware: extractReasoningMiddleware({ tagName: 'think' }),
-      }),
-      'title-model': openai('gpt-4o-mini'),
-      'artifact-model': openai(selectedModel.id),
-    },
-    imageModels: {
-      'small-model': openai.image('gpt-4o-mini'),
-    },
-  });
-};
+export type ModelType = 'title-model' | 'artifact-model' | 'chat-model';
 
 // Export a provider that dynamically resolves models
 export const myProvider = {
-  languageModel: (modelName: string) => {
-    const provider = createDynamicProvider();
-    return provider.languageModel(modelName);
+  languageModel: (modelType: ModelType) => {
+    const selectedModel = ModelStateStore.getState().selectedModel;
+    switch (modelType) {
+      case 'title-model':
+        return providerRegistry.languageModel('openai>gpt-4o-mini');
+      case 'artifact-model':
+        return providerRegistry.languageModel(selectedModel.id);
+      case 'chat-model':
+        return providerRegistry.languageModel(selectedModel.id);
+      default:
+        return providerRegistry.languageModel(selectedModel.id);
+    }
   },
-  imageModel: (modelName: string) => {
-    const provider = createDynamicProvider();
-    return provider.imageModel(modelName);
+  imageModel: () => {
+    const selectedModel = ModelStateStore.getState().selectedModel;
+    return providerRegistry.imageModel(selectedModel.id);
   },
 };
