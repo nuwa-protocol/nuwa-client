@@ -1,24 +1,24 @@
 'use client';
 
-import type { UIMessage } from 'ai';
 import type { UseChatHelpers } from '@ai-sdk/react';
+import type { UIMessage } from 'ai';
 import cx from 'classnames';
+import equal from 'fast-deep-equal';
 import { AnimatePresence, motion } from 'framer-motion';
+import { PencilIcon, SparklesIcon } from 'lucide-react';
 import { memo, useState } from 'react';
+import { DocumentPreview } from '@/features/documents/components/document-preview';
 import { DocumentToolCall } from '@/features/documents/components/document-preview-call';
 import { DocumentToolResult } from '@/features/documents/components/document-preview-result';
-import { PencilIcon, SparklesIcon } from 'lucide-react';
-import { Markdown } from './markdown';
-import { MessageActions } from './message-actions';
-import { PreviewAttachment } from './preview-attachment';
-import { Weather } from './weather';
-import equal from 'fast-deep-equal';
-import { cn, sanitizeText } from '@/shared/utils';
 import { Button } from '@/shared/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip';
+import { cn, sanitizeText } from '@/shared/utils';
+import { Markdown } from './markdown';
+import { MessageActions } from './message-actions';
 import { MessageEditor } from './message-editor';
-import { DocumentPreview } from '@/features/documents/components/document-preview';
 import { MessageReasoning } from './message-reasoning';
+import { PreviewAttachment } from './preview-attachment';
+import { Weather } from './weather';
 
 const PurePreviewMessage = ({
   chatId,
@@ -98,6 +98,14 @@ const PurePreviewMessage = ({
                     isLoading={isLoading}
                     reasoning={part.reasoning}
                   />
+                );
+              }
+
+              if (type === 'source') {
+                return (
+                  <div key={key}>
+                    <span>Source: {part.source.url}</span>
+                  </div>
                 );
               }
 

@@ -65,7 +65,8 @@ const handleAIRequest = async ({
       updateDocument: updateDocument(),
     },
     abortSignal: signal,
-    async onFinish({ response }) {
+    async onFinish({ response, reasoning, sources }) {
+      // todo: need to add sources to the response messages
       const finalMessages = appendResponseMessages({
         messages: messages,
         responseMessages: response.messages,
