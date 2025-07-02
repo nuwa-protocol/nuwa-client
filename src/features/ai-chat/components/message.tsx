@@ -104,7 +104,7 @@ const PurePreviewMessage = ({
               if (type === 'source') {
                 return (
                   <div key={key}>
-                    <span>Source: {part.source.url}</span>
+                    <span>Source{`[${part.source.id}]`}: {part.source.url}</span>
                   </div>
                 );
               }
