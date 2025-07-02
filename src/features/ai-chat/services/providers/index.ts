@@ -2,7 +2,8 @@ import { ModelStateStore } from '../../stores/model-store';
 import { createAuthorizedFetch } from './fetch';
 import { createLitellm } from './litellm-provider';
 
-export type ModelType = 'title-model' | 'artifact-model' | 'chat-model';
+export type LanguageModelType = 'title-model' | 'artifact-model' | 'chat-model';
+
 const BASE_URL = 'https://test-llm.nuwa.dev/api/v1';
 
 const litellmProvider = createLitellm({
@@ -13,7 +14,7 @@ const litellmProvider = createLitellm({
 
 // Export a provider that dynamically resolves models
 export const myProvider = {
-  languageModel: (modelType: ModelType) => {
+  languageModel: (modelType: LanguageModelType) => {
     const selectedModel = ModelStateStore.getState().selectedModel;
 
     switch (modelType) {
@@ -27,7 +28,7 @@ export const myProvider = {
         return litellmProvider(selectedModel.name);
     }
   },
-  imageModel: () => {
+  imageModel: (modelType: string) => {
     const selectedModel = ModelStateStore.getState().selectedModel;
     return litellmProvider.imageModel(selectedModel.name);
   },

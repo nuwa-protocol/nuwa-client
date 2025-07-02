@@ -1,24 +1,16 @@
 // This file is kept for potential future model functionality
 // Currently no model selection is needed
 
-import type {
-  AvailableProviders,
-  LitellmModelAPIResponse,
-  Model,
-} from '../../types';
+import type { LitellmModelAPIResponse, Model } from '../../types';
 import { createAuthorizedFetch } from './fetch';
 
 function mapLitellmResponseToModels(
   response: LitellmModelAPIResponse,
 ): Model[] {
   return response.data.map((item) => {
-    const name = item.model_name;
-    const provider = item.litellm_params.custom_llm_provider;
-    const id = `${provider}>${name}` as `${AvailableProviders}>${string}`;
     return {
-      id,
-      name,
-      provider,
+      name: item.model_name,
+      provider: item.litellm_params.custom_llm_provider,
       model_slug: item.model_info.id,
       mode: item.model_info.mode,
       max: {

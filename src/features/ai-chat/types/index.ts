@@ -82,10 +82,7 @@ export interface LitellmModelAPIResponse {
   }>;
 }
 
-export type AvailableProviders = 'openai' | 'openrouter' | 'perplexity';
-
 export interface Model {
-  id: `${AvailableProviders}>${string}`;
   name: string;
   provider: string;
   model_slug: string;

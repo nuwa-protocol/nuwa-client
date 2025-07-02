@@ -1,5 +1,5 @@
-import { myProvider } from '@/features/ai-chat/services';
 import { experimental_generateImage } from 'ai';
+import { myProvider } from '@/features/ai-chat/services';
 
 export async function generateImageContent(
   title: string,
