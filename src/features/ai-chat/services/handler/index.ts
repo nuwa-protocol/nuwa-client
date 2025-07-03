@@ -55,9 +55,11 @@ const handleAIRequest = async ({
     system: systemPrompt(),
     messages,
     maxSteps: 5,
-    experimental_activeTools: selectedModel.supports.function_calling
-      ? ['createDocument', 'updateDocument']
-      : [],
+    experimental_activeTools:
+      selectedModel.supports.function_calling &&
+      !selectedModel.supports.web_search
+        ? ['createDocument', 'updateDocument']
+        : [],
     experimental_transform: smoothStream({ chunking: 'word' }),
     experimental_generateMessageId: generateUUID,
     tools: {
@@ -76,10 +78,11 @@ const handleAIRequest = async ({
     },
   });
 
+  console.log(selectedModel);
   const dataStreamResponse = result.toDataStreamResponse({
     getErrorMessage: errorHandler,
-    sendReasoning: selectedModel.supports.reasoning ?? false,
-    sendSources: selectedModel.supports.web_search ?? false,
+    sendReasoning: true,
+    sendSources: true,
   });
 
   return dataStreamResponse;

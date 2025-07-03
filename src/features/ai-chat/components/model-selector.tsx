@@ -1,6 +1,5 @@
 import { StarIcon } from 'lucide-react';
-import type React from 'react';
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Button } from '@/shared/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
@@ -21,15 +20,24 @@ const PROVIDER_TABS = [
   'Free',
 ];
 
-const PROVIDER_GROUP_MAP: { [tab: string]: string[] } = {
-  OpenAI: ['openai'],
-  Anthropic: ['anthropic'],
-  Google: ['google'],
-  Meta: ['meta', 'llama'],
-};
-
 function isFreeModel(model: Model): boolean {
-  return model.name.includes('free');
+  return model.provider === 'openrouter' && model.name.includes(':free');
+}
+
+function getProviderName(model: Model): string {
+  if (model.provider === 'openrouter')
+    return model.name.split('/')[0];
+  return model.provider;
+}
+
+function getModelName(model: Model): string {
+  if (model.provider === 'openrouter') {
+    const name = model.name.split('/')[1];
+    if (name.includes(':free'))
+      return name.split(':')[0];
+    return name;
+  }
+  return model.name;
 }
 
 export const ModelSelector: React.FC = () => {
@@ -63,13 +71,9 @@ export const ModelSelector: React.FC = () => {
         groups['Free'].push(model);
         continue;
       }
-      let matched = false;
-      for (const tab of Object.keys(PROVIDER_GROUP_MAP)) {
-        if (PROVIDER_GROUP_MAP[tab].some(keyword => model.provider.toLowerCase().includes(keyword))) {
-          groups[tab].push(model);
-          matched = true;
-          break;
-        }
+      const provider = getProviderName(model);
+      if (PROVIDER_TABS.includes(provider) && provider !== 'Free' && provider !== 'All' && provider !== 'Favorite') {
+        groups[provider].push(model);
       }
     }
     return groups;
@@ -83,15 +87,15 @@ export const ModelSelector: React.FC = () => {
     for (const provider of PROVIDER_TABS) {
       filtered[provider] = (groupedModels[provider] || []).filter(
         (m) =>
-          m.name.toLowerCase().includes(s) ||
-          m.provider.toLowerCase().includes(s)
+          getModelName(m).toLowerCase().includes(s) ||
+          getProviderName(m).toLowerCase().includes(s)
       );
     }
     return filtered;
   }, [groupedModels, search]);
 
   if (loading) {
-    return <Skeleton className="h-8 w-32 bg-muted-foreground" />;
+    return <Skeleton className="h-10 w-full" />;
   }
 
   if (error) {
@@ -115,9 +119,9 @@ export const ModelSelector: React.FC = () => {
         >
           {selectedModel && currentModel ? (
             <>
-              <ModelAvatar model={currentModel} size="sm" />
+              <ModelAvatar provider={getProviderName(currentModel)} size="sm" />
               <span className="truncate max-w-[100px] text-sm">
-                {currentModel.name}
+                {getModelName(selectedModel)}
               </span>
             </>
           ) : (
@@ -125,7 +129,7 @@ export const ModelSelector: React.FC = () => {
           )}
         </button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl" aria-describedby="model-selector-dialog">
+      <DialogContent className="max-w-2xl">
         <DialogHeader className="sr-only">
           <DialogTitle>Select a Model</DialogTitle>
         </DialogHeader>
@@ -151,12 +155,12 @@ export const ModelSelector: React.FC = () => {
           {PROVIDER_TABS.map((provider) => (
             <TabsContent key={provider} value={provider} >
               <div className="h-[400px] overflow-y-auto space-y-2 hide-scrollbar">
-                {filteredModels[provider]?.length === 0 && (
+                {filteredModels[provider] && filteredModels[provider].length === 0 && (
                   <div className="text-center text-muted-foreground py-8">No models found</div>
                 )}
                 {filteredModels[provider]?.map((model) => (
                   <div
-                    key={model.provider + model.name}
+                    key={model.name}
                     className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-accent transition-colors ${selectedModel?.name === model.name ? 'bg-accent' : ''}`}
                   >
                     <button
@@ -167,10 +171,10 @@ export const ModelSelector: React.FC = () => {
                       }}
                       type="button"
                     >
-                      <ModelAvatar model={model} size="md" />
+                      <ModelAvatar provider={getProviderName(model)} size="md" />
                       <div className="flex flex-col items-start">
-                        <span className="font-medium text-base">{model.name}</span>
-                        <span className="text-xs text-muted-foreground">{model.provider}</span>
+                        <span className="font-medium text-base">{getModelName(model)}</span>
+                        <span className="text-xs text-muted-foreground">{getProviderName(model)}</span>
                       </div>
                     </button>
                     <Button

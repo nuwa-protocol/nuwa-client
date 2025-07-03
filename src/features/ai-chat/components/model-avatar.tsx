@@ -2,10 +2,9 @@ import { BotIcon } from 'lucide-react';
 import React from 'react';
 import { Img } from 'react-image';
 import { useTheme } from '@/shared/components/theme-provider';
-import type { Model } from '../types';
 
 interface ModelAvatarProps {
-  model: Model;
+  provider: string;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
 }
@@ -25,13 +24,13 @@ const iconSizeMap = {
 
 
 export const ModelAvatar: React.FC<ModelAvatarProps> = ({
-  model,
+  provider,
   size = 'md',
   className = ''
 }) => {
 
   const { resolvedTheme } = useTheme();
-  const iconSlug = model.provider;
+  const iconSlug = provider;
   const iconSrc = `https://unpkg.com/@lobehub/icons-static-webp@latest/${resolvedTheme}/${iconSlug}-color.webp`
   const iconSrcBw = `https://unpkg.com/@lobehub/icons-static-webp@latest/${resolvedTheme}/${iconSlug}.webp`
   return (
