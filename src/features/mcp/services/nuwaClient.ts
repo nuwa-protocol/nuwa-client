@@ -2,10 +2,11 @@ import { experimental_createMCPClient as createMCPClient } from "ai";
 import { MCPError, NuwaMCPClient, PromptDefinition, PromptMessagesResultSchema, PromptSchema, ResourceDefinition, ResourceSchema, ResourceTemplateDefinition, ResourceTemplateSchema } from "../types";
 import { z } from "zod";
 import { McpTransportType } from "../types";
-import { IdentityKitWeb } from "@nuwa-ai/identity-kit-web";
-import { DIDAuth } from "@nuwa-ai/identity-kit";
+import { createDidAuthSigner, SignedSSEClientTransport } from "./authTransport";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+import { IdentityKitWeb } from "@nuwa-ai/identity-kit-web";
+import { DIDAuth } from "@nuwa-ai/identity-kit";
 
 /**
  * Cached MCP client instances keyed by server URL.
@@ -35,10 +36,30 @@ export async function createNuwaMCPClient(
   // Create a new client promise
   const promise = (async () => {
     // 1. Prepare DIDAuth header (one-time per connection)
-    const authHeader = await createDidAuthHeader(url);
+    const signer = await createDidAuthSigner(url);
+    const initialHeader = await signer({});
 
-    // 2. Resolve transport (auto-detect or use specified type)
-    const finalTransport = await resolveTransport(url, authHeader, transportType);
+    const buildTransport = async (): Promise<any> => {
+      if (transportType === 'httpStream') {
+        return new StreamableHTTPClientTransport(new URL(url), {
+          requestInit: { headers: { Authorization: initialHeader } },
+        } as any);
+      }
+      if (transportType === 'sse') {
+        return new SignedSSEClientTransport(new URL(url), signer, initialHeader);
+      }
+      // auto-detect
+      try {
+        await fetch(url, { method: 'HEAD', headers: { Authorization: initialHeader } });
+        return new StreamableHTTPClientTransport(new URL(url), {
+          requestInit: { headers: { Authorization: initialHeader } },
+        } as any);
+      } catch {
+        return new SignedSSEClientTransport(new URL(url), signer, initialHeader);
+      }
+    };
+
+    const finalTransport = await buildTransport();
 
     // 3. Create the base client instance
     const rawClient = await createMCPClient({ transport: finalTransport });

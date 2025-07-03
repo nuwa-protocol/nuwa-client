@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { createNuwaMCPClient, NuwaMCPClient } from '@/features/mcp';
+import { createNuwaMCPClient, NuwaMCPClient, closeNuwaMCPClient } from '@/features/mcp';
 import { McpTransportType } from '@/features/mcp';
 import Form from '@rjsf/core';
 import validator from '@rjsf/validator-ajv8';
@@ -82,6 +82,8 @@ export default function McpDebugPanel() {
       }
     } catch (err) {
       pushLog({ type: 'error', message: String(err) });
+      // close the client to clear the cache
+      await closeNuwaMCPClient(url);
     }
   };
 
