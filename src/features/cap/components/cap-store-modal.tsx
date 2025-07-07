@@ -80,6 +80,7 @@ export function CapStoreModal({
       tag: remoteCap.tag,
       description: remoteCap.description,
       version: remoteCap.version,
+      cap: remoteCap.cap, // Include the full cap object
     });
   };
 

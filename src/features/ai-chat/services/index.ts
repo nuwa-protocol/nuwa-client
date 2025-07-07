@@ -2,8 +2,9 @@
 
 import { ChatSDKError } from '@/shared/errors/chatsdk-errors';
 import { handleAIRequest } from './handler';
+import { CapStateStore } from '@/features/cap/stores/cap-store';
 
-export const createClientAIFetch = (): ((
+export const createClientAIFetch = (getCapId?: () => string | undefined): ((
   input: RequestInfo | URL,
   init?: RequestInit,
 ) => Promise<Response>) => {
@@ -16,10 +17,19 @@ export const createClientAIFetch = (): ((
       const requestBody = JSON.parse(init.body as string);
       const { id: sessionId, messages } = requestBody;
 
+      let cap = null;
+      if (getCapId) {
+        const capId = getCapId();
+        if (capId !== undefined) {
+          cap = CapStateStore.getState().getInstalledCap(capId);
+        }
+      } 
+
       const response = await handleAIRequest({
         sessionId,
         messages,
         signal: init?.signal ?? undefined,
+        cap: cap ?? undefined,
       });
 
       return response;

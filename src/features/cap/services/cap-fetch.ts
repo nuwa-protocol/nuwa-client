@@ -70,7 +70,7 @@ async function fetchCapsData(): Promise<RemoteCap[]> {
       createdAt: cap.createdAt,
       updatedAt: cap.updatedAt,
       size: cap.size,
-      yaml: cap.yaml,
+      cap: cap.yaml,
     }));
 
     // Update cache
