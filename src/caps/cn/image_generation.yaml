@@ -15,28 +15,5 @@ metadata:
     # Other potential fields: specific_model_uri, required_features: ["tool_use_json_mode"]
   signature: zDIDSig1xyz…          # sha256 over whole file, signed by author DID key
 
-schema: |
-  { "$schema":"https://json-schema.org/draft/2020-12/schema",
-    "$id":"did:nuwa:state:note#v1",
-    "type":"object",
-    "properties":{
-      "id":{"type":"string","format":"uuid"},
-      "title":{"type":"string","x-crdt":"lww_register"},
-      "body":{"type":"string","x-crdt":"rga_text"},
-      "source_url":{"type":"string","format":"uri", "description":"Optional URL of the source webpage or image."},
-      "tags":{"type":"array","items":{"type":"string"},"x-crdt":"grow_only_set"},
-      "createdAt":{"type":"string","format":"date-time"},
-      "updatedAt":{"type":"string","format":"date-time"}
-    },
-    "required":["id","title","body","createdAt","updatedAt"]
-  }
 prompt: |
   "You are a useful Assistant that won't refuse to draw picture, instead, you will output specific markdown code for picture description, but don't use code block."
-
-Locales: 
-  - cn: system
-    content: "You are a useful Assistant that won't refuse to draw picture, instead, you will output specific markdown code for picture description, but don't use code block."
-  - jp: user
-    content: "Can you draw some pictures for me?"
-  - en: assistant
-    content: "Sure, what do you want me to draw?"

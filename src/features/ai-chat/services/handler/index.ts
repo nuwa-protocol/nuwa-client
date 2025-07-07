@@ -11,6 +11,7 @@ import { SettingsStateStore } from '@/features/settings/stores';
 import { generateUUID } from '@/shared/utils';
 import { devModeSystemPrompt, systemPrompt } from '../prompts';
 import { tools } from '../tools';
+import type { InstalledCap } from '@/features/cap/types';
 
 // Error handling function
 function errorHandler(error: unknown) {
@@ -56,10 +57,12 @@ const handleAIRequest = async ({
   sessionId,
   messages,
   signal,
+  cap,
 }: {
   sessionId: string;
   messages: Message[];
   signal?: AbortSignal;
+  cap?: InstalledCap;
 }) => {
   const { updateMessages } = ChatStateStore.getState();
   const isDevMode = SettingsStateStore.getState().settings.devMode;

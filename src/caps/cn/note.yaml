@@ -49,35 +49,6 @@ prompt: |
   Always set the `source_url` field in the note object if the note is about a specific webpage or image.
   Reply only with the final `state.create` tool call, or an intermediate tool call if you need more information.
 
-tools:
-  - type: function
-    function:
-      name: state.create        # built-in tool
-      description: Persist a new state object (a note).
-      parameters:
-        type: object
-        properties:
-          schema_uri: {type: string, enum: ["did:nuwa:state:note#v1"]}
-          object:     {$ref: "#/schema"}
-        required: [schema_uri, object]
-  - type: function
-    function:
-      name: fetch_web_content
-      description: "Fetches the main textual content from a given web page URL. Useful for summarizing or taking notes about online articles."
-      parameters:
-        type: object
-        properties:
-          url: {type: string, format: uri, description: "The URL of the web page to fetch content from."}
-        required: [url]
-  - type: function
-    function:
-      name: recognize_image_content
-      description: "Analyzes an image from a given URL and returns a textual description of its content. Useful for adding context about an image to a note."
-      parameters:
-        type: object
-        properties:
-          image_url: {type: string, format: uri, description: "The URL of the image to analyze."}
-        required: [image_url]
 
 tool_bindings:
   "fetch_web_content":

@@ -5,6 +5,7 @@ import { ChatSDKError } from '@/shared/errors/chatsdk-errors';
 import { ErrorHandlers } from '@/shared/errors/error-handler';
 import { generateUUID } from '@/shared/utils';
 import { createClientAIFetch } from '../services';
+import { useChatSession } from './use-chat-session';
 
 export const useChatDefault = (
   chatId: string,
@@ -12,6 +13,7 @@ export const useChatDefault = (
   handleOnResponse?: (response: any) => void,
 ) => {
   const navigate = useNavigate();
+  const { session } = useChatSession(chatId);
   const handleUseChatError = (error: Error) => {
     let errorMessage: UIMessage;
     if (error instanceof ChatSDKError) {
@@ -29,6 +31,8 @@ export const useChatDefault = (
     setChatMessages((messages) => [...messages, errorMessage]);
   };
 
+  const fetchFunction = createClientAIFetch(() => session?.capId);
+
   const {
     messages,
     setMessages: setChatMessages,
@@ -45,7 +49,7 @@ export const useChatDefault = (
     experimental_throttle: 100,
     sendExtraMessageFields: true,
     generateId: generateUUID,
-    fetch: createClientAIFetch(),
+    fetch: fetchFunction,
     experimental_prepareRequestBody: (body) => ({
       id: chatId,
       messages: body.messages,
