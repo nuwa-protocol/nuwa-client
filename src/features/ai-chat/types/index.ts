@@ -7,6 +7,8 @@ export interface ChatSession {
   createdAt: number;
   updatedAt: number;
   messages: Message[];
+  capId?: string;
+  capVersion?: string;
 }
 
 // stream ID management interface
