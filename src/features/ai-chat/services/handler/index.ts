@@ -12,6 +12,7 @@ import { SettingsStateStore } from '@/features/settings/stores';
 import { generateUUID } from '@/shared/utils';
 import { devModeSystemPrompt, systemPrompt } from '../prompts';
 import { tools } from '../tools';
+import { generateTitleFromUserMessage } from '../utility-ai';
 
 // Error handling function
 function errorHandler(error: unknown) {
@@ -62,11 +63,26 @@ const handleAIRequest = async ({
   messages: Message[];
   signal?: AbortSignal;
 }) => {
-  const { updateMessages } = ChatStateStore.getState();
+  const { updateMessages, readSession, updateSession } = ChatStateStore.getState();
   const isDevMode = SettingsStateStore.getState().settings.devMode;
-  await updateMessages(sessionId, messages);
-
+  
+  // Check if this is a new session
+  const existingSession = readSession(sessionId);
+  const isNewSession = !existingSession;
+  
+  // Get current cap information
   const { currentCap } = CapStateStore.getState();
+  
+  // Update messages with cap information if this is a new session
+  if (isNewSession && currentCap) {
+    await updateMessages(sessionId, messages);
+    await updateSession(sessionId, {
+      capId: currentCap.id,
+      capVersion: currentCap.version,
+    });
+  } else {
+    await updateMessages(sessionId, messages);
+  }
 
   const prompt = isDevMode ? (currentCap? currentCap.prompt: devModeSystemPrompt()) : systemPrompt();
 
@@ -94,6 +110,23 @@ const handleAIRequest = async ({
       );
 
       await updateMessages(sessionId, finalMessagesWithSources);
+      
+      // Generate title for new sessions
+      if (isNewSession && finalMessagesWithSources.length > 0) {
+        const firstUserMessage = finalMessagesWithSources.find(
+          (msg) => msg.role === 'user',
+        );
+        if (firstUserMessage) {
+          try {
+            const title = await generateTitleFromUserMessage({
+              message: firstUserMessage,
+            });
+            await updateSession(sessionId, { title });
+          } catch (error) {
+            console.error('Failed to generate title with AI:', error);
+          }
+        }
+      }
     },
   });
 

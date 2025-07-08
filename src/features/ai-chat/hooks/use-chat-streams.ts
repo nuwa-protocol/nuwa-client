@@ -15,12 +15,12 @@ export const useChatStreams = () => {
     [],
   );
 
-  const getStreamIdsByChatId = useCallback(async (chatId: string) => {
-    return await store.getStreamIdsByChatId(chatId);
+  const readStreamIdsByChatId = useCallback(async (chatId: string) => {
+    return await store.readStreamIdsByChatId(chatId);
   }, []);
 
   return {
     createStreamId,
-    getStreamIdsByChatId,
+    readStreamIdsByChatId,
   };
 };
