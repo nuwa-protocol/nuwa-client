@@ -12,6 +12,7 @@ import { SettingsStateStore } from '@/features/settings/stores';
 import { generateUUID } from '@/shared/utils';
 import { devModeSystemPrompt, systemPrompt } from '../prompts';
 import { tools } from '../tools';
+import { generateTitleFromUserMessage } from '../utility-ai';
 
 // Error handling function
 function errorHandler(error: unknown) {
@@ -62,11 +63,38 @@ const handleAIRequest = async ({
   messages: Message[];
   signal?: AbortSignal;
 }) => {
-  const { updateMessages } = ChatStateStore.getState();
+  const { updateMessages, updateSession, readSession } = ChatStateStore.getState();
   const isDevMode = SettingsStateStore.getState().settings.devMode;
+  
+  // Store current cap information in the session
+  const { currentCap } = CapStateStore.getState();
+  const existingSession = readSession(sessionId);
+  
+  // Update session with current cap info if it exists
+  if (existingSession && currentCap) {
+    updateSession(sessionId, {
+      capId: currentCap.id,
+      capVersion: currentCap.version,
+    });
+  }
+
   await updateMessages(sessionId, messages);
 
-  const { currentCap } = CapStateStore.getState();
+  // Generate title if this is a new session with first user message
+  const isNewSession = !existingSession;
+  if (isNewSession && messages.length > 0) {
+    const firstUserMessage = messages.find(msg => msg.role === 'user');
+    if (firstUserMessage) {
+      try {
+        const title = await generateTitleFromUserMessage({
+          message: firstUserMessage,
+        });
+        updateSession(sessionId, { title });
+      } catch (error) {
+        console.error('Failed to generate title with AI:', error);
+      }
+    }
+  }
 
   const prompt = isDevMode ? (currentCap? currentCap.prompt: devModeSystemPrompt()) : systemPrompt();
 

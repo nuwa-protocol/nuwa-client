@@ -5,6 +5,10 @@ import type { ChatSession } from '@/features/ai-chat/types';
 export const useChatSessions = () => {
   const store = ChatStateStore();
 
+  const createSession = useCallback((session?: Partial<ChatSession>) => {
+    return store.createSession(session);
+  }, []);
+
   const deleteSession = useCallback((id: string) => {
     store.deleteSession(id);
   }, []);
@@ -29,6 +33,7 @@ export const useChatSessions = () => {
   return {
     sessions: getSortedSessions(),
     sessionsMap: store.sessions,
+    createSession,
     deleteSession,
     updateSession,
     clearAllSessions,
