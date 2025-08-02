@@ -57,8 +57,8 @@ importers:
         specifier: ^0.3.4
         version: 0.3.4(typescript@5.8.3)
       '@nuwa-ai/identity-kit-web':
-        specifier: ^0.3.4
-        version: 0.3.4(react@19.1.0)(typescript@5.8.3)
+        specifier: ^0.3.5
+        version: 0.3.5(react@19.1.0)(typescript@5.8.3)
       '@openrouter/ai-sdk-provider':
         specifier: ^0.7.2
         version: 0.7.2(ai@4.3.16(react@19.1.0)(zod@3.25.67))(zod@3.25.67)
@@ -1142,8 +1142,8 @@ packages:
   '@nuwa-ai/cap-kit@0.3.4':
     resolution: {integrity: sha512-DG4LCOs9AY3HVkPwbwBr3QwfcQcnO7/0NeVUcVdC2sHDmkUhNEHIWEz94NbdOls1/lCljV5ojPkAlbWx3s0TPQ==}
 
-  '@nuwa-ai/identity-kit-web@0.3.4':
-    resolution: {integrity: sha512-AMgqODvfvALR++tgWrxt+LSDydLmAMi0YfKVsyAjro7Td+8nM53vmlgRu2516OS2nwNVcnSrrg0lBtjMAowoJg==}
+  '@nuwa-ai/identity-kit-web@0.3.5':
+    resolution: {integrity: sha512-egjSXMiGfDxzPW8l496PRGF2b0MGN+KbTY8m1oRmcnffSWei7A3gvrzHBvKyeHTB93mPbzYck7ca1/09Wclp4A==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
     peerDependenciesMeta:
@@ -6859,7 +6859,7 @@ snapshots:
       - typescript
       - zod
 
-  '@nuwa-ai/identity-kit-web@0.3.4(react@19.1.0)(typescript@5.8.3)':
+  '@nuwa-ai/identity-kit-web@0.3.5(react@19.1.0)(typescript@5.8.3)':
     dependencies:
       '@nuwa-ai/identity-kit': 0.3.4(typescript@5.8.3)
     optionalDependencies:
