@@ -1,8 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { type CapSubmitRequest, mockSubmitCap } from '@/mocks/submit-caps';
 import { toast } from '@/shared/components';
 import { useLocalCaps } from '../../hooks';
 import { useLocalCapsHandler } from '../../hooks/use-local-caps-handler';
+import { useSubmitCap } from '../../hooks/use-submit-cap';
 import { DashboardHeader, DashboardLayout } from '../layout/dashboard-layout';
 import { SubmitForm, type SubmitFormData } from './submit-form';
 
@@ -11,6 +11,7 @@ export function Submit() {
   const { id } = useParams();
   const localCaps = useLocalCaps();
   const { updateCap } = useLocalCapsHandler();
+  const { submitCap } = useSubmitCap();
 
   const cap = localCaps.find((cap) => cap.id === id);
 
@@ -29,12 +30,12 @@ export function Submit() {
     thumbnailFile: File | null,
   ) => {
     try {
-      // prepare submit request
-      const submitRequest: CapSubmitRequest = {
+      // prepare remote cap type
+      const submitRequest = {
+        name: data.name,
+        description: data.description,
         cap: cap!,
         metadata: {
-          name: data.name,
-          description: data.description,
           tag: data.tag,
           author: data.author,
           homepage: data.homepage || undefined,
@@ -43,8 +44,8 @@ export function Submit() {
         },
       };
 
-      // use mock function to submit
-      const result = await mockSubmitCap(submitRequest);
+      // use real CapKit to submit
+      const result = await submitCap(submitRequest);
 
       if (result.success) {
         // update cap status to submitted
