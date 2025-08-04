@@ -59,12 +59,21 @@ const handleAIRequest = async ({
   messages: Message[];
   signal?: AbortSignal;
 }) => {
+  console.log('Starting AI request for session:', sessionId);
+  
   // Get current cap from global state
   const { currentCap } = CurrentCapStore.getState();
   
   if (!currentCap) {
+    console.error('No cap selected when attempting to send message');
     throw new Error('No cap selected. Please select a cap to use.');
   }
+
+  console.log('Using cap:', { 
+    id: currentCap.id, 
+    name: currentCap.name, 
+    modelId: currentCap.model.id 
+  });
 
   // update the messages state
   const { updateMessages } = ChatStateStore.getState();

@@ -25,6 +25,7 @@ import { useScrollToBottom } from '@/features/chat/hooks/use-scroll-to-bottom';
 import { toast } from '@/shared/components';
 import { Button } from '@/shared/components/ui/button';
 import { useDevMode } from '@/shared/hooks/use-dev-mode';
+import { useCurrentCap } from '@/shared/hooks';
 
 import { SuggestedActions } from './suggested-actions';
 
@@ -84,7 +85,18 @@ function PureMultimodalInput({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadQueue, setUploadQueue] = useState<Array<string>>([]);
 
+  const { currentCap } = useCurrentCap();
+
   const submitForm = useCallback(() => {
+    // 验证是否选择了 Cap
+    if (!currentCap) {
+      toast({
+        type: 'error',
+        description: 'Please select a Cap before sending messages. Click the "Select Cap" button to choose an AI assistant.',
+      });
+      return;
+    }
+
     handleSubmit(undefined);
 
     setLocalStorageInput('');
@@ -92,7 +104,7 @@ function PureMultimodalInput({
     if (width && width > 768) {
       textareaRef.current?.focus();
     }
-  }, [handleSubmit, setLocalStorageInput, width]);
+  }, [handleSubmit, setLocalStorageInput, width, currentCap]);
 
   const { isAtBottom, scrollToBottom } = useScrollToBottom();
 
@@ -188,6 +200,7 @@ function PureMultimodalInput({
                 input={input}
                 submitForm={submitForm}
                 uploadQueue={uploadQueue}
+                currentCap={currentCap}
               />
             )}
           </div>
@@ -261,11 +274,15 @@ function PureSendButton({
   submitForm,
   input,
   uploadQueue,
+  currentCap,
 }: {
   submitForm: () => void;
   input: string;
   uploadQueue: Array<string>;
+  currentCap: any;
 }) {
+  const isDisabled = input.length === 0 || uploadQueue.length > 0 || !currentCap;
+  
   return (
     <Button
       data-testid="send-button"
@@ -274,7 +291,8 @@ function PureSendButton({
         event.preventDefault();
         submitForm();
       }}
-      disabled={input.length === 0 || uploadQueue.length > 0}
+      disabled={isDisabled}
+      title={!currentCap ? 'Please select a Cap first' : undefined}
     >
       <ArrowUpIcon size={14} />
     </Button>
@@ -285,5 +303,6 @@ const SendButton = memo(PureSendButton, (prevProps, nextProps) => {
   if (prevProps.uploadQueue.length !== nextProps.uploadQueue.length)
     return false;
   if (prevProps.input !== nextProps.input) return false;
+  if (prevProps.currentCap !== nextProps.currentCap) return false;
   return true;
 });

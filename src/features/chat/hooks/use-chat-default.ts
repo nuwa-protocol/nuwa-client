@@ -15,7 +15,10 @@ export const useChatDefault = (
   const { updateTitle } = useUpdateChatTitle(chatId);
 
   const handleUseChatError = (error: Error) => {
+    console.error('Chat error:', error);
+    
     let errorMessage: UIMessage;
+    
     if (error instanceof ChatSDKError) {
       errorMessage = ErrorHandlers.api(error.message);
     } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
@@ -24,9 +27,26 @@ export const useChatDefault = (
       );
     } else if (error.message.includes('timeout')) {
       errorMessage = ErrorHandlers.timeout('AI response');
+    } else if (error.message.includes('Please select a Cap')) {
+      errorMessage = ErrorHandlers.validation(
+        'Please select a Cap before sending messages. Click the "Select Cap" button to choose an AI assistant.',
+      );
+    } else if (error.message.includes('Authentication failed')) {
+      errorMessage = ErrorHandlers.permission(
+        'Authentication failed. Please check your login status and try again.',
+      );
+    } else if (error.message.includes('Network connection failed')) {
+      errorMessage = ErrorHandlers.network(
+        'Network connection failed. Please check your internet connection and try again.',
+      );
+    } else if (error.message.includes('Request timeout')) {
+      errorMessage = ErrorHandlers.timeout(
+        'Request timeout. The AI service is taking too long to respond. Please try again.',
+      );
     } else {
       errorMessage = ErrorHandlers.generic(error.message);
     }
+    
     // Add error message to chat
     setChatMessages((messages) => [...messages, errorMessage]);
   };

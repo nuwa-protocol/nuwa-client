@@ -35,8 +35,12 @@ export const createAuthorizedFetch = () => {
 
       return fetch(input, { ...init, headers: mergedHeaders });
     } catch (err) {
-      console.error('Failed to sign DIDAuth header', err);
-      throw err;
+      console.error('Failed to sign DIDAuth header:', {
+        error: err,
+        url: input.toString(),
+        method: init?.method ?? 'POST'
+      });
+      throw new Error(`Failed to sign DIDAuth header: ${err instanceof Error ? err.message : String(err)}`);
     }
   };
 };
