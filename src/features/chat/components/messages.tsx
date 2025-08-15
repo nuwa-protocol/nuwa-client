@@ -13,7 +13,6 @@ interface MessagesProps {
   setMessages: UseChatHelpers['setMessages'];
   reload: UseChatHelpers['reload'];
   isReadonly: boolean;
-  isArtifact: boolean;
 }
 
 function PureMessages({
@@ -23,7 +22,6 @@ function PureMessages({
   setMessages,
   reload,
   isReadonly,
-  isArtifact,
 }: MessagesProps) {
   const {
     containerRef: messagesContainerRef,
@@ -41,20 +39,25 @@ function PureMessages({
       ref={messagesContainerRef}
       className="flex flex-col min-w-0 gap-6 h-full overflow-y-scroll pt-4 relative"
     >
-      {messages.map((message, index) => (
-        <PreviewMessage
-          key={message.id}
-          chatId={chatId}
-          message={message}
-          isLoading={status === 'streaming' && messages.length - 1 === index}
-          setMessages={setMessages}
-          reload={reload}
-          isReadonly={isReadonly}
-          requiresScrollPadding={
-            hasSentMessage && index === messages.length - 1
-          }
-        />
-      ))}
+      {messages.map((message, index) => {
+        const isStreaming = status === 'streaming' && messages.length - 1 === index;
+        const isStreamingReasoning = isStreaming && message.role === 'assistant' && message.parts?.some((part) => part.type === 'reasoning') && !message.parts?.some((part) => part.type === 'text');
+        return (
+          <PreviewMessage
+            key={message.id}
+            chatId={chatId}
+            message={message}
+            isStreaming={isStreaming}
+            isStreamingReasoning={isStreamingReasoning}
+            setMessages={setMessages}
+            reload={reload}
+            isReadonly={isReadonly}
+            requiresScrollPadding={
+              hasSentMessage && index === messages.length - 1
+            }
+          />
+        )
+      })}
 
       {status === 'submitted' &&
         messages.length > 0 &&

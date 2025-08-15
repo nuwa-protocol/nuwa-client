@@ -50,11 +50,11 @@ function appendSourcesToFinalMessages(
 
 // Handle AI request, entrance of the AI workflow
 const handleAIRequest = async ({
-  sessionId,
+  chatId,
   messages,
   signal,
 }: {
-  sessionId: string;
+  chatId: string;
   messages: Message[];
   signal?: AbortSignal;
 }) => {
@@ -62,9 +62,24 @@ const handleAIRequest = async ({
   const capResolve = new CapResolve();
   const { prompt, model, tools } = await capResolve.getResolvedConfig();
 
-  // update the messages state
-  const { updateMessages } = ChatStateStore.getState();
-  updateMessages(sessionId, messages);
+  // create a new chat session and update the messages
+  const { updateMessages, addPaymentCtxIdToChatSession } =
+    ChatStateStore.getState();
+  await updateMessages(chatId, messages);
+
+  // create payment CTX id header
+  const paymentCtxId = generateUUID();
+  const headers = {
+    'X-Client-Tx-Ref': paymentCtxId,
+  };
+
+  // add payment info to chat session
+  await addPaymentCtxIdToChatSession(chatId, {
+    type: 'chat-message',
+    message: messages[messages.length - 1].content,
+    ctxId: paymentCtxId,
+    timestamp: Date.now(),
+  });
 
   const result = streamText({
     model,
@@ -75,6 +90,7 @@ const handleAIRequest = async ({
     experimental_generateMessageId: generateUUID,
     tools,
     abortSignal: signal,
+    headers,
     async onFinish({ response, sources }) {
       // append response messages
       const finalMessages = appendResponseMessages({
@@ -91,7 +107,7 @@ const handleAIRequest = async ({
       );
 
       // update the messages state
-      updateMessages(sessionId, finalMessagesWithSources);
+      await updateMessages(chatId, finalMessagesWithSources);
     },
   });
 

@@ -10,6 +10,7 @@ export function SystemSection() {
   const [isClearing, setIsClearing] = useState(false);
   const { clearAllStorage } = useStorage();
   const { settings, setSetting } = useSettings();
+  const isDevMode = settings.devMode;
 
   // Clear all storage logic
   const handleClearStorage = async () => {
@@ -48,7 +49,7 @@ export function SystemSection() {
         disabled={false}
       />
 
-      <DangerActionCard
+      {isDevMode && <DangerActionCard
         title={t('settings.system.clearAllStorage.title')}
         description={t('settings.system.clearAllStorage.description')}
         buttonLabel={t('settings.system.clearAllStorage.button')}
@@ -62,7 +63,7 @@ export function SystemSection() {
           'settings.system.clearAllStorage.confirmButton',
         )}
         cancelButtonLabel={t('settings.system.clearAllStorage.cancel')}
-      />
+      />}
     </div>
   );
 }

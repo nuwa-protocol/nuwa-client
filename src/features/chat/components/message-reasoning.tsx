@@ -1,76 +1,189 @@
-import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDownIcon, LoaderIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useControllableState } from '@radix-ui/react-use-controllable-state';
+import { Brain, ChevronDownIcon } from 'lucide-react';
+import type { ComponentProps } from 'react';
+import { createContext, memo, useContext, useEffect, useState } from 'react';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/shared/components/ui';
+import { cn } from '@/shared/utils/index';
 import { Markdown } from './markdown';
 
-interface MessageReasoningProps {
-  isLoading: boolean;
-  reasoning: string;
-}
+type AIReasoningContextValue = {
+  isStreaming: boolean;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+  duration: number;
+};
 
-export function MessageReasoning({
-  isLoading,
-  reasoning,
-}: MessageReasoningProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+const AIReasoningContext = createContext<AIReasoningContextValue | null>(null);
 
-  const variants = {
-    collapsed: {
-      height: 0,
-      opacity: 0,
-      marginTop: 0,
-      marginBottom: 0,
-    },
-    expanded: {
-      height: 'auto',
-      opacity: 1,
-      marginTop: '1rem',
-      marginBottom: '0.5rem',
-    },
-  };
+const useAIReasoning = () => {
+  const context = useContext(AIReasoningContext);
+  if (!context) {
+    throw new Error('AIReasoning components must be used within AIReasoning');
+  }
+  return context;
+};
 
-  return (
-    <div className="flex flex-col">
-      {isLoading ? (
-        <div className="flex flex-row gap-2 items-center">
-          <div className="font-medium">Reasoning</div>
-          <div className="animate-spin">
-            <LoaderIcon />
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-row gap-2 items-center">
-          <div className="font-medium">Reasoned for a few seconds</div>
-          <button
-            data-testid="message-reasoning-toggle"
-            type="button"
-            className="cursor-pointer"
-            onClick={() => {
-              setIsExpanded(!isExpanded);
-            }}
-          >
-            <ChevronDownIcon />
-          </button>
-        </div>
-      )}
+export type AIReasoningProps = ComponentProps<typeof Collapsible> & {
+  isStreaming?: boolean;
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  duration?: number;
+};
 
-      <AnimatePresence initial={false}>
-        {(isExpanded || isLoading) && (
-          <motion.div
-            data-testid="message-reasoning"
-            key="content"
-            initial="collapsed"
-            animate="expanded"
-            exit="collapsed"
-            variants={variants}
-            transition={{ duration: 0.2, ease: 'easeInOut' }}
-            style={{ overflow: 'hidden' }}
-            className="pl-4 text-zinc-600 dark:text-zinc-400 border-l flex flex-col gap-4"
-          >
-            <Markdown>{reasoning}</Markdown>
-          </motion.div>
+export const AIReasoning = memo(
+  ({
+    className,
+    isStreaming = false,
+    open,
+    defaultOpen = false,
+    onOpenChange,
+    duration: durationProp,
+    children,
+    ...props
+  }: AIReasoningProps) => {
+    const [isOpen, setIsOpen] = useControllableState({
+      prop: open,
+      defaultProp: defaultOpen,
+      onChange: onOpenChange,
+    });
+    const [duration, setDuration] = useControllableState({
+      prop: durationProp,
+      defaultProp: 0,
+    });
+
+    const [hasAutoClosedRef, setHasAutoClosedRef] = useState(false);
+    const [startTime, setStartTime] = useState<number | null>(null);
+
+    // Track duration when streaming starts and ends
+    useEffect(() => {
+      if (isStreaming) {
+        if (startTime === null) {
+          setStartTime(Date.now());
+        }
+      } else if (startTime !== null) {
+        setDuration(Math.round((Date.now() - startTime) / 1000));
+        setStartTime(null);
+      }
+    }, [isStreaming, startTime, setDuration]);
+
+    // Auto-open when streaming starts, auto-close when streaming ends (once only)
+    useEffect(() => {
+      if (isStreaming && !isOpen) {
+        setIsOpen(true);
+      } else if (!isStreaming && isOpen && !defaultOpen && !hasAutoClosedRef) {
+        // Add a small delay before closing to allow user to see the content
+        const timer = setTimeout(() => {
+          setIsOpen(false);
+          setHasAutoClosedRef(true);
+        }, 1000);
+        return () => clearTimeout(timer);
+      }
+    }, [isStreaming, isOpen, defaultOpen, setIsOpen, hasAutoClosedRef]);
+
+    const handleOpenChange = (open: boolean) => {
+      setIsOpen(open);
+    };
+
+    return (
+      <AIReasoningContext.Provider
+        value={{ isStreaming, isOpen, setIsOpen, duration }}
+      >
+        <Collapsible
+          className={cn('not-prose mb-4', className)}
+          onOpenChange={handleOpenChange}
+          open={isOpen}
+          {...props}
+        >
+          {children}
+        </Collapsible>
+      </AIReasoningContext.Provider>
+    );
+  },
+);
+
+export type AIReasoningTriggerProps = ComponentProps<
+  typeof CollapsibleTrigger
+> & {
+  title?: string;
+};
+
+export const AIReasoningTrigger = memo(
+  ({
+    className,
+    title = 'Reasoning',
+    children,
+    ...props
+  }: AIReasoningTriggerProps) => {
+    const { isStreaming, isOpen, duration } = useAIReasoning();
+
+    return (
+      <CollapsibleTrigger
+        className={cn(
+          'flex items-center gap-2 text-muted-foreground text-sm',
+          className,
         )}
-      </AnimatePresence>
-    </div>
-  );
+        {...props}
+      >
+        {children ?? (
+          <>
+            <span><Brain className='size-4 text-muted-foreground' /></span>
+            {isStreaming && duration === 0 ? (
+              <p>Reasoning...</p>
+            ) : (
+              <p>{duration === 0 ? 'Reasoned for a few seconds' : `Reasoned for ${duration} seconds`}</p>
+            )}
+            <ChevronDownIcon
+              className={cn(
+                'size-4 text-muted-foreground transition-transform',
+                isOpen ? 'rotate-180' : 'rotate-0',
+              )}
+            />
+          </>
+        )}
+      </CollapsibleTrigger>
+    );
+  },
+);
+
+export type AIReasoningContentProps = ComponentProps<
+  typeof CollapsibleContent
+> & {
+  children: string;
+};
+
+export const AIReasoningContent = memo(
+  ({ className, children, ...props }: AIReasoningContentProps) => (
+    <CollapsibleContent
+      className={cn('mt-4 text-muted-foreground text-xs pl-4 text-zinc-600 dark:text-zinc-400 border-l flex flex-col gap-4', className)}
+      {...props}
+    >
+      <Markdown>{children}</Markdown>
+    </CollapsibleContent>
+  ),
+);
+
+AIReasoning.displayName = 'AIReasoning';
+AIReasoningTrigger.displayName = 'AIReasoningTrigger';
+AIReasoningContent.displayName = 'AIReasoningContent';
+
+interface MessageReasoningProps {
+  isStreaming: boolean;
+  content: string;
 }
+
+export const MessageReasoning = ({ isStreaming, content }: MessageReasoningProps) => {
+  return (
+    <AIReasoning
+      className="w-full"
+      isStreaming={isStreaming}
+    >
+      <AIReasoningTrigger />
+      <AIReasoningContent>{content}</AIReasoningContent>
+    </AIReasoning>
+  );
+};

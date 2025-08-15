@@ -65,7 +65,7 @@ export default function CallbackPage() {
           <CardHeader className="text-center space-y-6 pb-8">
             {/* Logo */}
             <div className="flex justify-center">
-              <Logo />
+              <Logo autoTheme={false} />
             </div>
           </CardHeader>
 

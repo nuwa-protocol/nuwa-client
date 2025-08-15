@@ -1,5 +1,6 @@
 import mermaid from 'mermaid';
-import React, { useEffect, useId, useState } from 'react';
+import type React from 'react';
+import { useEffect, useId, useState } from 'react';
 
 interface MermaidCodeProps {
   code: string;

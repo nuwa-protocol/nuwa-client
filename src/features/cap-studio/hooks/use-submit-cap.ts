@@ -20,11 +20,7 @@ export const useSubmitCap = () => {
         }
 
         // Register the capability using CapKit
-        const cid = await capKit.registerCap(
-          capData.idName,
-          capData.metadata.description,
-          capData,
-        );
+        const cid = await capKit.registerCap(capData);
 
         return {
           success: true,

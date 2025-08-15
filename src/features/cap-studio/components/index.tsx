@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/shared/components/ui/button';
 import { useCurrentCap } from '@/shared/hooks';
 import type { LocalCap } from '../types';
+import { BatchCreate } from './batch-create';
 import { DashboardHeader, DashboardLayout } from './layout/dashboard-layout';
 import { MyCaps } from './my-caps';
 
@@ -53,3 +54,5 @@ export function CapStudio() {
     </DashboardLayout>
   );
 }
+
+export { BatchCreate };

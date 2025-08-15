@@ -145,7 +145,6 @@ export const CapStudioStore = create<CapStudioState>()(
             (a: LocalCap, b: LocalCap) => b.updatedAt - a.updatedAt,
           );
 
-          // 直接替换数据，避免重复加载
           set({
             localCaps: sortedCaps,
           });

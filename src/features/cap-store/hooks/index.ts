@@ -1,2 +1,2 @@
-export * from './use-installed-cap.ts';
+export * from './use-cap-store.ts';
 export * from './use-remote-cap.ts';

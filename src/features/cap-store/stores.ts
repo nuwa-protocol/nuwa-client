@@ -1,50 +1,32 @@
 // cap-store.ts
-// Store for managing capability (Cap) installations and their states
+// Store for managing capability (Cap) states
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { defaultCap } from '@/shared/constants/cap';
 import { NuwaIdentityKit } from '@/shared/services/identity-kit';
 import { createPersistConfig, db } from '@/shared/storage';
-import type { Cap } from '@/shared/types/cap';
+import type { InstalledCap, RemoteCap } from './types';
 
 // ================= Interfaces ================= //
 
-// Remote caps state interface
-interface RemoteCapState {
-  remoteCaps: Cap[];
-  isLoading: boolean;
-  error: string | null;
-  totalCount: number;
-  page: number;
-  hasMore: boolean;
-  lastSearchQuery: string;
-}
-
 // Cap store state interface - handles both installed and remote caps
 interface CapStoreState {
-  installedCaps: Record<string, Cap>;
+  // Installed cap management use capId as key
+  installedCaps: Record<string, InstalledCap>;
 
-  // Remote caps state
-  remoteCapState: RemoteCapState;
+  // Remote cap management
+  remoteCaps: RemoteCap[];
 
-  // Installed cap management
-  installCap: (cap: Cap) => void;
-  uninstallCap: (id: string) => void;
-  updateInstalledCap: (id: string, updatedCap: Cap) => void;
-
-  // Remote caps management
-  setRemoteCaps: (caps: Cap[]) => void;
-  setRemoteCapLoading: (isLoading: boolean) => void;
-  setRemoteCapError: (error: string | null) => void;
-  setRemoteCapPagination: (pagination: {
-    totalCount: number;
-    page: number;
-    hasMore: boolean;
-  }) => void;
-  setLastSearchQuery: (query: string) => void;
-  clearRemoteCaps: () => void;
-
-  // Data management
+  // Installed Cap management
+  addInstalledCap: (cap: InstalledCap) => void;
+  updateInstalledCap: (
+    id: string,
+    updates: Partial<Omit<InstalledCap, 'capData'>>,
+  ) => void;
   clearAllInstalledCaps: () => void;
+
+  // Remote cap management
+  setRemoteCaps: (caps: RemoteCap[]) => void;
 
   // Data persistence
   loadFromDB: () => Promise<void>;
@@ -83,32 +65,33 @@ export const CapStateStore = create<CapStoreState>()(
   persist(
     (set, get) => ({
       // Store state
-      installedCaps: {},
-
-      // Remote caps state
-      remoteCapState: {
-        remoteCaps: [],
-        isLoading: false,
-        error: null,
-        totalCount: 0,
-        page: 1,
-        hasMore: false,
-        lastSearchQuery: '',
+      installedCaps: {
+        [defaultCap.id]: {
+          capData: defaultCap,
+          isFavorite: false,
+          lastUsedAt: null,
+        },
       },
 
+      remoteCaps: [],
+
       // Installation management
-      installCap: (cap: Cap) => {
+      addInstalledCap: (cap: InstalledCap) => {
         const { installedCaps } = get();
 
         // Don't install if already installed
-        if (installedCaps[cap.id]) {
+        if (installedCaps[cap.capData.id]) {
           return;
         }
 
         set((state) => ({
           installedCaps: {
             ...state.installedCaps,
-            [cap.id]: cap,
+            [cap.capData.id]: {
+              capData: cap.capData,
+              isFavorite: cap.isFavorite,
+              lastUsedAt: cap.lastUsedAt,
+            },
           },
         }));
 
@@ -116,102 +99,27 @@ export const CapStateStore = create<CapStoreState>()(
         get().saveToDB();
       },
 
-      uninstallCap: (id: string) => {
-        set((state) => {
-          const { [id]: removed, ...restCaps } = state.installedCaps;
-          return {
-            installedCaps: restCaps,
-          };
-        });
-
-        // Delete from IndexedDB asynchronously
-        const deleteFromDB = async () => {
-          try {
-            await capDB.caps.delete(id);
-          } catch (error) {
-            console.error('Failed to delete cap from DB:', error);
-          }
-        };
-        deleteFromDB();
-      },
-
       // Data management
-      updateInstalledCap: (id: string, updatedCap: Cap) => {
+      updateInstalledCap: (
+        id: string,
+        updates: Partial<Omit<InstalledCap, 'capData'>>,
+      ) => {
         const { installedCaps } = get();
-        const cap = installedCaps[id];
+        const installedCap = installedCaps[id];
 
-        if (!cap) return;
+        if (!installedCap) return;
 
         set((state) => ({
           installedCaps: {
             ...state.installedCaps,
-            [id]: updatedCap,
+            [id]: {
+              ...installedCap,
+              ...updates,
+            },
           },
         }));
 
         get().saveToDB();
-      },
-
-      // Remote caps management
-      setRemoteCaps: (caps: Cap[]) => {
-        set((state) => ({
-          remoteCapState: {
-            ...state.remoteCapState,
-            remoteCaps: caps,
-          },
-        }));
-      },
-
-      setRemoteCapLoading: (isLoading: boolean) => {
-        set((state) => ({
-          remoteCapState: {
-            ...state.remoteCapState,
-            isLoading,
-          },
-        }));
-      },
-
-      setRemoteCapError: (error: string | null) => {
-        set((state) => ({
-          remoteCapState: {
-            ...state.remoteCapState,
-            error,
-          },
-        }));
-      },
-
-      setRemoteCapPagination: (pagination: {
-        totalCount: number;
-        page: number;
-        hasMore: boolean;
-      }) => {
-        set((state) => ({
-          remoteCapState: {
-            ...state.remoteCapState,
-            ...pagination,
-          },
-        }));
-      },
-
-      setLastSearchQuery: (query: string) => {
-        set((state) => ({
-          remoteCapState: {
-            ...state.remoteCapState,
-            lastSearchQuery: query,
-          },
-        }));
-      },
-
-      clearRemoteCaps: () => {
-        set((state) => ({
-          remoteCapState: {
-            ...state.remoteCapState,
-            remoteCaps: [],
-            totalCount: 0,
-            page: 1,
-            hasMore: false,
-          },
-        }));
       },
 
       clearAllInstalledCaps: () => {
@@ -225,12 +133,17 @@ export const CapStateStore = create<CapStoreState>()(
             const currentDID = await getCurrentDID();
             if (!currentDID) return;
 
-            await capDB.caps.where('did').equals(currentDID).delete();
+            await capDB.capStore.where('did').equals(currentDID).delete();
           } catch (error) {
             console.error('Failed to clear caps from DB:', error);
           }
         };
         clearDB();
+      },
+
+      // Remote cap management
+      setRemoteCaps: (caps: RemoteCap[]) => {
+        set({ remoteCaps: caps });
       },
 
       // Data persistence methods
@@ -241,19 +154,24 @@ export const CapStateStore = create<CapStoreState>()(
           const currentDID = await getCurrentDID();
           if (!currentDID) return;
 
-          const caps = await capDB.caps
+          const installedCaps = await capDB.capStore
             .where('did')
             .equals(currentDID)
             .toArray();
 
-          const capsMap: Record<string, Cap> = {};
+          const installedCapsMap: Record<string, InstalledCap> = {};
 
-          caps.forEach((cap: Cap) => {
-            capsMap[cap.id] = cap;
+          installedCaps.forEach((installedCap: any) => {
+            const { id, ...capData } = installedCap;
+            installedCapsMap[id] = {
+              capData: capData.capData,
+              isFavorite: capData.isFavorite,
+              lastUsedAt: capData.lastUsedAt,
+            };
           });
 
           set((state) => ({
-            installedCaps: { ...state.installedCaps, ...capsMap },
+            installedCaps: { ...state.installedCaps, ...installedCapsMap },
           }));
         } catch (error) {
           console.error('Failed to load caps from DB:', error);
@@ -268,11 +186,12 @@ export const CapStateStore = create<CapStoreState>()(
           if (!currentDID) return;
 
           const { installedCaps } = get();
-          const capsToSave = Object.values(installedCaps).map((cap) => ({
+          const capsToSave = Object.entries(installedCaps).map(([id, cap]) => ({
+            id,
             ...cap,
             did: currentDID,
           }));
-          await capDB.caps.bulkPut(capsToSave);
+          await capDB.capStore.bulkPut(capsToSave);
         } catch (error) {
           console.error('Failed to save caps to DB:', error);
         }

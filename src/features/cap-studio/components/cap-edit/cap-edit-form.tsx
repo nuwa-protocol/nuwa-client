@@ -1,4 +1,5 @@
 import { AlertCircle, CheckCircle2, Loader2, Save } from 'lucide-react';
+import { useState } from 'react';
 import type { LocalCap } from '@/features/cap-studio/types';
 import {
   Button,
@@ -9,27 +10,32 @@ import {
   CardTitle,
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
   Input,
-  MultiSelect,
   Textarea,
 } from '@/shared/components/ui';
-import { predefinedTags } from '@/shared/constants/cap';
+import type { CapThumbnail } from '@/shared/types/cap';
 import { useEditForm } from '../../hooks/use-edit-form';
 import { DashboardGrid } from '../layout/dashboard-layout';
 import { ModelSelectorDialog } from '../model-selector';
+import { CapTags } from './cap-tags';
 import { McpServersConfig } from './mcp-servers-config';
 import { ModelDetails } from './model-details';
 import { PromptEditor } from './prompt-editor';
+import { ThumbnailUpload } from './thumbnail-upload';
 
 interface CapEditFormProps {
   editingCap?: LocalCap;
 }
 
 export function CapEditForm({ editingCap }: CapEditFormProps) {
+  const [thumbnail, setThumbnail] = useState<CapThumbnail>(
+    editingCap?.capData.metadata.thumbnail || null,
+  );
   const {
     form,
     handleFormSave,
@@ -61,7 +67,9 @@ export function CapEditForm({ editingCap }: CapEditFormProps) {
           <Button
             type="button"
             disabled={isSaving}
-            onClick={form.handleSubmit(handleFormSave)}
+            onClick={() =>
+              form.handleSubmit((data) => handleFormSave(data, thumbnail))()
+            }
           >
             {isSaving ? (
               <>
@@ -80,7 +88,9 @@ export function CapEditForm({ editingCap }: CapEditFormProps) {
 
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(handleFormSave)}
+          onSubmit={form.handleSubmit((data) =>
+            handleFormSave(data, thumbnail),
+          )}
           className="space-y-6"
         >
           <DashboardGrid cols={1}>
@@ -155,15 +165,10 @@ export function CapEditForm({ editingCap }: CapEditFormProps) {
                         Select one or more tags that describe your cap.
                       </p>
                       <FormControl>
-                        <MultiSelect
-                          options={predefinedTags.map((tag) => ({
-                            label: tag,
-                            value: tag,
-                          }))}
-                          onValueChange={field.onChange}
-                          defaultValue={field.value || []}
-                          placeholder="Select tags..."
-                          className="w-full"
+                        <CapTags
+                          value={field.value || []}
+                          onChange={field.onChange}
+                          placeholder="Search tags..."
                         />
                       </FormControl>
                       <FormMessage />
@@ -246,6 +251,60 @@ export function CapEditForm({ editingCap }: CapEditFormProps) {
             mcpServers={mcpServers}
             onUpdateMcpServers={handleUpdateMcpServers}
             capId={editingCap?.id}
+          />
+
+          {/* Author Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Author Information</CardTitle>
+              <CardDescription>
+                Information about the cap author and licensing
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="homepage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Homepage (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://example.com" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Link to your cap's homepage or documentation
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="repository"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Repository (Optional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="https://github.com/user/repo"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Link to the source code repository
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Thumbnail */}
+          <ThumbnailUpload
+            thumbnail={thumbnail}
+            onThumbnailChange={setThumbnail}
           />
 
           {/* Submit */}

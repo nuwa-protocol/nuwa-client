@@ -14,7 +14,6 @@ export async function createDidAuthSigner(baseUrl: string) {
       params: { body, url: baseUrl },
     } as const;
     const sig = await sdk.sign(payload);
-    console.log('sig', sig);
     return DIDAuth.v1.toAuthorizationHeader(sig);
   };
 }

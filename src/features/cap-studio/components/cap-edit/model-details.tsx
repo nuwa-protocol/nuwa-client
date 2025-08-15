@@ -19,7 +19,7 @@ export function ModelDetails({ model }: ModelDetailsProps) {
           {getProviderName(model)}
         </div>
         <div className="text-xs text-muted-foreground mt-1">
-          Context window: {model.context_length?.toLocaleString() || 'Unknown'}{' '}
+          Context window: {model.contextLength?.toLocaleString() || 'Unknown'}{' '}
           tokens
         </div>
         <div className="text-xs text-muted-foreground mt-1">

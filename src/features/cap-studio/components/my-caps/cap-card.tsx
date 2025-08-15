@@ -2,6 +2,7 @@ import { formatDistanceToNow } from 'date-fns';
 import {
   Bot,
   Bug,
+  Check,
   Clock,
   Copy,
   Edit,
@@ -42,6 +43,10 @@ interface CapCardProps {
   onTest?: () => void;
   onSubmit?: () => void;
   onUpdate?: () => void;
+  isMultiSelectMode?: boolean;
+  isSelected?: boolean;
+  onToggleSelect?: () => void;
+  onEnterMultiSelectMode?: () => void;
 }
 
 export function CapCard({
@@ -50,9 +55,14 @@ export function CapCard({
   onTest,
   onSubmit,
   onUpdate,
+  isMultiSelectMode,
+  isSelected,
+  onToggleSelect,
+  onEnterMultiSelectMode,
 }: CapCardProps) {
   const { deleteCap } = useLocalCapsHandler();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleDelete = () => {
     deleteCap(cap.id);
@@ -66,15 +76,64 @@ export function CapCard({
     }
   };
 
+  const handleSelectClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onToggleSelect) {
+      onToggleSelect();
+    }
+  };
+
+  const handleCardClick = () => {
+    if (!isMultiSelectMode && onEnterMultiSelectMode) {
+      onEnterMultiSelectMode();
+    } else if (isMultiSelectMode && onToggleSelect) {
+      onToggleSelect();
+    }
+  };
+
   const mcpServerCount = Object.keys(cap.capData.core.mcpServers).length;
   const lastUpdated = formatDistanceToNow(new Date(cap.updatedAt), {
     addSuffix: true,
   });
 
+  // Determine border color based on published status
+  const borderColor =
+    cap.status === 'submitted'
+      ? 'border-l-theme-primary/50'
+      : 'border-l-primary/20';
+
   return (
-    <Card className="hover:shadow-md hover:shadow-theme-primary/40 shadow-theme-primary/20 transition-all duration-200 border-l-4 border-l-theme-primary/20">
+    <Card
+      className={`
+        hover:shadow-md transition-all duration-200 border-l-4 
+        ${borderColor}
+        cursor-pointer
+        group
+      `}
+      onClick={handleCardClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <CardContent className="p-4">
+
         <div className="flex items-center justify-between gap-4">
+          {(isMultiSelectMode || isHovered) && (
+            <div className="flex items-center">
+              <button
+                type="button"
+                className={`
+                  w-4 h-4 border-2 rounded flex items-center justify-center transition-all
+                  ${isSelected ? 'bg-primary border-primary' : 'border-muted-foreground hover:border-primary'}
+                  ${!isMultiSelectMode && isHovered ? 'opacity-70 hover:opacity-100' : ''}
+                `}
+                onClick={handleSelectClick}
+              >
+                {isSelected && (
+                  <Check className="h-3 w-3 text-primary-foreground" />
+                )}
+              </button>
+            </div>
+          )}
           <div className="flex items-start space-x-4 flex-1 min-w-0">
             <div className="w-12 h-12 flex items-center justify-center shrink-0">
               <Avatar className="rounded-lg">
@@ -119,69 +178,88 @@ export function CapCard({
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 shrink-0">
-            <div className="flex grid grid-cols-2 gap-2">
-              <Button onClick={onEdit} size="sm" variant="outline">
-                <Edit className="h-4 w-4 mr-2" />
-                Edit
-              </Button>
-
-              <Button onClick={onTest} size="sm" variant="outline">
-                <Bug className="h-4 w-4 mr-2" />
-                Test Cap
-              </Button>
-
-              {cap.status === 'draft' ? (
+          {!isMultiSelectMode && (
+            <div className="flex items-center space-x-2 shrink-0">
+              <div className="flex grid grid-cols-1 gap-2">
                 <Button
-                  onClick={onSubmit}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit?.();
+                  }}
                   size="sm"
                   variant="default"
-                  className="col-span-2"
                 >
-                  <Upload className="h-4 w-4 mr-2" />
-                  Submit for Publishing
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit
                 </Button>
-              ) : (
-                <Button
-                  onClick={onUpdate}
-                  size="sm"
-                  variant="default"
-                  className="col-span-2"
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  Update Published Version
-                </Button>
-              )}
-            </div>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                {cap.status === 'submitted' && cap.cid && (
-                  <>
+                {cap.status === 'draft' ? (
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSubmit?.();
+                    }}
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Publish
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onUpdate?.();
+                    }}
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Update
+                  </Button>
+                )}
+              </div>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  {cap.status === 'submitted' && cap.cid && (
                     <DropdownMenuItem onClick={handleCopyCid}>
                       <Copy className="h-4 w-4 mr-2" />
                       Copy Published CID
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                  </>
-                )}
+                  )}
 
-                <DropdownMenuItem
-                  onClick={() => setShowDeleteDialog(true)}
-                  className="text-destructive"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete Cap
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                  <DropdownMenuItem onClick={onTest}>
+                    <Bug className="h-4 w-4 mr-2" />
+                    Test Cap
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem
+                    onClick={() => setShowDeleteDialog(true)}
+                    className="text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Cap
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
         </div>
+
       </CardContent>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

@@ -27,7 +27,7 @@ import { Button } from '@/shared/components/ui/button';
 import { useCurrentCap } from '@/shared/hooks/use-current-cap';
 import { useDevMode } from '@/shared/hooks/use-dev-mode';
 import type { Cap } from '@/shared/types/cap';
-
+import { useUpdateMessages } from '../hooks/use-update-messages';
 import { SuggestedActions } from './suggested-actions';
 
 function PureMultimodalInput({
@@ -188,12 +188,10 @@ function PureMultimodalInput({
               event.preventDefault();
 
               if (status !== 'ready') {
-                toast.error(
-                  'Please wait for the model to finish its response!',
-                );
-              } else {
-                submitForm();
+                console.warn('The model is not ready to respond. Currnet status:', status);
               }
+
+              submitForm();
             }
           }}
         />
@@ -208,7 +206,11 @@ function PureMultimodalInput({
               <AttachmentsButton fileInputRef={fileInputRef} status={status} />
             )} */}
             {status === 'submitted' || status === 'streaming' ? (
-              <StopButton stop={stop} setMessages={setMessages} />
+              <StopButton
+                stop={stop}
+                setMessages={setMessages}
+                chatId={chatId}
+              />
             ) : (
               <SendButton
                 input={input}
@@ -265,10 +267,13 @@ const AttachmentsButton = memo(PureAttachmentsButton);
 function PureStopButton({
   stop,
   setMessages,
+  chatId,
 }: {
   stop: () => void;
   setMessages: UseChatHelpers['setMessages'];
+  chatId: string;
 }) {
+  const updateMessages = useUpdateMessages();
   return (
     <Button
       data-testid="stop-button"
@@ -276,7 +281,10 @@ function PureStopButton({
       onClick={(event) => {
         event.preventDefault();
         stop();
-        setMessages((messages) => messages);
+        setMessages((messages) => {
+          updateMessages(chatId, messages);
+          return messages;
+        });
       }}
     >
       <StopCircleIcon size={14} />

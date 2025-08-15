@@ -1,0 +1,88 @@
+[
+  {
+    "idName": "code-assistant",
+    "metadata": {
+      "displayName": "Code Assistant",
+      "description": "A helpful assistant specialized in code review and programming guidance",
+      "tags": [
+        "coding",
+        "programming",
+        "assistant"
+      ],
+      "thumbnail": {
+        "type": "url",
+        "url": "https://example.com/thumbnail.png"
+      }
+    },
+    "core": {
+      "prompt": {
+        "value": "You are a helpful programming assistant. Help users with code review, debugging, and programming best practices. Always provide clear explanations and examples.",
+        "suggestions": []
+      },
+      "modelId": "openai/gpt-4",
+      "mcpServers": {}
+    }
+  },
+  {
+    "idName": "writing-assistant",
+    "metadata": {
+      "displayName": "Writing Assistant",
+      "description": "A creative writing assistant that helps with content creation and editing",
+      "tags": [
+        "writing",
+        "creative",
+        "content"
+      ],
+      "thumbnail": {
+        "type": "url",
+        "url": "https://example.com/writing-thumbnail.png"
+      }
+    },
+    "core": {
+      "prompt": {
+        "value": "You are a creative writing assistant. Help users with content creation, editing, proofreading, and improving their writing style. Provide constructive feedback and suggestions.",
+        "suggestions": []
+      },
+      "modelId": "openai/gpt-4o-mini",
+      "mcpServers": {
+        "writing-tools": {
+          "url": "npm:@writing-tools/mcp-server",
+          "transport": "httpStream"
+        }
+      }
+    }
+  },
+  {
+    "idName": "data-analyst",
+    "metadata": {
+      "displayName": "Data Analyst",
+      "description": "An AI assistant specialized in data analysis and visualization",
+      "tags": [
+        "data",
+        "analytics",
+        "visualization"
+      ],
+      "thumbnail": {
+        "type": "url",
+        "url": "https://example.com/data-thumbnail.png"
+      }
+    },
+    "core": {
+      "prompt": {
+        "value": "You are a data analyst assistant. Help users analyze data, create visualizations, and derive insights. Provide clear explanations of statistical concepts and data interpretation.",
+        "suggestions": []
+      },
+      "modelId": "openai/gpt-4",
+      "mcpServers": {
+        "pandas-tools": {
+          "url": "npm:@data-tools/pandas-mcp",
+          "transport": "httpStream"
+        },
+        "visualization-tools": {
+          "url": "npm:@viz-tools/mcp-server",
+          "transport": "httpStream"
+        }
+      }
+    }
+  }
+]

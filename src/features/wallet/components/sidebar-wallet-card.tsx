@@ -4,9 +4,8 @@ import { toast } from 'sonner';
 import { useCopyToClipboard } from 'usehooks-ts';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { Card, CardContent } from '@/shared/components/ui/card';
+import { usePaymentHubRgas } from '@/shared/hooks/use-payment-hub';
 import { cn } from '@/shared/utils';
-import { useNuwaToUsdRate } from '../hooks/use-nuwa-to-usd-rate';
-import { useWallet } from '../hooks/use-wallet';
 
 interface SidebarWalletCardProps {
   className?: string;
@@ -15,11 +14,10 @@ interface SidebarWalletCardProps {
 export function SidebarWalletCard({ className }: SidebarWalletCardProps) {
   const navigate = useNavigate();
   const { did, isConnected } = useAuth();
-  const { balance } = useWallet();
-  const nuwaToUsdRate = useNuwaToUsdRate();
+  const { usd, loading, error } = usePaymentHubRgas();
   const [_, copyToClipboard] = useCopyToClipboard();
 
-  const usdValue = (balance / nuwaToUsdRate).toFixed(2);
+  const usdValue = loading ? '…' : error ? '-' : usd;
 
   const handleClick = () => {
     navigate('/wallet');

@@ -15,7 +15,8 @@ import { ToolResult } from './tool-result';
 const PurePreviewMessage = ({
   chatId,
   message,
-  isLoading,
+  isStreaming,
+  isStreamingReasoning,
   setMessages,
   reload,
   isReadonly,
@@ -23,7 +24,8 @@ const PurePreviewMessage = ({
 }: {
   chatId: string;
   message: UIMessage;
-  isLoading: boolean;
+  isStreaming: boolean;
+  isStreamingReasoning: boolean;
   setMessages: UseChatHelpers['setMessages'];
   reload: UseChatHelpers['reload'];
   isReadonly: boolean;
@@ -57,10 +59,15 @@ const PurePreviewMessage = ({
             {message.parts?.map((part, index) => {
               if (part.type !== 'reasoning') return null;
               return (
+                // <MessageReasoning
+                //   key={`reasoning-${message.id}-${index}`}
+                //   isStreaming={isStreamingReasoning}
+                //   reasoning={part.reasoning}
+                // />
                 <MessageReasoning
                   key={`reasoning-${message.id}-${index}`}
-                  isLoading={isLoading}
-                  reasoning={part.reasoning}
+                  isStreaming={isStreamingReasoning}
+                  content={part.reasoning}
                 />
               );
             })}
@@ -147,7 +154,7 @@ const PurePreviewMessage = ({
               <MessageActions
                 key={`action-${message.id}`}
                 message={message}
-                isLoading={isLoading}
+                isStreaming={isStreaming}
               />
             )}
           </div>
@@ -160,7 +167,7 @@ const PurePreviewMessage = ({
 export const PreviewMessage = memo(
   PurePreviewMessage,
   (prevProps, nextProps) => {
-    if (prevProps.isLoading !== nextProps.isLoading) return false;
+    if (prevProps.isStreaming !== nextProps.isStreaming) return false;
     if (prevProps.message.id !== nextProps.message.id) return false;
     if (prevProps.requiresScrollPadding !== nextProps.requiresScrollPadding)
       return false;

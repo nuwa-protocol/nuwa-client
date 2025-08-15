@@ -7,7 +7,7 @@ import { persist } from 'zustand/middleware';
 import { NuwaIdentityKit } from '@/shared/services/identity-kit';
 import { createPersistConfig, db } from '@/shared/storage';
 import { generateUUID } from '@/shared/utils';
-import type { ChatSession } from './types';
+import type { ChatPayment, ChatSession } from './types';
 
 // ================= Constants ================= //
 export const createInitialChatSession = (): ChatSession => ({
@@ -16,6 +16,7 @@ export const createInitialChatSession = (): ChatSession => ({
   createdAt: Date.now(),
   updatedAt: Date.now(),
   messages: [],
+  payments: [],
 });
 
 // get current DID
@@ -33,16 +34,20 @@ interface ChatStoreState {
   sessions: Record<string, ChatSession>;
 
   // session CRUD operations
-  createSession: (session?: Partial<ChatSession>) => ChatSession;
-  readSession: (id: string) => ChatSession | null;
+  getChatSession: (id: string) => ChatSession | null;
+  getChatSessionsSortedByUpdatedAt: () => ChatSession[];
   updateSession: (
     id: string,
     updates: Partial<Omit<ChatSession, 'id'>>,
-  ) => void;
+  ) => Promise<void>;
+  addPaymentCtxIdToChatSession: (
+    id: string,
+    payment: ChatPayment,
+  ) => Promise<void>;
   deleteSession: (id: string) => void;
 
-  // update messages for a session
-  updateMessages: (sessionId: string, messages: Message[]) => void;
+  // update messages for a session and create a new session if not founds
+  updateMessages: (chatId: string, messages: Message[]) => Promise<void>;
 
   // utility methods
   clearAllSessions: () => void;
@@ -74,39 +79,35 @@ export const ChatStateStore = create<ChatStoreState>()(
     (set, get) => ({
       sessions: {},
 
-      // Session CRUD operations
-      createSession: (session?: Partial<ChatSession>) => {
-        const newSession: ChatSession = {
-          id: session?.id || generateUUID(),
-          title: session?.title || 'New Chat',
-          createdAt: session?.createdAt || Date.now(),
-          updatedAt: Date.now(),
-          messages: session?.messages || [],
-        };
-
-        set((state) => ({
-          sessions: {
-            ...state.sessions,
-            [newSession.id]: newSession,
-          },
-        }));
-
-        get().saveToDB();
-        return newSession;
-      },
-
-      readSession: (id: string) => {
+      getChatSession: (id: string) => {
         const { sessions } = get();
         return sessions[id] || null;
       },
 
-      updateSession: (
+      getChatSessionsSortedByUpdatedAt: () => {
+        const { sessions } = get();
+        return Object.values(sessions).sort(
+          (a, b) => b.updatedAt - a.updatedAt,
+        );
+      },
+
+      updateSession: async (
         id: string,
         updates: Partial<Omit<ChatSession, 'id'>>,
       ) => {
         set((state) => {
-          const session = state.sessions[id];
-          if (!session) return state;
+          let session = state.sessions[id];
+          // if session not found, create new session
+          if (!session) {
+            session = {
+              id: id,
+              title: 'New Chat',
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+              messages: [],
+              payments: [],
+            };
+          }
 
           const updatedSession = {
             ...session,
@@ -122,7 +123,49 @@ export const ChatStateStore = create<ChatStoreState>()(
           };
         });
 
-        get().saveToDB();
+        await get().saveToDB();
+      },
+
+      addPaymentCtxIdToChatSession: async (
+        id: string,
+        payment: ChatPayment,
+      ) => {
+        set((state) => {
+          const session = state.sessions[id];
+          // if session not found, create new session
+          if (!session) {
+            const newSession = {
+              id: id,
+              title: 'New Chat',
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+              messages: [],
+              payments: [payment],
+            };
+
+            return {
+              sessions: {
+                ...state.sessions,
+                [id]: newSession,
+              },
+            };
+          } else {
+            const updatedSession = {
+              ...session,
+              payments: [...session.payments, payment],
+              updatedAt: Date.now(),
+            };
+
+            return {
+              sessions: {
+                ...state.sessions,
+                [id]: updatedSession,
+              },
+            };
+          }
+        });
+
+        await get().saveToDB();
       },
 
       deleteSession: (id: string) => {
@@ -150,20 +193,21 @@ export const ChatStateStore = create<ChatStoreState>()(
         deleteFromDB();
       },
 
-      updateMessages: (sessionId: string, messages: Message[]) => {
+      updateMessages: async (chatId: string, messages: Message[]) => {
         set((state) => {
-          let session = state.sessions[sessionId];
+          let session = state.sessions[chatId];
           let isNewSession = false;
 
           // if session not found, create new session
           if (!session) {
             isNewSession = true;
             session = {
-              id: sessionId,
+              id: chatId,
               title: 'New Chat',
               createdAt: Date.now(),
               updatedAt: Date.now(),
               messages: [],
+              payments: [],
             };
           }
 
@@ -186,7 +230,7 @@ export const ChatStateStore = create<ChatStoreState>()(
             const newState = {
               sessions: {
                 ...state.sessions,
-                [sessionId]: updatedSession,
+                [chatId]: updatedSession,
               },
             };
 
@@ -196,7 +240,7 @@ export const ChatStateStore = create<ChatStoreState>()(
           return state;
         });
 
-        get().saveToDB();
+        await get().saveToDB();
       },
 
       clearAllSessions: () => {

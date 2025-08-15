@@ -14,7 +14,7 @@ function PureSuggestedActions({ append }: SuggestedActionsProps) {
   return (
     <div
       data-testid="suggested-actions"
-      className="flex overflow-x-auto pb-2 w-full gap-2"
+      className="flex overflow-x-auto pb-2 w-full gap-2 hide-scrollbar"
     >
       {suggestedActions.map((suggestedAction, index) => (
         <motion.div

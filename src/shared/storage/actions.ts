@@ -90,11 +90,11 @@ class StorageActions {
       // Clear IndexedDB
       await db.transaction(
         'rw',
-        [db.chats, db.caps, db.settings, db.capStudio],
+        [db.chats, db.capStore, db.settings, db.capStudio],
         async () => {
           await Promise.all([
             db.chats.clear(),
-            db.caps.clear(),
+            db.capStore.clear(),
             db.settings.clear(),
             db.capStudio.clear(),
           ]);

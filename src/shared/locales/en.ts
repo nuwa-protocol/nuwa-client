@@ -17,6 +17,7 @@ export const en = {
       chat: 'Chat',
       settings: 'Settings',
       search: 'Search',
+      campaigns: 'Campaigns',
       capStore: 'Cap Store',
       artifact: 'Files',
       togglePin: 'Pin',
@@ -124,6 +125,8 @@ export const en = {
     description: 'Discover and install capabilities to enhance your experience',
     searchPlaceholder: 'Search caps...',
     sidebar: {
+      favorites: 'Favorite Caps',
+      recent: 'Recent Caps', 
       installed: 'Installed',
       all: 'All Caps',
     },
@@ -134,11 +137,17 @@ export const en = {
       errorDesc: 'Failed to fetch caps. Please try again.',
       tryAgain: 'Try Again',
       noCaps: 'No caps found',
+      noFavoriteCaps: 'No Favorite Caps',
+      noRecentCaps: 'No Recent Caps',
+      noInstalledCaps: 'No Installed Caps',
       noCapsDesc: {
         search:
           'Try adjusting your search terms or browse different categories.',
         category: 'No caps available in this category yet.',
       },
+      noFavoriteCapsDesc: 'You haven\'t marked any caps as favorites yet. Browse the store and favorite caps you like.',
+      noRecentCapsDesc: 'You haven\'t used any caps recently. Try running a cap to see it here.',
+      noInstalledCapsDesc: 'You haven\'t installed any caps yet. Browse the store to find caps to install.',
     },
     card: {
       update: 'Update Available',

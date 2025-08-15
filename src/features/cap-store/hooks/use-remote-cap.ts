@@ -1,170 +1,101 @@
-import * as yaml from 'js-yaml';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useCapKit } from '@/shared/hooks/use-capkit';
-import type { Cap } from '@/shared/types/cap';
 import { CapStateStore } from '../stores';
-import { parseCapContent, validateCapContent } from '../utils';
-
-interface CapKitQueryResponse {
-  code: number;
-  data: {
-    items: Array<{
-      id: string;
-      cid: string;
-      name: string;
-    }>;
-    page: number;
-    pageSize: number;
-    totalItems: number;
-    totalPages: number;
-  };
-}
+import type { RemoteCap } from '../types';
 
 interface UseRemoteCapParams {
   searchQuery?: string;
+  tags?: string[];
   page?: number;
+  size?: number;
 }
-
 /**
  * Hook for accessing the remote caps with advanced filtering, sorting, and pagination
  */
 export function useRemoteCap() {
-  const [storeState, setStoreState] = useState(() => CapStateStore.getState());
+  const { capKit } = useCapKit();
+  const { remoteCaps, setRemoteCaps } = CapStateStore();
+  const [lastSearchParams, setLastSearchParams] = useState<UseRemoteCapParams>(
+    {},
+  );
 
-  // Subscribe to store changes
-  useEffect(() => {
-    const unsubscribe = CapStateStore.subscribe((newState) => {
-      setStoreState(newState);
-    });
-
-    return unsubscribe;
-  }, []);
-
-  const { capKit, isLoading: isCapKitLoading } = useCapKit();
-
-  const {
-    setRemoteCaps,
-    setRemoteCapLoading,
-    setRemoteCapError,
-    setRemoteCapPagination,
-    setLastSearchQuery,
-  } = storeState;
-
-  const { remoteCapState } = storeState;
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchCaps = async (params: UseRemoteCapParams = {}) => {
-    const { searchQuery: queryString = '', page: pageNum = 1 } = params;
+    const {
+      searchQuery: queryString = '',
+      page: pageNum = 0,
+      size: sizeNum = 50,
+      tags: tagsArray = [],
+    } = params;
 
-    setRemoteCapLoading(true);
-    setRemoteCapError(null);
+    setIsLoading(true);
+    setError(null);
+    setLastSearchParams(params);
 
     try {
       if (!capKit) {
         throw new Error('CapKit not initialized');
       }
 
-      const response: CapKitQueryResponse =
-        await capKit.queryWithName(queryString);
-
-      const remoteCapResults: (Cap | null)[] = await Promise.all(
-        response.data.items.map(async (item) => {
-          try {
-            const capData = await capKit.downloadCap(item.cid, 'utf8');
-            const downloadContent: unknown = yaml.load(capData.data.fileData);
-
-            // check if the cap is valid
-            if (!validateCapContent(downloadContent)) {
-              console.warn(
-                `Downloaded cap ${item.id} does not match Cap type specification, skipping...`,
-              );
-              return null;
-            }
-
-            // parse the cap content
-            return parseCapContent(downloadContent);
-          } catch (error) {
-            console.error(`Error processing cap ${item.id}:`, error);
-            return null;
-          }
-        }),
+      const response = await capKit.queryWithName(
+        queryString,
+        tagsArray,
+        pageNum,
+        sizeNum,
       );
 
-      // filter out invalid caps
-      const validRemoteCaps = remoteCapResults.filter(
-        (cap): cap is Cap => cap !== null,
-      );
+      const remoteCaps: RemoteCap[] =
+        response.data?.items?.map((item) => {
+          return {
+            cid: item.cid,
+            version: item.version,
+            id: item.id,
+            idName: item.name,
+            authorDID: item.id.split(':')[0],
+            metadata: {
+              displayName: item.displayName,
+              description: item.description,
+              tags: item.tags,
+              repository: item.repository,
+              homepage: item.homepage,
+              submittedAt: item.submittedAt,
+              thumbnail: item.thumbnail,
+            },
+          };
+        }) || [];
 
-      setRemoteCaps(validRemoteCaps);
-      setRemoteCapPagination({
-        totalCount: response.data.totalItems,
-        page: pageNum,
-        hasMore: response.data.page < response.data.totalPages,
-      });
-      setLastSearchQuery(queryString);
-      setRemoteCapLoading(false);
+      setRemoteCaps(remoteCaps);
+
+      setIsLoading(false);
 
       return response;
     } catch (err) {
       console.error('Error fetching caps:', err);
-      setRemoteCapError('Failed to fetch caps. Please try again.');
-      setRemoteCapLoading(false);
+      setError('Failed to fetch caps. Please try again.');
+      setIsLoading(false);
       throw err;
     }
   };
 
-  useEffect(() => {
-    if (capKit && !isCapKitLoading) {
-      fetchCaps({ searchQuery: '', page: 1 });
-    }
-  }, [capKit, isCapKitLoading]);
-
-  const refetch = (newSearchQuery?: string) => {
-    const queryString =
-      newSearchQuery !== undefined
-        ? newSearchQuery
-        : remoteCapState.lastSearchQuery;
-    return fetchCaps({ searchQuery: queryString, page: 1 });
+  const refetch = () => {
+    fetchCaps(lastSearchParams);
   };
 
   const goToPage = (newPage: number) => {
     return fetchCaps({
-      searchQuery: remoteCapState.lastSearchQuery,
+      searchQuery: '',
       page: newPage,
     });
   };
 
-  const nextPage = () => {
-    if (remoteCapState.hasMore) {
-      return fetchCaps({
-        searchQuery: remoteCapState.lastSearchQuery,
-        page: remoteCapState.page + 1,
-      });
-    }
-    return Promise.resolve(null);
-  };
-
-  const previousPage = () => {
-    if (remoteCapState.page > 1) {
-      return fetchCaps({
-        searchQuery: remoteCapState.lastSearchQuery,
-        page: remoteCapState.page - 1,
-      });
-    }
-    return Promise.resolve(null);
-  };
-
   return {
-    remoteCaps: remoteCapState.remoteCaps,
-    isLoading: remoteCapState.isLoading,
-    error: remoteCapState.error,
-    totalCount: remoteCapState.totalCount,
-    page: remoteCapState.page,
-    hasMore: remoteCapState.hasMore,
-    lastSearchQuery: remoteCapState.lastSearchQuery,
+    remoteCaps,
+    isLoading,
+    error,
     fetchCaps,
-    refetch,
     goToPage,
-    nextPage,
-    previousPage,
+    refetch,
   };
 }

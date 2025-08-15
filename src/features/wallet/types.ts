@@ -1,10 +1,25 @@
+import type { TransactionRecord } from '@nuwa-ai/payment-kit';
+import type { ChatPayment } from '@/features/chat/types';
+
 export type Network = 'ethereum' | 'arbitrum' | 'base' | 'polygon' | 'bsc';
 
 export type Asset = 'usdt' | 'usdc';
 
 type TransactionStatus = 'confirming' | 'completed';
 
-interface DepositTransaction {
+export interface PaymentTransaction {
+  ctxId: string;
+  details: TransactionRecord | null;
+  info: ChatPayment;
+}
+
+export interface ChatRecord {
+  chatId: string;
+  chatTitle: string;
+  transactions: PaymentTransaction[];
+}
+
+export interface DepositTransaction {
   id: string;
   type: 'deposit';
   label: string;
@@ -13,7 +28,7 @@ interface DepositTransaction {
   status: TransactionStatus;
 }
 
-interface SpendTransaction {
+export interface SpendTransaction {
   id: string;
   type: 'spend';
   label: string;

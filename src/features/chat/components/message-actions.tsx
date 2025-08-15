@@ -1,8 +1,8 @@
 import type { Message } from 'ai';
 import { CopyIcon } from 'lucide-react';
 import { memo } from 'react';
-import { useCopyToClipboard } from 'usehooks-ts';
 import { toast } from 'sonner';
+import { useCopyToClipboard } from 'usehooks-ts';
 import { Button } from '@/shared/components/ui/button';
 import {
   Tooltip,
@@ -13,14 +13,14 @@ import {
 
 export function PureMessageActions({
   message,
-  isLoading,
+  isStreaming,
 }: {
   message: Message;
-  isLoading: boolean;
+  isStreaming: boolean;
 }) {
   const [_, copyToClipboard] = useCopyToClipboard();
 
-  if (isLoading) return null;
+  if (isStreaming) return null;
   if (message.role === 'user') return null;
 
   return (
@@ -60,7 +60,7 @@ export function PureMessageActions({
 export const MessageActions = memo(
   PureMessageActions,
   (prevProps, nextProps) => {
-    if (prevProps.isLoading !== nextProps.isLoading) return false;
+    if (prevProps.isStreaming !== nextProps.isStreaming) return false;
     return true;
   },
 );

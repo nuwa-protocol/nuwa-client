@@ -25,7 +25,12 @@ export function Submit() {
 
   return (
     <DashboardLayout>
-      <CapSubmitForm cap={cap} />
+      <CapSubmitForm 
+        cap={cap} 
+        thumbnail={cap.capData.metadata.thumbnail}
+        homepage={cap.capData.metadata.homepage}
+        repository={cap.capData.metadata.repository}
+      />
     </DashboardLayout>
   );
 }

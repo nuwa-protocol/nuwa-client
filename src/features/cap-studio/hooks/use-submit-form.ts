@@ -1,6 +1,4 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -26,27 +24,26 @@ interface UseSubmitFormProps {
 
 export const useSubmitForm = ({ cap }: UseSubmitFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [thumbnail, setThumbnail] = useState<CapThumbnail>(null);
   const navigate = useNavigate();
   const { updateCap } = useLocalCapsHandler();
   const { submitCap } = useSubmitCap();
-
-  const form = useForm<SubmitFormData>({
-    resolver: zodResolver(submitSchema),
-    defaultValues: {
-      homepage: '',
-      repository: '',
-    },
-  });
-
-  const watchedData = form.watch();
 
   const handleCancel = () => {
     navigate('/cap-studio');
   };
 
-  const processConfirmedSubmit = async (submitFormData: SubmitFormData) => {
+  const handleDirectSubmit = async (
+    thumbnail?: CapThumbnail,
+    homepage?: string,
+    repository?: string,
+  ) => {
+    setIsSubmitting(true);
+
+    const submitFormData = {
+      homepage: homepage || '',
+      repository: repository || '',
+    };
+
     try {
       const capWithSubmitFormData = {
         ...cap.capData,
@@ -55,58 +52,25 @@ export const useSubmitForm = ({ cap }: UseSubmitFormProps) => {
           homepage: submitFormData.homepage || undefined,
           repository: submitFormData.repository || undefined,
           submittedAt: Date.now(),
-          thumbnail,
+          thumbnail: thumbnail || null,
         },
       };
+
+      console.log(capWithSubmitFormData);
 
       // make the submission
       const result = await submitCap(capWithSubmitFormData);
 
-      if (result.success) {
-        // update cap status to submitted
-        updateCap(cap.id, {
-          status: 'submitted',
-          cid: result.capId,
-          capData: capWithSubmitFormData,
-        });
+      // update cap status to submitted
+      updateCap(cap.id, {
+        status: 'submitted',
+        cid: result.capId,
+        capData: capWithSubmitFormData,
+      });
 
-        toast.success(result.message);
-
-        navigate('/cap-studio');
-      } else {
-        throw new Error(result.message);
-      }
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : 'Failed to submit cap. Please try again.';
-      toast.error(errorMessage);
+      toast.success(result.message);
 
       navigate('/cap-studio');
-    }
-  };
-
-  const handleFormSubmit = async () => {
-    // Trigger validation and show errors
-    const isValid = await form.trigger();
-
-    if (!isValid) {
-      // Form will show validation errors automatically
-      return;
-    }
-
-    // Show confirmation dialog
-    setShowConfirmDialog(true);
-  };
-
-  const handleConfirmedSubmit = async () => {
-    const data = form.getValues();
-    setIsSubmitting(true);
-    setShowConfirmDialog(false);
-
-    try {
-      await processConfirmedSubmit(data);
     } catch (error) {
       const errorMessage =
         error instanceof Error
@@ -120,21 +84,9 @@ export const useSubmitForm = ({ cap }: UseSubmitFormProps) => {
     }
   };
 
-  const handleFieldChange = (fieldName: keyof SubmitFormData) => {
-    form.trigger(fieldName);
-  };
-
   return {
-    form,
     handleCancel,
-    handleFormSubmit,
-    handleConfirmedSubmit,
-    handleFieldChange,
+    handleDirectSubmit,
     isSubmitting,
-    showConfirmDialog,
-    thumbnail,
-    setThumbnail,
-    setShowConfirmDialog,
-    watchedData,
   };
 };

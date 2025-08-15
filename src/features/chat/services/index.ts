@@ -12,10 +12,10 @@ export const createClientAIFetch = (): ((
       }
 
       const requestBody = JSON.parse(init.body as string);
-      const { id: sessionId, messages } = requestBody;
+      const { id: chatId, messages } = requestBody;
 
       const response = await handleAIRequest({
-        sessionId,
+        chatId,
         messages,
         signal: init?.signal ?? undefined,
       });

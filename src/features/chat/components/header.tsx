@@ -18,9 +18,9 @@ export default function Header({ chatId }: HeaderProps) {
 
   const title = session?.title || '';
 
-  const handleRename = (newTitle: string) => {
+  const handleRename = async (newTitle: string) => {
     if (chatId) {
-      updateSession(chatId, { title: newTitle });
+      await updateSession(chatId, { title: newTitle });
     }
   };
 

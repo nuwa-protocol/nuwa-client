@@ -60,7 +60,7 @@ export async function fetchModels(): Promise<CapModel[]> {
       return {
         ...parseModelInfo(model),
         description: model.description,
-        context_length: model.context_length,
+        contextLength: model.context_length,
         pricing: {
           input_per_million_tokens: parseFloat(model.pricing.prompt) * 1000000,
           output_per_million_tokens:

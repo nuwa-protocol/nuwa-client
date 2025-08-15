@@ -18,6 +18,7 @@ export const cn: typeof en = {
       chat: '聊天',
       settings: '设置',
       search: '搜索',
+      campaigns: '任务活动',
       capStore: 'Cap 商店',
       artifact: '文件',
       togglePin: '固定',
@@ -124,6 +125,8 @@ export const cn: typeof en = {
     description: '发现并安装能力，提升你的体验',
     searchPlaceholder: '搜索能力...',
     sidebar: {
+      favorites: '收藏能力',
+      recent: '最近使用',
       installed: '已安装能力',
       all: '所有能力',
     },
@@ -134,10 +137,16 @@ export const cn: typeof en = {
       errorDesc: '获取能力失败，请重试。',
       tryAgain: '重试',
       noCaps: '未找到能力',
+      noFavoriteCaps: '暂无收藏能力',
+      noRecentCaps: '暂无最近使用',
+      noInstalledCaps: '暂无已安装能力',
       noCapsDesc: {
         search: '请调整搜索词或浏览其他分类。',
         category: '此分类下暂无能力。',
       },
+      noFavoriteCapsDesc: '您还没有收藏任何能力。浏览商店并收藏您喜欢的能力。',
+      noRecentCapsDesc: '您最近还没有使用任何能力。试试运行一个能力吧。',
+      noInstalledCapsDesc: '您还没有安装任何能力。浏览商店寻找要安装的能力。',
     },
     card: {
       update: '有可用更新',

@@ -2,7 +2,7 @@ import Dexie, { type Table } from 'dexie';
 
 class Database extends Dexie {
   chats!: Table<any>;
-  caps!: Table<any>;
+  capStore!: Table<any>;
   settings!: Table<any>;
   capStudio!: Table<any>;
 
@@ -16,7 +16,7 @@ class Database extends Dexie {
 
     this.version(1).stores({
       chats: 'id, did, createdAt, updatedAt',
-      caps: 'id, did',
+      capStore: ' id,did',
       settings: 'did',
       capStudio: 'id, did, createdAt, updatedAt',
     });

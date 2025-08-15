@@ -105,10 +105,10 @@ export function ThumbnailUpload({
   return (
     <Card>
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+        <CardTitle className="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
           Thumbnail
         </CardTitle>
-        <CardDescription className="text-slate-600">
+        <CardDescription className="text-slate-600 dark:text-slate-400">
           Upload a file or enter an image URL to set your Cap thumbnail
         </CardDescription>
       </CardHeader>
@@ -117,7 +117,7 @@ export function ThumbnailUpload({
         <div className="flex items-start gap-6">
           <div className="relative group">
             {hasThumbnail ? (
-              <div className="w-32 h-32 rounded-xl border-2 border-slate-200 overflow-hidden shadow-sm bg-white">
+              <div className="w-32 h-32 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm bg-white dark:bg-slate-800">
                 <img
                   src={thumbnailSrc!}
                   alt="Thumbnail Preview"
@@ -141,8 +141,8 @@ export function ThumbnailUpload({
                 </Button>
               </div>
             ) : (
-              <div className="w-32 h-32 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center bg-slate-50 hover:bg-slate-100 transition-colors">
-                <ImageIcon className="h-10 w-10 text-slate-400" />
+              <div className="w-32 h-32 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                <ImageIcon className="h-10 w-10 text-slate-400 dark:text-slate-500" />
               </div>
             )}
           </div>
@@ -153,17 +153,17 @@ export function ThumbnailUpload({
               onValueChange={(value) => setActiveTab(value as 'upload' | 'url')}
               className="w-full"
             >
-              <TabsList className="grid w-full grid-cols-2 bg-slate-100">
+              <TabsList className="grid w-full grid-cols-2 bg-slate-100 dark:bg-slate-800">
                 <TabsTrigger
                   value="upload"
-                  className="flex items-center gap-2 data-[state=active]:bg-white"
+                  className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700"
                 >
                   <Upload className="h-4 w-4" />
                   Upload File
                 </TabsTrigger>
                 <TabsTrigger
                   value="url"
-                  className="flex items-center gap-2 data-[state=active]:bg-white"
+                  className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700"
                 >
                   <Link className="h-4 w-4" />
                   Image URL
@@ -182,12 +182,12 @@ export function ThumbnailUpload({
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full border-dashed border-slate-300 hover:border-slate-400 hover:bg-accent transition-colors"
+                    className="w-full border-dashed border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-accent dark:hover:bg-slate-700 transition-colors"
                     asChild
                   >
                     <span className="flex items-center justify-center gap-2 py-6">
-                      <Upload className="h-5 w-5 text-slate-500" />
-                      <span className="text-slate-600">
+                      <Upload className="h-5 w-5 text-slate-500 dark:text-slate-400" />
+                      <span className="text-slate-600 dark:text-slate-300">
                         Click to select image file
                       </span>
                     </span>
@@ -201,7 +201,7 @@ export function ThumbnailUpload({
                     placeholder="Enter image URL (e.g., https://example.com/image.jpg)"
                     value={inputUrl}
                     onChange={(e) => setInputUrl(e.target.value)}
-                    className="flex-1 border-slate-300 focus:border-blue-400 focus:ring-blue-400"
+                    className="flex-1 border-slate-300 dark:border-slate-600 focus:border-blue-400 dark:focus:border-blue-500 focus:ring-blue-400 dark:focus:ring-blue-500 dark:bg-slate-800 dark:text-slate-200"
                   />
                   <Button
                     type="button"
@@ -214,7 +214,7 @@ export function ThumbnailUpload({
               </TabsContent>
             </Tabs>
 
-            <div className="text-xs text-slate-500 space-y-1">
+            <div className="text-xs text-slate-500 dark:text-slate-400 space-y-1">
               <p>• Supported formats: PNG, JPG, WebP, GIF</p>
               <p>• File size: Maximum 2MB</p>
               <p>• Recommended size: 400×400px or 1:1 ratio</p>

@@ -1,128 +1,98 @@
-import { Loader2, Play, Settings, Trash2 } from 'lucide-react';
+import { Loader2, MoreHorizontal } from 'lucide-react';
 import { useState } from 'react';
-import { toast } from 'sonner';
 import {
-  Button,
   Card,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/shared/components/ui';
-import { useLanguage } from '@/shared/hooks/use-language';
 import type { Cap } from '@/shared/types/cap';
-import { useInstalledCap } from '../hooks/use-installed-cap';
-import { CapThumbnail } from './cap-thumbnail';
+import { useCapStore } from '../hooks/use-cap-store';
+import type { RemoteCap } from '../types';
+import { CapAvatar } from './cap-avatar';
+import { useCapStoreModal } from './cap-store-modal-context';
 
-export interface CapCardProps {
-  cap: Cap;
-  onRun?: (cap: Cap) => void;
+interface CapCardActions {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
 }
 
-export function CapCard({ cap, onRun }: CapCardProps) {
-  const { installCap, uninstallCap, updateInstalledCap, isInstalled } =
-    useInstalledCap(cap);
+export interface CapCardProps {
+  cap: Cap | RemoteCap;
+  actions?: CapCardActions[];
+}
+
+export function CapCard({ cap, actions }: CapCardProps) {
+  const { runCap } = useCapStore();
+  const { closeModal } = useCapStoreModal();
   const [isLoading, setIsLoading] = useState(false);
-  const { t } = useLanguage();
 
-  const handleInstall = async () => {
+  const handleCapClick = async (cap: Cap | RemoteCap) => {
     setIsLoading(true);
     try {
-      installCap(cap);
-      toast.success(`${cap.metadata.displayName} has been installed`);
-    } catch (error) {
-      toast.error(t('capStore.card.installFailed'));
+      const isRemoteCap = 'cid' in cap;
+      if (isRemoteCap) {
+        await runCap(cap.id, cap.cid);
+      } else {
+        await runCap(cap.id);
+      }
+      closeModal();
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleUninstall = async () => {
-    setIsLoading(true);
-    try {
-      uninstallCap(cap.id);
-      toast.success(`${cap.metadata.displayName} has been uninstalled`);
-    } catch (error) {
-      toast.error(t('capStore.card.uninstallFailed'));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleRun = () => {
-    onRun?.(cap);
-  };
-
+  const capMetadata = cap.metadata;
   return (
-    <Card className="p-4 hover:shadow-md transition-shadow">
-      <div className="flex items-start gap-3">
-        <CapThumbnail cap={cap} size="lg" />
+    <Card
+      className={`p-4 hover:shadow-md transition-shadow cursor-pointer ${isLoading ? 'opacity-75 pointer-events-none' : ''}`}
+      onClick={() => handleCapClick(cap)}
+    >
+      <div className="flex items-center gap-3">
+        <CapAvatar
+          capName={capMetadata.displayName}
+          capThumbnail={capMetadata.thumbnail}
+          size="xl"
+        />
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-1">
-            <h3 className="font-medium text-sm truncate">
-              {cap.metadata.displayName}
-            </h3>
-          </div>
-          <p className="text-xs text-muted-foreground mb-3 line-clamp-2 h-8 overflow-hidden">
-            {cap.metadata.description}
+          <h3 className="font-medium text-sm truncate">
+            {capMetadata.displayName}
+          </h3>
+          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+            {capMetadata.description}
           </p>
-
-          {/* Action buttons */}
-          <div className="flex items-center justify-between">
-            <div>
-              {isInstalled ? (
-                <Button
-                  size="sm"
-                  variant="default"
-                  className="text-xs px-2 py-1 h-6"
-                  onClick={handleRun}
-                >
-                  <Play className="size-3 mr-1" />
-                  Run
-                </Button>
-              ) : (
-                /* Install button */
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="text-xs px-2 py-1 h-6"
-                  onClick={handleInstall}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <Loader2 className="size-3 animate-spin" />
-                  ) : (
-                    t('capStore.card.install')
-                  )}
-                </Button>
-              )}
-            </div>
-            {isInstalled && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-xs px-4 py-2 h-6 relative"
-                    style={{
-                      paddingRight: isInstalled ? 14 : undefined,
-                    }}
-                  >
-                    <span className="relative inline-block">
-                      <Settings className="size-3" />
-                    </span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onClick={handleUninstall}>
-                    <Trash2 className="size-3 mr-2" />
-                    Uninstall
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
         </div>
+        {isLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+        ) : (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="p-1.5 hover:bg-muted rounded-sm transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                <span className="sr-only">More Actions</span>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {actions?.map((action) => (
+                <DropdownMenuItem
+                  key={action.label}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={(e) => e.stopPropagation()}
+                  onSelect={() => action.onClick()}
+                >
+                  {action.icon}
+                  {action.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     </Card>
   );

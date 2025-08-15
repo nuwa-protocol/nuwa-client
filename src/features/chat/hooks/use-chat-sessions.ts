@@ -6,7 +6,7 @@ export const useChatSessions = () => {
   const store = ChatStateStore();
 
   const getSession = useCallback((id: string) => {
-    return store.readSession(id);
+    return store.getChatSession(id);
   }, []);
 
   const deleteSession = useCallback((id: string) => {
@@ -14,8 +14,8 @@ export const useChatSessions = () => {
   }, []);
 
   const updateSession = useCallback(
-    (id: string, updates: Partial<Omit<ChatSession, 'id'>>) => {
-      store.updateSession(id, updates);
+    async (id: string, updates: Partial<Omit<ChatSession, 'id'>>) => {
+      await store.updateSession(id, updates);
     },
     [],
   );
@@ -31,8 +31,8 @@ export const useChatSessions = () => {
   }, [store.sessions]);
 
   const deleteMessagesAfterTimestamp = useCallback(
-    (sessionId: string, timestamp: number) => {
-      const currentSession = store.readSession(sessionId);
+    async (chatId: string, timestamp: number) => {
+      const currentSession = store.getChatSession(chatId);
       if (!currentSession) return;
 
       const updatedMessages = currentSession.messages.filter((msg) => {
@@ -48,7 +48,7 @@ export const useChatSessions = () => {
         updatedAt: Date.now(),
       };
 
-      store.updateSession(sessionId, updatedSession);
+      await store.updateSession(chatId, updatedSession);
     },
     [store],
   );
