@@ -61,6 +61,17 @@ export const useSubmitForm = ({ cap }: UseSubmitFormProps) => {
       // make the submission
       const result = await submitCap(capWithSubmitFormData);
 
+      if (result.success) {
+        const error = result.errors?.[0] as any;
+        const errorMessage = error instanceof Error
+          ? error.message
+          : 'Failed to submit cap. Please try again.';
+        toast.error(errorMessage);
+
+        navigate('/cap-studio');
+        return;
+      }
+
       // update cap status to submitted
       updateCap(cap.id, {
         status: 'submitted',

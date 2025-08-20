@@ -1,6 +1,7 @@
 import { CapKit } from '@nuwa-ai/cap-kit';
 import { useEffect, useState } from 'react';
 import { NuwaIdentityKit } from '../services/identity-kit';
+import { CapContractAddress } from '../constants/cap';
 
 export const useCapKit = () => {
   const [capKit, setCapKit] = useState<CapKit | null>(null);
@@ -16,7 +17,7 @@ export const useCapKit = () => {
           roochUrl: 'https://test-seed.rooch.network',
           mcpUrl: 'https://test-cap.nuwa.dev/mcp',
           contractAddress:
-            '0xdc2a3eba923548660bb642b9df42936941a03e2d8bab223ae6dda6318716e742',
+          CapContractAddress,
           signer: keyManager,
         });
 

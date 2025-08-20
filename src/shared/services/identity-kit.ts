@@ -2,6 +2,7 @@ import {
   IdentityKitWeb,
   type UseIdentityKitOptions,
 } from '@nuwa-ai/identity-kit-web';
+import { CapContractAddress } from '../constants/cap';
 
 export const NuwaIdentityKit = (options: UseIdentityKitOptions = {}) => {
   const identityKit = IdentityKitWeb.init({
@@ -21,7 +22,9 @@ export const NuwaIdentityKit = (options: UseIdentityKitOptions = {}) => {
   };
 
   const connect = async () => {
-    await identityKit.then((identityKit) => identityKit.connect());
+    await identityKit.then((identityKit) => identityKit.connect({
+      scopes: [`${CapContractAddress}::*::*`]
+    }));
   };
 
   const logout = async () => {

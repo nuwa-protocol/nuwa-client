@@ -33,6 +33,8 @@ export function useRemoteCap() {
         return;
       }
 
+      console.log('fetchCaps', params);
+
       const {
         searchQuery: queryString = '',
         page: pageNum = 0,
@@ -157,7 +159,7 @@ export function useRemoteCap() {
       }
 
       // download cap if not installed
-      const downloadedCap = await capKit.downloadCap(remoteCap.cid);
+      const downloadedCap = await capKit.downloadCapWithCID(remoteCap.cid);
       await addInstalledCap({
         cid: remoteCap.cid,
         capData: downloadedCap,

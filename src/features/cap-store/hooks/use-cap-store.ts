@@ -16,7 +16,7 @@ export const useCapStore = () => {
       throw new Error('CapKit not initialized');
     }
 
-    const capData = await capKit.downloadCap(capCid, 'utf8');
+    const capData = await capKit.downloadCapWithCID(capCid, 'utf8');
 
     return capData;
   };
