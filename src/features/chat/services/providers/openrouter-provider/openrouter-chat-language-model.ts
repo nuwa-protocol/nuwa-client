@@ -732,7 +732,7 @@ export class OpenRouterChatLanguageModel implements LanguageModelV1 {
             if (finishReason === 'tool-calls') {
               for (const toolCall of toolCalls) {
                 // Guard against sparse array holes or undefined entries
-                if (!toolCall) continue;
+                if (toolCall == null) continue;
                 if (!toolCall.sent) {
                   controller.enqueue({
                     type: 'tool-call',
