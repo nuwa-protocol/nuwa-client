@@ -731,6 +731,8 @@ export class OpenRouterChatLanguageModel implements LanguageModelV1 {
             // Forward any unsent tool calls if finish reason is 'tool-calls'
             if (finishReason === 'tool-calls') {
               for (const toolCall of toolCalls) {
+                // Guard against sparse array holes or undefined entries
+                if (!toolCall) continue;
                 if (!toolCall.sent) {
                   controller.enqueue({
                     type: 'tool-call',
