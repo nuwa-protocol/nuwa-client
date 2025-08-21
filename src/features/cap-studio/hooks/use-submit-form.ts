@@ -56,12 +56,10 @@ export const useSubmitForm = ({ cap }: UseSubmitFormProps) => {
         },
       };
 
-      console.log(capWithSubmitFormData);
-
       // make the submission
       const result = await submitCap(capWithSubmitFormData);
 
-      if (result.success) {
+      if (!result.success) {
         const error = result.errors?.[0] as any;
         const errorMessage = error instanceof Error
           ? error.message
