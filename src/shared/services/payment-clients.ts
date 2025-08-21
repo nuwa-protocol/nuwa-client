@@ -3,14 +3,16 @@ import {
   createHttpClient,
   RoochPaymentChannelContract,
   PaymentHubClient,
+  DebugLogger,
 } from '@nuwa-ai/payment-kit';
 import type { PaymentChannelHttpClient } from '@nuwa-ai/payment-kit';
-import { LLM_GATEWAY_BASE_URL } from '@/shared/config/llm-gateway';
+import { LLM_GATEWAY } from '@/shared/config/llm-gateway';
 
 let httpClientPromise: Promise<PaymentChannelHttpClient> | null = null;
 let hubClientPromise: Promise<PaymentHubClient> | null = null;
 
 async function getIdentityEnvAndSigner() {
+  DebugLogger.setGlobalLevel('debug');
   const sdk = await IdentityKitWeb.init({ storage: 'local' });
   const env = sdk.getIdentityEnv();
   const signer = env.keyManager;
@@ -21,7 +23,14 @@ export async function getHttpClient(): Promise<PaymentChannelHttpClient> {
   if (!httpClientPromise) {
     httpClientPromise = (async () => {
       const { env } = await getIdentityEnvAndSigner();
-      return createHttpClient({ baseUrl: LLM_GATEWAY_BASE_URL, env });
+      return createHttpClient({
+        baseUrl: LLM_GATEWAY,
+        env,
+        maxAmount: BigInt(1000000000),//max amount per request, 10 rgas, 0.1 usd
+        timeoutMs: 15000,
+        timeoutMsStream: 15000,
+        debug: true,
+      });
     })();
   }
   return httpClientPromise;
@@ -37,7 +46,7 @@ export async function getPaymentHubClient(
       const contract = new RoochPaymentChannelContract({
         rpcUrl: chain?.rpcUrl,
         network: chain?.network,
-        debug: !!chain?.debug,
+        debug: true,
       });
       return new PaymentHubClient({
         contract,
