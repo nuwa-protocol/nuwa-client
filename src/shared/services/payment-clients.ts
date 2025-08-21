@@ -8,11 +8,8 @@ import {
 import type { PaymentChannelHttpClient } from '@nuwa-ai/payment-kit';
 import { LLM_GATEWAY } from '@/shared/config/llm-gateway';
 
-let httpClientPromise: Promise<PaymentChannelHttpClient> | null = null;
-let hubClientPromise: Promise<PaymentHubClient> | null = null;
-
-async function getIdentityEnvAndSigner() {
 DebugLogger.setGlobalLevel('debug');
+const MAX_AMOUNT = BigInt(1000000000); //max amount per request, 10 rgas, 0.1 usd
 
 let httpClientPromise: Promise<PaymentChannelHttpClient> | null = null;
 let hubClientPromise: Promise<PaymentHubClient> | null = null;
@@ -31,7 +28,7 @@ export async function getHttpClient(): Promise<PaymentChannelHttpClient> {
       return createHttpClient({
         baseUrl: LLM_GATEWAY,
         env,
-        maxAmount: BigInt(1000000000), //max amount per request, 10 rgas, 0.1 usd
+        maxAmount: MAX_AMOUNT,
         timeoutMs: 15000,
         timeoutMsStream: 15000,
         debug: true,
