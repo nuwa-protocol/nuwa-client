@@ -66,7 +66,7 @@ export default function TestPage() {
             </div>
             <div className="flex-1">
                 <CapUIRenderer
-                    srcUrl="https://cap-ui-sooty.vercel.app/test"
+                    srcUrl="https://capui-demo.vercel.app/test"
                     height={300}
                     title="Test"
                     onError={handleError}
