@@ -4,6 +4,8 @@ import cx from 'classnames';
 import equal from 'fast-deep-equal';
 import { AnimatePresence, motion } from 'framer-motion';
 import { memo, useState } from 'react';
+import { CapUIRenderer } from '@/features/capui/components/capui-renderer';
+import type { NuwaCapUIResource } from '@/features/capui/types';
 import { cn, generateUUID } from '@/shared/utils';
 import { MessageActions } from './message-actions';
 import { MessageReasoning } from './message-reasoning';
@@ -104,9 +106,6 @@ const PurePreviewMessage = ({
                       toolName={toolName}
                       toolCallId={toolCallId}
                       args={args}
-                      className={cx({
-                        skeleton: ['getWeather'].includes(toolName),
-                      })}
                     />
                   );
                 }
@@ -114,6 +113,25 @@ const PurePreviewMessage = ({
                 if (state === 'result') {
                   const { result, args } = toolInvocation;
 
+                  // check if the result is a capui resource
+                  const content = result.content[0];
+                  const isCapUIResource =
+                    content.type === 'resource' &&
+                    content.resource.uri.startsWith('capui://');
+
+                  // if it is, render the capui resource
+                  if (isCapUIResource) {
+                    const resource = content.resource as NuwaCapUIResource;
+                    return (
+                      <CapUIRenderer
+                        srcUrl={resource.text}
+                        height={resource.annotations.height}
+                        title={resource.name}
+                      />
+                    );
+                  }
+
+                  // if it is not, render the plain tool result
                   return (
                     <ToolResult
                       key={toolCallId}

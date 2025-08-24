@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { Button } from '@/shared/components';
 import {
+    CapUIRenderer,
     type ChildMethods,
-    IFrameRenderer,
-} from '@/shared/components/iframe-renderer';
+} from '@/features/capui/components/capui-renderer';
+import { Button } from '@/shared/components';
 
 export default function TestPage() {
     const [childMethods, setChildMethods] = useState<ChildMethods | null>(null);
@@ -38,7 +38,9 @@ export default function TestPage() {
 
     return (
         <div className="h-full flex flex-col mt-6">
-            <h1 className="text-2xl font-bold mb-4 ml-4">IFrame Renderer Communitcation Test</h1>
+            <h1 className="text-2xl font-bold mb-4 ml-4">
+                IFrame Renderer Communitcation Test
+            </h1>
             <span className="ml-4 text-sm">
                 Status: {childMethods ? '🟢 Connected' : '🔴 Disconnected'}
             </span>
@@ -63,9 +65,10 @@ export default function TestPage() {
                 </Button>
             </div>
             <div className="flex-1">
-                <IFrameRenderer
+                <CapUIRenderer
                     srcUrl="http://localhost:3000/test"
-                    style={{ width: '100%', height: '100%' }}
+                    height={300}
+                    title="Test"
                     onError={handleError}
                     onConnected={handleConnected}
                     onUIMessage={handleUIMessage}
