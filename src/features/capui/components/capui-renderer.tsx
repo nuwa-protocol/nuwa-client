@@ -94,7 +94,7 @@ export const CapUIRenderer = ({
         }
     }, [onError, onConnected, connectionTimeout]);
 
-    const sandbox = 'allow-scripts allow-same-origin';
+    const sandbox = 'allow-scripts';
 
     if (!srcUrl) {
         return (
