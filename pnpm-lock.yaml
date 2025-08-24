@@ -200,6 +200,9 @@ importers:
       mermaid:
         specifier: ^11.8.0
         version: 11.8.0
+      penpal:
+        specifier: ^7.0.4
+        version: 7.0.4
       radix-ui:
         specifier: ^1.4.3
         version: 1.4.3(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -5524,6 +5527,9 @@ packages:
 
   pathe@2.0.3:
     resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
+
+  penpal@7.0.4:
+    resolution: {integrity: sha512-O+M2V83oSaWQRDHghxYsq23TQgjAEzlrwemS0a1md16wZWqgOgmB35u4zluMwyqF6GnF/XT4v0N4QrrRgWAgSQ==}
 
   pg-int8@1.0.1:
     resolution: {integrity: sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw==}
@@ -15006,6 +15012,8 @@ snapshots:
   path-type@4.0.0: {}
 
   pathe@2.0.3: {}
+
+  penpal@7.0.4: {}
 
   pg-int8@1.0.1: {}
 
