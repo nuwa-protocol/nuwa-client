@@ -36,6 +36,14 @@ export default function TestPage() {
         setMessageReceived(message);
     };
 
+    const handleUIToolCall = (tool: string) => {
+        toast.success(`Tool called: ${tool}`);
+    };
+
+    const handleUIPromptCall = (prompt: string) => {
+        toast.success(`Prompt called: ${prompt}`);
+    };
+
     return (
         <div className="h-full flex flex-col mt-6">
             <h1 className="text-2xl font-bold mb-4 ml-4">
@@ -66,12 +74,14 @@ export default function TestPage() {
             </div>
             <div className="flex-1">
                 <CapUIRenderer
-                    srcUrl="https://capui-demo.vercel.app/test"
+                    srcUrl="http://localhost:3000/test"
                     height={300}
                     title="Test"
                     onError={handleError}
                     onConnected={handleConnected}
                     onUIMessage={handleUIMessage}
+                    onUIToolCall={handleUIToolCall}
+                    onUIPrompt={handleUIPromptCall}
                 />
             </div>
         </div>
