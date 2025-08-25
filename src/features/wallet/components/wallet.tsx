@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import AppkitContextProvider from './appkit-context';
 import { BalanceCard } from './balance-card';
-import { TopUpModal } from './top-up-modal';
 import { TransactionHistory } from './transaction-history';
 
 export function Wallet() {
@@ -20,9 +18,9 @@ export function Wallet() {
 
       <TransactionHistory />
 
-      <AppkitContextProvider>
+      {/* <AppkitContextProvider>
         <TopUpModal open={showTopUpModal} onOpenChange={setShowTopUpModal} />
-      </AppkitContextProvider>
+      </AppkitContextProvider> */}
     </div>
   );
 }

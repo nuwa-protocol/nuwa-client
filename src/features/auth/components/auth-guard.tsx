@@ -2,6 +2,7 @@ import { createContext, type ReactNode, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChatStateStore } from '@/features/chat/stores';
 import { SettingsStateStore } from '@/features/settings/stores';
+import { WalletStore } from '@/features/wallet/stores';
 import { useAuth } from '@/shared/hooks/use-auth';
 
 type AuthGuardValue = ReturnType<typeof useAuth>;
@@ -35,6 +36,7 @@ export function AuthGuard({ children }: { children: ReactNode }) {
       // Force rehydration of all stores
       ChatStateStore.persist.rehydrate();
       SettingsStateStore.persist.rehydrate();
+      WalletStore.persist.rehydrate();
     }
   }, [isConnected]);
 

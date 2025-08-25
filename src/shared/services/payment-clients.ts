@@ -29,8 +29,8 @@ export async function getHttpClient(): Promise<PaymentChannelHttpClient> {
         baseUrl: LLM_GATEWAY,
         env,
         maxAmount: MAX_AMOUNT,
-        timeoutMs: 15000,
-        timeoutMsStream: 15000,
+        timeoutMs: 60000,
+        timeoutMsStream: 60000,
         debug: true,
       });
     })();
