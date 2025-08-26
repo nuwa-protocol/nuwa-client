@@ -59,3 +59,19 @@ export async function getPaymentHubClient(
   }
   return hubClientPromise;
 }
+
+export async function cleanupPaymentClientsOnLogout(): Promise<void> {
+  try {
+    if (httpClientPromise) {
+      const client = await httpClientPromise;
+      try {
+        await client.logoutCleanup({ clearMapping: true, reason: 'user-logout' });
+      } catch (e) {
+        DebugLogger.get('PaymentChannelHttpClient').debug('logoutCleanup failed', e);
+      }
+    }
+  } finally {
+    httpClientPromise = null;
+    hubClientPromise = null;
+  }
+}
