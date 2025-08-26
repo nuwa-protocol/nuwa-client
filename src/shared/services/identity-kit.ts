@@ -7,7 +7,7 @@ import { cleanupPaymentClientsOnLogout } from './payment-clients';
 
 export const NuwaIdentityKit = (options: UseIdentityKitOptions = {}) => {
   const identityKit = IdentityKitWeb.init({
-    appName: 'Nuwa Assistant',
+    appName: 'Nuwa Client',
     storage: 'local',
     ...options,
   });
