@@ -2,6 +2,7 @@ import { AlertCircle } from 'lucide-react';
 import { connect, WindowMessenger } from 'penpal';
 import { useCallback, useRef, useState } from 'react';
 import { Skeleton } from '@/shared/components';
+import { useChatContext } from '../contexts/chat-context';
 
 const ErrorDisplay = () => {
   return (
@@ -31,6 +32,7 @@ export type CapUIRendererProps = {
 export const CapUIRenderer = ({ srcUrl, title }: CapUIRendererProps) => {
   const CONNECTION_TIMEOUT = 3000;
 
+  const { append } = useChatContext();
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [height, setHeight] = useState<number>(100); // Default height
@@ -41,8 +43,10 @@ export const CapUIRenderer = ({ srcUrl, title }: CapUIRendererProps) => {
   };
 
   const sendPrompt = (prompt: string) => {
-    // TODO: Handle receiving prompt from Cap UI
-    console.log('Prompt received from Cap UI', prompt);
+    append({
+      role: 'user',
+      content: prompt,
+    });
   };
 
   const connectToPenpal = useCallback(async () => {
@@ -140,15 +144,15 @@ export const CapUIRenderer = ({ srcUrl, title }: CapUIRendererProps) => {
         style={
           !isConnected || error
             ? {
-                width: 0,
-                height: 0,
-                position: 'absolute',
-                border: 0,
-              }
+              width: 0,
+              height: 0,
+              position: 'absolute',
+              border: 0,
+            }
             : {
-                width: '100%',
-                height,
-              }
+              width: '100%',
+              height,
+            }
         }
         sandbox={sandbox}
         title={title ?? 'Nuwa Cap UI'}
