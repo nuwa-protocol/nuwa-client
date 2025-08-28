@@ -3,10 +3,11 @@ import {
   type UseIdentityKitOptions,
 } from '@nuwa-ai/identity-kit-web';
 import { capKitConfig } from '../config/capkit';
+import { cleanupPaymentClientsOnLogout } from './payment-clients';
 
 export const NuwaIdentityKit = (options: UseIdentityKitOptions = {}) => {
   const identityKit = IdentityKitWeb.init({
-    appName: 'Nuwa Assistant',
+    appName: 'Nuwa Client',
     storage: 'local',
     ...options,
   });
@@ -30,7 +31,15 @@ export const NuwaIdentityKit = (options: UseIdentityKitOptions = {}) => {
   };
 
   const logout = async () => {
-    await identityKit.then((identityKit) => identityKit.logout());
+    await identityKit.then(async (identityKit) => {
+      try {
+        // Cleanup payment clients on logout first to avoid race condition
+        await cleanupPaymentClientsOnLogout();
+        await identityKit.logout();
+      } catch (error) {
+        console.error('Error during logout:', error);
+      }
+    });
   };
 
   const handleCallback = async (search: string) => {

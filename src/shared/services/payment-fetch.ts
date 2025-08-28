@@ -17,7 +17,15 @@ export function createPaymentFetch(
         ? input
         : ((input as any).url ?? input.toString()),
     );
-    const methodFromInit = (init?.method ?? 'POST').toUpperCase() as
+    // If caller passed a Request object with an AbortSignal, forward it when init.signal is absent
+    const incomingSignal =
+      typeof input === 'object' && input !== null && 'signal' in (input as any)
+        ? ((input as any).signal as AbortSignal | undefined)
+        : undefined;
+    const finalInit: RequestInit | undefined =
+      !init?.signal && incomingSignal ? { ...init, signal: incomingSignal } : init;
+
+    const methodFromInit = (finalInit?.method ?? 'POST').toUpperCase() as
       | 'GET'
       | 'POST'
       | 'PUT'
@@ -28,7 +36,7 @@ export function createPaymentFetch(
     const handle = await client.requestWithPayment(
       methodFromInit,
       targetUrl.toString(),
-      init,
+      finalInit,
     );
     return handle.response;
   };

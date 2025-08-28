@@ -19,8 +19,9 @@ export const useChatDefault = (
   const handleUseChatError = (error: Error) => {
     const errorMessage = processErrorMessage(error);
     if (errorMessage !== 'IGNORED_ERROR') {
+      // Use the actual error message from processErrorMessage
       toast.error('An error occurred', {
-        description: 'Please check your network connection and try again.',
+        description: errorMessage,
         action: {
           label: 'Retry',
           onClick: () => reload(),
