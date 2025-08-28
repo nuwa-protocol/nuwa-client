@@ -1,4 +1,3 @@
-import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { DIDAuth } from '@nuwa-ai/identity-kit';
 import { IdentityKitWeb } from '@nuwa-ai/identity-kit-web';
@@ -33,28 +32,6 @@ export class SignedStreamableHTTPClientTransport extends StreamableHTTPClientTra
   }
   async send(message: any): Promise<void> {
     // Inject new header each request
-    const auth = await this.signer(message);
-    (this as any).requestInit = (this as any).requestInit || {};
-    (this as any).requestInit.headers = {
-      ...(this as any).requestInit.headers,
-      Authorization: auth,
-    };
-    return super.send(message);
-  }
-}
-
-/**
- * Transport with per-request DIDAuth header (SSE fallback).
- */
-export class SignedSSEClientTransport extends SSEClientTransport {
-  private signer: Signer;
-  constructor(url: URL, signer: Signer, initialHeader: string) {
-    super(url, {
-      requestInit: { headers: { Authorization: initialHeader } },
-    } as any);
-    this.signer = signer;
-  }
-  async send(message: any): Promise<void> {
     const auth = await this.signer(message);
     (this as any).requestInit = (this as any).requestInit || {};
     (this as any).requestInit.headers = {

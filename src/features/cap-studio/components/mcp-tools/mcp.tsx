@@ -22,17 +22,12 @@ import {
   CardTitle,
   Input,
   ScrollArea,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
 } from '@/shared/components/ui';
 import {
   closeNuwaMCPClient,
   createNuwaMCPClient,
 } from '@/shared/services/mcp-client';
-import type { McpTransportType, NuwaMCPClient } from '@/shared/types';
+import type { NuwaMCPClient } from '@/shared/types';
 import type { LocalCap } from '../../types';
 import { DashboardGrid } from '../layout/dashboard-layout';
 import { McpDebugPanel } from './debug-panel';
@@ -45,12 +40,6 @@ interface LogEntry {
   data?: any;
 }
 
-interface ConnectionConfig {
-  url: string;
-  transport: McpTransportType | '';
-  name?: string;
-}
-
 interface McpProps {
   cap?: LocalCap | null;
   serverName?: string | null;
@@ -59,7 +48,6 @@ interface McpProps {
 export function Mcp({ cap, serverName }: McpProps) {
   const navigate = useNavigate();
   const [url, setUrl] = useState('http://localhost:8080/mcp');
-  const [transport, setTransport] = useState<McpTransportType | ''>('');
   const [connected, setConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [client, setClient] = useState<NuwaMCPClient | null>(null);
@@ -89,7 +77,6 @@ export function Mcp({ cap, serverName }: McpProps) {
     if (cap && serverName && cap.capData.core.mcpServers[serverName]) {
       const serverConfig = cap.capData.core.mcpServers[serverName];
       setUrl(serverConfig.url);
-      setTransport(serverConfig.transport);
     }
   }, [cap, serverName, pushLog]);
 
@@ -100,10 +87,10 @@ export function Mcp({ cap, serverName }: McpProps) {
     try {
       pushLog({
         type: 'info',
-        message: `Connecting to ${url} with transport: ${transport || 'httpStream'}`,
+        message: `Connecting to ${url} with Streamable HTTP transport`,
       });
 
-      const newClient = await createNuwaMCPClient(url, transport || undefined);
+      const newClient = await createNuwaMCPClient(url);
 
       setClient(newClient);
       setConnected(true);
@@ -129,7 +116,7 @@ export function Mcp({ cap, serverName }: McpProps) {
     } finally {
       setConnecting(false);
     }
-  }, [connecting, url, transport, pushLog]);
+  }, [connecting, url, pushLog]);
 
   const fetchServerCapabilities = async (mcpClient: NuwaMCPClient) => {
     // Fetch tools
@@ -188,7 +175,7 @@ export function Mcp({ cap, serverName }: McpProps) {
     // Set server info
     setServerInfo({
       url,
-      transport: transport || 'httpStream',
+      transport: 'httpStream',
       toolCount: tools.length,
       promptCount: prompts.length,
       resourceCount: resources.length,
@@ -250,15 +237,6 @@ export function Mcp({ cap, serverName }: McpProps) {
 
       toast.error(String(err));
     }
-  };
-
-  const loadConnection = (config: ConnectionConfig) => {
-    setUrl(config.url);
-    setTransport(
-      config.transport && ['httpStream', 'sse'].includes(config.transport)
-        ? config.transport
-        : '',
-    );
   };
 
   const clearLogs = () => {
@@ -329,26 +307,10 @@ export function Mcp({ cap, serverName }: McpProps) {
 
               <div className="space-y-2">
                 <div className="text-sm font-medium">Transport</div>
-                <Select
-                  value={transport}
-                  onValueChange={(value: string) => {
-                    const allowed = ['httpStream', 'sse'];
-                    if (allowed.includes(value)) {
-                      setTransport(value as McpTransportType);
-                    } else {
-                      setTransport('');
-                    }
-                  }}
-                  disabled={connecting || connected}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select transport" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="httpStream">HTTP Stream</SelectItem>
-                    <SelectItem value="sse">Server-Sent Events</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Input value="Streamable HTTP" disabled className="bg-muted" />
+                <p className="text-xs text-muted-foreground">
+                  Only Streamable HTTP transport is supported.
+                </p>
               </div>
             </div>
 

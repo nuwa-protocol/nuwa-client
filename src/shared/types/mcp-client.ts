@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 // Supported transport identifiers
-export type McpTransportType = 'httpStream' | 'sse';
+export type McpTransportType = 'httpStream';
 
 /**
  * Prompt argument definition

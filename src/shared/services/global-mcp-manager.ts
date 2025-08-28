@@ -43,10 +43,7 @@ class GlobalMCPManager {
     // Initialize all MCP clients
     for (const [serverName, serverConfig] of Object.entries(mcpServers)) {
       try {
-        const client = await createNuwaMCPClient(
-          serverConfig.url,
-          serverConfig.transport,
-        );
+        const client = await createNuwaMCPClient(serverConfig.url);
         clients.set(serverName, client);
       } catch (error) {
         throw new Error(

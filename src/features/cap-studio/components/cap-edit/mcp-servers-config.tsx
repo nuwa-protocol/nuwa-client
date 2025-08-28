@@ -10,11 +10,6 @@ import {
   CardTitle,
   Input,
   Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
 } from '@/shared/components/ui';
 
 import type { CapMcpServerConfig } from '@/shared/types/cap';
@@ -38,7 +33,7 @@ export function McpServersConfig({
   >({
     name: '',
     url: '',
-    transport: 'sse',
+    transport: 'httpStream',
   });
   const [errors, setErrors] = useState<{
     name?: string;
@@ -79,7 +74,7 @@ export function McpServersConfig({
     setNewServer({
       name: '',
       url: '',
-      transport: 'sse',
+      transport: 'httpStream',
     });
     setErrors({});
   };
@@ -129,7 +124,7 @@ export function McpServersConfig({
     setNewServer({
       name: '',
       url: '',
-      transport: 'sse',
+      transport: 'httpStream',
     });
     setErrors({});
   };
@@ -140,7 +135,7 @@ export function McpServersConfig({
     setNewServer({
       name: '',
       url: '',
-      transport: 'sse',
+      transport: 'httpStream',
     });
     setErrors({});
   };
@@ -165,7 +160,7 @@ export function McpServersConfig({
           <div>
             <CardTitle className="text-base">MCP Servers</CardTitle>
             <CardDescription>
-              Only SSE and HTTP Streamable transports are supported.
+              Set up MCP servers to provide tools for your Cap.
             </CardDescription>
           </div>
           <Button
@@ -191,10 +186,7 @@ export function McpServersConfig({
               <div className="min-w-0 flex-1">
                 <div className="font-medium text-sm truncate">{serverName}</div>
                 <div className="text-xs text-muted-foreground truncate">
-                  {config.transport === 'httpStream'
-                    ? 'HTTP STREAMABLE'
-                    : config.transport.toUpperCase()}{' '}
-                  • {config.url}
+                  Streamable HTTP • {config.url}
                 </div>
               </div>
               <div className="flex items-center gap-2 ml-2 flex-shrink-0">
@@ -288,25 +280,14 @@ export function McpServersConfig({
 
                   <div className="space-y-2">
                     <Label htmlFor="transport">Transport</Label>
-                    <Select
-                      value={newServer.transport}
-                      onValueChange={(value: 'sse' | 'httpStream') =>
-                        setNewServer((prev) => ({
-                          ...prev,
-                          transport: value,
-                        }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select transport" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="sse">SSE</SelectItem>
-                        <SelectItem value="httpStream">
-                          HTTP Streamable
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Input
+                      value="Streamable HTTP"
+                      disabled
+                      className="bg-muted"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Only Streamable HTTP transport is supported.
+                    </p>
                   </div>
 
                   <div className="flex items-center justify-end space-x-2 pt-4">
