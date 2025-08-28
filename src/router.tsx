@@ -12,7 +12,6 @@ import ChatPage from './pages/chat';
 import ErrorPage from './pages/error';
 import LoginPage from './pages/login';
 import SettingsPage from './pages/settings';
-import TestPage from './pages/test';
 import WalletPage from './pages/wallet';
 
 const router = createBrowserRouter([
@@ -26,7 +25,6 @@ const router = createBrowserRouter([
         errorElement: <ErrorPage />,
         children: [
           { index: true, element: <Navigate to="/chat" replace /> },
-          { path: 'test', element: <TestPage /> },
           { path: 'chat', element: <ChatPage /> },
           { path: 'wallet', element: <WalletPage /> },
           { path: 'settings', element: <SettingsPage /> },

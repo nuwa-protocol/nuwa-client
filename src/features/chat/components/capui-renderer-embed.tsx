@@ -1,63 +1,34 @@
-import { connect, debug, WindowMessenger } from 'penpal';
+import { connect, WindowMessenger } from 'penpal';
 import { useCallback, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { Skeleton } from '@/shared/components';
 
 export type CapUIRendererProps = {
     srcUrl: string;
-    height?: number;
-    title: string;
-    onError?: (error: Error) => void;
-    onConnected?: (methods: ChildMethods) => void;
-    connectionTimeout?: number;
-    onUIMessage?: (message: string) => void;
-    onUIToolCall?: (tool: string) => void;
-    onUIPrompt?: (prompt: string) => void;
-};
-
-export type ChildMethods = {
-    sendMessage(msg: string): Promise<string>;
+    height: number;
+    title?: string;
 };
 
 export const CapUIRenderer = ({
     srcUrl,
-    height = 300,
+    height,
     title,
-    onError,
-    onConnected,
-    connectionTimeout = 15000,
-    onUIMessage,
-    onUIToolCall,
-    onUIPrompt,
 }: CapUIRendererProps) => {
+    const CONNECTION_TIMEOUT = 15000;
+
     const iframeRef = useRef<HTMLIFrameElement | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<Error | null>(null);
 
-    const sendMessage = useCallback(
-        (message: string) => {
-            if (onUIMessage) {
-                onUIMessage(message);
-            }
-        },
-        [onUIMessage],
-    );
+    const sendMessage = (message: string) => {
+        toast.success(`Message received from Cap UI: ${message}`);
+        console.log('Message received from Cap UI', message);
+    };
 
-    const sendToolCall = useCallback(
-        (tool: string) => {
-            if (onUIToolCall) {
-                onUIToolCall(tool);
-            }
-        },
-        [onUIToolCall],
-    );
-
-    const sendPrompt = useCallback(
-        (prompt: string) => {
-            if (onUIPrompt) {
-                onUIPrompt(prompt);
-            }
-        },
-        [onUIPrompt],
-    );
+    const sendPrompt = (prompt: string) => {
+        // TODO: Handle receiving prompt from Cap UI
+        console.log('Prompt received from Cap UI', prompt);
+    };
 
     const connectToPenpal = useCallback(async () => {
         try {
@@ -72,24 +43,20 @@ export const CapUIRenderer = ({
                 allowedOrigins: ['*'],
             });
 
-            const conn = connect<ChildMethods>({
+            const conn = connect({
                 messenger,
                 methods: {
                     sendMessage,
-                    sendToolCall,
                     sendPrompt,
                 },
-                timeout: connectionTimeout,
-                log: debug('penpal parent'),
+                timeout: CONNECTION_TIMEOUT,
             });
 
-            const childMethods = await conn.promise;
-
-            onConnected?.(childMethods);
+            console.log('Successfully connected to Cap UI', title ?? srcUrl);
         } catch (error) {
             const err =
                 error instanceof Error ? error : new Error('Unknown connection error');
-            onError?.(err);
+            setError(err);
         } finally {
             setIsLoading(false);
         }
@@ -101,6 +68,11 @@ export const CapUIRenderer = ({
         return (
             <p className="text-orange-500">No URL provided for HTML resource.</p>
         );
+    }
+
+    if (error) {
+        console.error('Error loading Cap UI', error);
+        return <p className="text-red-500">Error loading Cap UI</p>;
     }
 
     return (
@@ -145,11 +117,10 @@ export const CapUIRenderer = ({
                     display: isLoading ? 'none' : 'block',
                 }}
                 sandbox={sandbox}
-                title={title}
+                title={title ?? 'Nuwa Cap UI'}
                 ref={iframeRef}
-
                 onLoad={connectToPenpal}
-                onError={(e) => onError?.(new Error('Iframe failed to load'))}
+                onError={(e) => setError(new Error('UI failed to load'))}
             />
         </div>
     );

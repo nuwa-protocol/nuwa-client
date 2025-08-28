@@ -18,7 +18,7 @@ import {
 import { useCopyToClipboard } from '@/shared/hooks/use-copy-to-clipboard';
 import { cn } from '@/shared/utils';
 import { useChatSessions } from '../hooks';
-import { Response } from './message-ai';
+import { ResponseWithCapUI } from './message-ai-capui';
 import { MessageEditor } from './message-editor';
 
 const MAX_MESSAGE_LENGTH = 150;
@@ -81,14 +81,20 @@ export const MessageText = ({
       <div key={key} className="flex flex-col gap-2 items-end">
         <div
           data-testid="message-content"
-          className={cn('flex flex-col', {
-            'bg-purple-200 dark:bg-purple-700 px-3 py-2 rounded-xl':
-              message.role === 'user',
-          }, {
-            'w-full': message.role === 'assistant'
-          })}
+          className={cn(
+            'flex flex-col',
+            {
+              'bg-purple-200 dark:bg-purple-700 px-3 py-2 rounded-xl':
+                message.role === 'user',
+            },
+            {
+              'w-full': message.role === 'assistant',
+            },
+          )}
         >
-          <Response parseIncompleteMarkdown={true}>{displayText}</Response>
+          <ResponseWithCapUI parseIncompleteMarkdown={true}>
+            {displayText}
+          </ResponseWithCapUI>
 
           {isUserMessageLong && (
             <Button
