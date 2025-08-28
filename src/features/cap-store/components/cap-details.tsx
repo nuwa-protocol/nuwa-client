@@ -198,7 +198,7 @@ export function CapDetails() {
                           {typeof cap.capData.core.prompt === 'string'
                             ? cap.capData.core.prompt
                             : cap.capData.core.prompt?.value ||
-                            'No prompt configured.'}
+                              'No prompt configured.'}
                         </p>
                       </div>
                     </TabsContent>
@@ -274,7 +274,7 @@ export function CapDetails() {
                     <TabsContent value="mcp" className="mt-4">
                       <div className="max-h-96 overflow-y-auto">
                         {cap.capData.core.mcpServers &&
-                          Object.keys(cap.capData.core.mcpServers).length > 0 ? (
+                        Object.keys(cap.capData.core.mcpServers).length > 0 ? (
                           <div className="space-y-3">
                             {Object.entries(cap.capData.core.mcpServers).map(
                               ([name, server]: [

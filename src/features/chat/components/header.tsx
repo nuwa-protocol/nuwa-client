@@ -40,9 +40,7 @@ export default function Header({ chatId }: HeaderProps) {
         >
           <span>{title}</span>
           {isHovered && title && (
-            <div
-              className="h-full p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-            >
+            <div className="h-full p-0 opacity-0 group-hover:opacity-100 transition-opacity">
               <EditIcon className="h-3 w-3" />
             </div>
           )}

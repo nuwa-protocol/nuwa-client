@@ -78,7 +78,7 @@ export function CapCard({
       await navigator.clipboard.writeText(cap.cid);
       toast.success(`Published CID copied: ${cap.cid}`);
     }
-  }
+  };
 
   const handleSelectClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -248,29 +248,28 @@ export function CapCard({
                       <Share className="h-4 w-4 mr-2" />
                       Share
                     </DropdownMenuItem>
-
-
                   )}
 
                   {cap.status === 'submitted' && cap.cid && (
-                    <DropdownMenuItem onClick={(e) => {
-                      e.stopPropagation();
-                      handleCopyCid();
-                    }}>
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCopyCid();
+                      }}
+                    >
                       <Copy className="h-4 w-4 mr-2" />
                       Copy Published CID
                     </DropdownMenuItem>
-
                   )}
 
-                  {cap.status === 'submitted' && (
-                    <DropdownMenuSeparator />
-                  )}
+                  {cap.status === 'submitted' && <DropdownMenuSeparator />}
 
-                  <DropdownMenuItem onClick={(e) => {
-                    e.stopPropagation();
-                    onTest?.();
-                  }}>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onTest?.();
+                    }}
+                  >
                     <Bug className="h-4 w-4 mr-2" />
                     Test Cap
                   </DropdownMenuItem>

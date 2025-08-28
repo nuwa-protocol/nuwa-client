@@ -7,10 +7,7 @@ import rehypeKatex from 'rehype-katex';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import { cn } from '@/shared/utils';
-import {
-  CodeBlock,
-  CodeBlockCopyButton,
-} from './code-block';
+import { CodeBlock, CodeBlockCopyButton } from './code-block';
 import 'katex/dist/katex.min.css';
 import hardenReactMarkdown from 'harden-react-markdown';
 
@@ -319,11 +316,18 @@ const components: Options['components'] = {
     let language = 'text';
 
     // Check children for language class (usually on the <code> element)
-    const codeChild = node?.children?.find(child => child.type === 'element' && child.tagName === 'code');
-    const childClassName = codeChild?.type === 'element' ? codeChild.properties?.className : undefined;
+    const codeChild = node?.children?.find(
+      (child) => child.type === 'element' && child.tagName === 'code',
+    );
+    const childClassName =
+      codeChild?.type === 'element'
+        ? codeChild.properties?.className
+        : undefined;
 
     if (Array.isArray(childClassName) && childClassName.length > 0) {
-      const classWithLanguage = childClassName.find(cls => typeof cls === 'string' && cls.startsWith('language-'));
+      const classWithLanguage = childClassName.find(
+        (cls) => typeof cls === 'string' && cls.startsWith('language-'),
+      );
       if (typeof classWithLanguage === 'string') {
         language = classWithLanguage.replace('language-', '');
       }
@@ -333,8 +337,14 @@ const components: Options['components'] = {
 
     // Fallback: check current node's className
     const nodeClassName = node?.properties?.className;
-    if (language === 'javascript' && Array.isArray(nodeClassName) && nodeClassName.length > 0) {
-      const classWithLanguage = nodeClassName.find(cls => typeof cls === 'string' && cls.startsWith('language-'));
+    if (
+      language === 'javascript' &&
+      Array.isArray(nodeClassName) &&
+      nodeClassName.length > 0
+    ) {
+      const classWithLanguage = nodeClassName.find(
+        (cls) => typeof cls === 'string' && cls.startsWith('language-'),
+      );
       if (typeof classWithLanguage === 'string') {
         language = classWithLanguage.replace('language-', '');
       }

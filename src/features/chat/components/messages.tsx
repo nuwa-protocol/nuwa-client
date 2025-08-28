@@ -1,28 +1,15 @@
-import type { UseChatHelpers } from '@ai-sdk/react';
-import type { UIMessage } from 'ai';
-import equal from 'fast-deep-equal';
 import { motion } from 'framer-motion';
 import { memo } from 'react';
 import { useMessagesUI } from '@/features/chat/hooks/use-messages-ui';
+import { useChatContext } from '../contexts/chat-context';
 import { PreviewMessage, ThinkingMessage } from './message';
 
 interface MessagesProps {
-  chatId: string;
-  status: UseChatHelpers['status'];
-  messages: Array<UIMessage>;
-  setMessages: UseChatHelpers['setMessages'];
-  reload: UseChatHelpers['reload'];
   isReadonly: boolean;
 }
 
-function PureMessages({
-  chatId,
-  status,
-  messages,
-  setMessages,
-  reload,
-  isReadonly,
-}: MessagesProps) {
+function PureMessages({ isReadonly }: MessagesProps) {
+  const { chatId, status, messages, setMessages, reload } = useChatContext();
   const {
     containerRef: messagesContainerRef,
     endRef: messagesEndRef,
@@ -79,10 +66,6 @@ function PureMessages({
 }
 
 export const Messages = memo(PureMessages, (prevProps, nextProps) => {
-  if (prevProps.status !== nextProps.status) return false;
-  if (prevProps.status && nextProps.status) return false;
-  if (prevProps.messages.length !== nextProps.messages.length) return false;
-  if (!equal(prevProps.messages, nextProps.messages)) return false;
-
+  if (prevProps.isReadonly !== nextProps.isReadonly) return false;
   return true;
 });

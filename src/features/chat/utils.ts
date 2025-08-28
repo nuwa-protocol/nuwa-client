@@ -44,13 +44,20 @@ const shouldIgnoreErrorForDeveloper = (errorMessage: string): boolean => {
   );
 };
 
-function isPaymentKitErrorLike(e: unknown): e is { code?: string; httpStatus?: number } {
+function isPaymentKitErrorLike(
+  e: unknown,
+): e is { code?: string; httpStatus?: number } {
   return !!e && typeof e === 'object' && typeof (e as any).code === 'string';
 }
 
 function getErrorMessage(e: unknown): string {
   if (typeof e === 'string') return e;
-  if (e && typeof e === 'object' && 'message' in e && typeof (e as any).message === 'string') {
+  if (
+    e &&
+    typeof e === 'object' &&
+    'message' in e &&
+    typeof (e as any).message === 'string'
+  ) {
     return (e as any).message as string;
   }
   return 'Unknown error occurred';
@@ -75,7 +82,11 @@ type ErrorWithOptionalMeta = Error & {
 };
 
 function hasOwn(obj: unknown, key: string): boolean {
-  return typeof obj === 'object' && obj !== null && Object.prototype.hasOwnProperty.call(obj, key);
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    Object.prototype.hasOwnProperty.call(obj, key)
+  );
 }
 
 function getCause(err: unknown): unknown | undefined {
@@ -108,7 +119,7 @@ export const processErrorMessage = (error: unknown): string => {
   let actualError: unknown = error;
   let statusCode: number | undefined;
   let responseBody: string | undefined;
-  
+
   if (error instanceof Error && error.message) {
     try {
       const parsed = JSON.parse(error.message);
@@ -116,13 +127,13 @@ export const processErrorMessage = (error: unknown): string => {
         // Extract statusCode and responseBody if available
         statusCode = parsed.statusCode;
         responseBody = parsed.responseBody;
-        
+
         // Reconstruct error-like object from parsed JSON
         actualError = {
           ...parsed,
           toString: () => parsed.message || error.message,
         };
-        
+
         // If responseBody contains nested error, try to parse it
         if (responseBody && typeof responseBody === 'string') {
           try {
@@ -131,7 +142,8 @@ export const processErrorMessage = (error: unknown): string => {
               actualError = {
                 ...bodyParsed.error,
                 statusCode,
-                toString: () => bodyParsed.error.message || parsed.message || error.message,
+                toString: () =>
+                  bodyParsed.error.message || parsed.message || error.message,
               };
             }
           } catch {
@@ -143,7 +155,7 @@ export const processErrorMessage = (error: unknown): string => {
       // Not JSON, use original error
     }
   }
-  
+
   const code = extractPaymentCode(actualError);
   if (code) {
     switch (code) {

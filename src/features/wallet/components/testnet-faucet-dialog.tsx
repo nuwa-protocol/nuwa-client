@@ -48,7 +48,13 @@ export function TestnetFaucetDialog({
                 2
               </div>
               <div className="flex flex-col">
-                <span className="text-md font-medium">Go To <code className="text-xs bg-muted px-2 py-1 rounded">#testnet-faucet</code> Channel</span>
+                <span className="text-md font-medium">
+                  Go To{' '}
+                  <code className="text-xs bg-muted px-2 py-1 rounded">
+                    #testnet-faucet
+                  </code>{' '}
+                  Channel
+                </span>
               </div>
             </div>
             <div className="flex items-center gap-4 w-full">
@@ -56,12 +62,17 @@ export function TestnetFaucetDialog({
                 3
               </div>
               <div className="flex flex-col">
-                <span className="text-md font-medium">Request tokens with <code className="text-xs bg-muted px-2 py-1 rounded">/faucet</code> command</span>
+                <span className="text-md font-medium">
+                  Request tokens with{' '}
+                  <code className="text-xs bg-muted px-2 py-1 rounded">
+                    /faucet
+                  </code>{' '}
+                  command
+                </span>
               </div>
             </div>
           </div>
         </div>
-
 
         <DialogFooter className="mt-4">
           <Button

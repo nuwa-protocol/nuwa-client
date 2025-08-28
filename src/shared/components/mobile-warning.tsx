@@ -19,8 +19,9 @@ export function MobileWarning() {
       setIsMobile(mobile);
 
       // Check if user has already dismissed the warning in this session
-      const hasSeenWarning = sessionStorage.getItem('mobile-warning-dismissed') === 'true';
-      
+      const hasSeenWarning =
+        sessionStorage.getItem('mobile-warning-dismissed') === 'true';
+
       if (mobile && !hasSeenWarning && !showDialog) {
         setShowDialog(true);
       }
@@ -55,11 +56,7 @@ export function MobileWarning() {
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-3 mt-4">
-          <Button
-            onClick={handleContinue}
-            className="w-full"
-            variant="primary"
-          >
+          <Button onClick={handleContinue} className="w-full" variant="primary">
             Continue Anyway
           </Button>
         </div>

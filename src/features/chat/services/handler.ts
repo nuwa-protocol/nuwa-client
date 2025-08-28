@@ -108,11 +108,10 @@ export const handleAIRequest = async ({
       }
 
       if (error instanceof Error) {
-        
         // Check if it's an APICallError
         if (APICallError.isInstance(error)) {
           const apiError = error as any; // Cast to access properties
-          
+
           // Try to extract error from response body
           try {
             const responseBody = apiError.responseBody;
@@ -126,7 +125,7 @@ export const handleAIRequest = async ({
           } catch {
             // Failed to parse response body
           }
-          
+
           // Fallback to structured error info
           const errorInfo: any = {
             message: error.message,
@@ -134,16 +133,16 @@ export const handleAIRequest = async ({
             statusCode: apiError.statusCode,
             responseBody: apiError.responseBody,
           };
-          
+
           return JSON.stringify(errorInfo);
         }
-        
+
         // For other Error types, try to get detailed information
         const errorInfo: any = {
           message: error.message,
           name: error.name,
         };
-        
+
         // Check for payment-kit specific properties
         if ('code' in error) {
           errorInfo.code = (error as any).code;
@@ -154,7 +153,7 @@ export const handleAIRequest = async ({
         if ('details' in error) {
           errorInfo.details = (error as any).details;
         }
-        
+
         // Return a structured error message that processErrorMessage can parse
         return JSON.stringify(errorInfo);
       }

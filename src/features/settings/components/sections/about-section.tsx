@@ -62,7 +62,12 @@ export function AboutSection() {
                 variant="link"
                 size="sm"
                 className="h-auto p-0 text-xs"
-                onClick={() => window.open('https://github.com/nuwa-ai/nuwa-client/releases', '_blank')}
+                onClick={() =>
+                  window.open(
+                    'https://github.com/nuwa-ai/nuwa-client/releases',
+                    '_blank',
+                  )
+                }
               >
                 View Release Notes
                 <ExternalLink className="h-3 w-3 ml-1" />

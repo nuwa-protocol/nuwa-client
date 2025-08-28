@@ -78,8 +78,6 @@ export function MessageEditor({
           onClick={async () => {
             setIsSubmitting(true);
 
-
-
             // @ts-expect-error todo: support UIMessage in setMessages
             setMessages((messages) => {
               const index = messages.findIndex((m) => m.id === message.id);
@@ -91,7 +89,10 @@ export function MessageEditor({
                   parts: [{ type: 'text', text: draftContent }],
                 };
 
-                const updatedMessages = [...messages.slice(0, index), updatedMessage];
+                const updatedMessages = [
+                  ...messages.slice(0, index),
+                  updatedMessage,
+                ];
 
                 return updatedMessages;
               }

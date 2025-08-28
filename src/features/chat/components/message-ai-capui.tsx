@@ -3,7 +3,9 @@ import { memo, useMemo } from 'react';
 import { CapUIRenderer } from '@/features/chat/components/capui-renderer-embed';
 import { Response } from './message-ai';
 
-function parseCapUIAttributes(text: string): { url: string; title?: string } | null {
+function parseCapUIAttributes(
+  text: string,
+): { url: string; title?: string } | null {
   // Match ![capui:::title](url) or ![capui:::](url) format
   const match = text.match(/^!\[capui:::(.*)\]\((.+?)\)$/);
   if (!match) return null;
@@ -18,10 +20,14 @@ function parseCapUIAttributes(text: string): { url: string; title?: string } | n
 
 interface CapUIMarkdownProps extends HTMLAttributes<HTMLDivElement> {
   children: string;
-  allowedImagePrefixes?: ComponentProps<typeof Response>['allowedImagePrefixes'];
+  allowedImagePrefixes?: ComponentProps<
+    typeof Response
+  >['allowedImagePrefixes'];
   allowedLinkPrefixes?: ComponentProps<typeof Response>['allowedLinkPrefixes'];
   defaultOrigin?: ComponentProps<typeof Response>['defaultOrigin'];
-  parseIncompleteMarkdown?: ComponentProps<typeof Response>['parseIncompleteMarkdown'];
+  parseIncompleteMarkdown?: ComponentProps<
+    typeof Response
+  >['parseIncompleteMarkdown'];
 }
 
 export const ResponseWithCapUI = memo(
@@ -46,7 +52,10 @@ export const ResponseWithCapUI = memo(
       for (const line of lines) {
         const trimmedLine = line.trim();
 
-        if (trimmedLine.startsWith('![capui:::') && trimmedLine.includes('](')) {
+        if (
+          trimmedLine.startsWith('![capui:::') &&
+          trimmedLine.includes('](')
+        ) {
           // Save any accumulated markdown
           if (currentMarkdown.trim()) {
             parts.push({ type: 'markdown', content: currentMarkdown.trim() });

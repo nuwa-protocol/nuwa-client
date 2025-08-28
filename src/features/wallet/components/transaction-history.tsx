@@ -55,8 +55,8 @@ export function TransactionHistory() {
     // Always sort transactions within each chat by time (earliest first)
     const chatsWithSortedTransactions = chatRecords.map((chatRecord) => ({
       ...chatRecord,
-      transactions: [...chatRecord.transactions].sort((a, b) => 
-        a.info.timestamp - b.info.timestamp
+      transactions: [...chatRecord.transactions].sort(
+        (a, b) => a.info.timestamp - b.info.timestamp,
       ),
     }));
 
@@ -90,23 +90,39 @@ export function TransactionHistory() {
           return oldestA - oldestB;
         }
         case 'time-desc': {
-          const mostRecentA = a.transactions[a.transactions.length - 1]?.info.timestamp || 0;
-          const mostRecentB = b.transactions[b.transactions.length - 1]?.info.timestamp || 0;
+          const mostRecentA =
+            a.transactions[a.transactions.length - 1]?.info.timestamp || 0;
+          const mostRecentB =
+            b.transactions[b.transactions.length - 1]?.info.timestamp || 0;
           return mostRecentB - mostRecentA;
         }
         case 'amount-asc': {
-          const totalA = a.transactions.reduce((sum, t) => sum + Number(t.details?.payment?.costUsd || 0), 0);
-          const totalB = b.transactions.reduce((sum, t) => sum + Number(t.details?.payment?.costUsd || 0), 0);
+          const totalA = a.transactions.reduce(
+            (sum, t) => sum + Number(t.details?.payment?.costUsd || 0),
+            0,
+          );
+          const totalB = b.transactions.reduce(
+            (sum, t) => sum + Number(t.details?.payment?.costUsd || 0),
+            0,
+          );
           return totalA - totalB;
         }
         case 'amount-desc': {
-          const totalA = a.transactions.reduce((sum, t) => sum + Number(t.details?.payment?.costUsd || 0), 0);
-          const totalB = b.transactions.reduce((sum, t) => sum + Number(t.details?.payment?.costUsd || 0), 0);
+          const totalA = a.transactions.reduce(
+            (sum, t) => sum + Number(t.details?.payment?.costUsd || 0),
+            0,
+          );
+          const totalB = b.transactions.reduce(
+            (sum, t) => sum + Number(t.details?.payment?.costUsd || 0),
+            0,
+          );
           return totalB - totalA;
         }
         default: {
-          const mostRecentA = a.transactions[a.transactions.length - 1]?.info.timestamp || 0;
-          const mostRecentB = b.transactions[b.transactions.length - 1]?.info.timestamp || 0;
+          const mostRecentA =
+            a.transactions[a.transactions.length - 1]?.info.timestamp || 0;
+          const mostRecentB =
+            b.transactions[b.transactions.length - 1]?.info.timestamp || 0;
           return mostRecentB - mostRecentA;
         }
       }

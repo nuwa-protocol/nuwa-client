@@ -1,5 +1,5 @@
 import type { UseChatHelpers } from '@ai-sdk/react';
-import type { Attachment, UIMessage } from 'ai';
+import type { Attachment } from 'ai';
 import cx from 'classnames';
 import equal from 'fast-deep-equal';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -27,34 +27,30 @@ import { Button } from '@/shared/components/ui/button';
 import { useCurrentCap } from '@/shared/hooks/use-current-cap';
 import { useDevMode } from '@/shared/hooks/use-dev-mode';
 import type { Cap } from '@/shared/types/cap';
+import { useChatContext } from '../contexts/chat-context';
 import { useUpdateMessages } from '../hooks/use-update-messages';
 import { SuggestedActions } from './suggested-actions';
 
 function PureMultimodalInput({
-  chatId,
-  input,
-  setInput,
-  status,
-  stop,
-  messages,
-  setMessages,
-  append,
-  handleSubmit,
+  attachments,
+  setAttachments,
   className,
 }: {
-  chatId: string;
-  input: UseChatHelpers['input'];
-  setInput: UseChatHelpers['setInput'];
-  status: UseChatHelpers['status'];
-  stop: () => void;
   attachments: Array<Attachment>;
   setAttachments: Dispatch<SetStateAction<Array<Attachment>>>;
-  messages: Array<UIMessage>;
-  setMessages: UseChatHelpers['setMessages'];
-  append: UseChatHelpers['append'];
-  handleSubmit: UseChatHelpers['handleSubmit'];
   className?: string;
 }) {
+  const {
+    chatId,
+    input,
+    setInput,
+    status,
+    stop,
+    messages,
+    setMessages,
+    append,
+    handleSubmit,
+  } = useChatContext();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
   const isDevMode = useDevMode();
@@ -234,10 +230,7 @@ function PureMultimodalInput({
 export const MultimodalInput = memo(
   PureMultimodalInput,
   (prevProps, nextProps) => {
-    if (prevProps.input !== nextProps.input) return false;
-    if (prevProps.status !== nextProps.status) return false;
     if (!equal(prevProps.attachments, nextProps.attachments)) return false;
-    if (!equal(prevProps.messages, nextProps.messages)) return false;
     return true;
   },
 );
