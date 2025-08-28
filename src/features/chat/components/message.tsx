@@ -1,10 +1,10 @@
 import type { UseChatHelpers } from '@ai-sdk/react';
 import type { UIMessage } from 'ai';
-import cx from 'classnames';
+
 import equal from 'fast-deep-equal';
 import { AnimatePresence, motion } from 'framer-motion';
 import { memo, useState } from 'react';
-import { cn, generateUUID } from '@/shared/utils';
+import { cn } from '@/shared/utils';
 import { MessageActions } from './message-actions';
 import { MessageReasoning } from './message-reasoning';
 import { MessageSource } from './message-source';
@@ -169,46 +169,3 @@ export const PreviewMessage = memo(
     return true;
   },
 );
-
-export const ThinkingMessage = () => {
-  const role = 'assistant';
-
-  return (
-    <motion.div
-      data-testid="message-assistant-loading"
-      className="w-full mx-auto max-w-3xl px-4 group/message min-h-96"
-      initial={{ y: 5, opacity: 0 }}
-      animate={{ y: 0, opacity: 1, transition: { delay: 1 } }}
-      data-role={role}
-    >
-      <div
-        className={cx(
-          'flex gap-4 group-data-[role=user]/message:px-3 w-full group-data-[role=user]/message:w-fit group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl group-data-[role=user]/message:py-2 rounded-xl',
-          {
-            'group-data-[role=user]/message:bg-muted': true,
-          },
-        )}
-      >
-        <div className="flex items-center justify-center gap-1">
-          {[...Array(3)].map((_, i) => (
-            <motion.div
-              key={`thinking-dot-${generateUUID()}`}
-              className="h-3 w-3 rounded-full bg-primary"
-              initial={{ x: 0 }}
-              animate={{
-                x: [0, 10, 0],
-                opacity: [0.5, 1, 0.5],
-                scale: [1, 1.2, 1],
-              }}
-              transition={{
-                duration: 1,
-                repeat: Infinity,
-                delay: i * 0.2,
-              }}
-            />
-          ))}
-        </div>
-      </div>
-    </motion.div>
-  );
-};

@@ -2,7 +2,8 @@ import { motion } from 'framer-motion';
 import { memo } from 'react';
 import { useMessagesUI } from '@/features/chat/hooks/use-messages-ui';
 import { useChatContext } from '../contexts/chat-context';
-import { PreviewMessage, ThinkingMessage } from './message';
+import { Loader } from './loader';
+import { PreviewMessage } from './message';
 
 interface MessagesProps {
   isReadonly: boolean;
@@ -53,7 +54,7 @@ function PureMessages({ isReadonly }: MessagesProps) {
 
       {status === 'submitted' &&
         messages.length > 0 &&
-        messages[messages.length - 1].role === 'user' && <ThinkingMessage />}
+        messages[messages.length - 1].role === 'user' && <Loader />}
 
       <motion.div
         ref={messagesEndRef}

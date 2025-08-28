@@ -1,15 +1,15 @@
 import { AlertCircle } from 'lucide-react';
 import { connect, WindowMessenger } from 'penpal';
 import { useCallback, useRef, useState } from 'react';
-import { Skeleton } from '@/shared/components';
+import { TextShimmer } from '@/shared/components/ui/text-shimmer';
 import { useChatContext } from '../contexts/chat-context';
 
 const ErrorDisplay = () => {
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex my-4">
       <span className="text-muted-foreground text-sm flex items-center gap-2">
         <AlertCircle className="w-4 h-4" />
-        Failed to load Cap UI
+        Failed to load UI
       </span>
     </div>
   );
@@ -108,7 +108,11 @@ export const CapUIRenderer = ({ srcUrl, title }: CapUIRendererProps) => {
   return (
     <div className="relative">
       {!isConnected && (
-        <Skeleton className="w-full rounded-3xl" style={{ height }} />
+        <div className="flex my-4">
+          <TextShimmer duration={1} className="font-mono text-sm">
+            Loading UI...
+          </TextShimmer>
+        </div>
       )}
       <iframe
         src={srcUrl}
