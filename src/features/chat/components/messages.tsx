@@ -24,7 +24,7 @@ function PureMessages({ isReadonly }: MessagesProps) {
   return (
     <div
       ref={messagesContainerRef}
-      className="flex flex-col min-w-0 gap-6 h-full overflow-y-scroll pt-4 relative"
+      className="flex flex-col min-w-0 gap-6 h-full overflow-y-scroll pt-4 relative mx-auto w-full max-w-4xl px-4"
     >
       {messages.map((message, index) => {
         const isStreaming =

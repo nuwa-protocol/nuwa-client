@@ -12,7 +12,7 @@ function ChatContent({ isReadonly }: { isReadonly: boolean }) {
 
   const renderEmptyState = () => (
     <CenteredWelcome>
-      <div className="w-full max-w-3xl space-y-6">
+      <div className="w-full max-w-4xl space-y-6">
         <div className="px-4">
           <MultimodalInput
             attachments={attachments}
@@ -38,7 +38,7 @@ function ChatContent({ isReadonly }: { isReadonly: boolean }) {
 
             <form
               className={
-                'flex mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl'
+                'flex mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-4xl'
               }
             >
               {!isReadonly && (
