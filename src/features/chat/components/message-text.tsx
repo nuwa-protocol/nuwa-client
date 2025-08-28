@@ -18,7 +18,7 @@ import {
 import { useCopyToClipboard } from '@/shared/hooks/use-copy-to-clipboard';
 import { cn } from '@/shared/utils';
 import { useChatSessions } from '../hooks';
-import { Markdown } from './markdown';
+import { Response } from './message-ai';
 import { MessageEditor } from './message-editor';
 
 const MAX_MESSAGE_LENGTH = 150;
@@ -88,7 +88,7 @@ export const MessageText = ({
             'w-full': message.role === 'assistant'
           })}
         >
-          <Markdown>{displayText}</Markdown>
+          <Response parseIncompleteMarkdown={true}>{displayText}</Response>
 
           {isUserMessageLong && (
             <Button

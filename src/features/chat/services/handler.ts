@@ -73,6 +73,7 @@ export const handleAIRequest = async ({
     experimental_generateMessageId: generateUUID,
     tools,
     abortSignal: signal,
+    maxRetries: 3,
     headers,
     async onFinish({ response, sources }) {
       // append response messages

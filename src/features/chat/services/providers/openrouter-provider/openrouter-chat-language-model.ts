@@ -560,49 +560,50 @@ export class OpenRouterChatLanguageModel implements LanguageModelV1 {
               }
             }
 
-            if (delta.reasoning_details && delta.reasoning_details.length > 0) {
-              for (const detail of delta.reasoning_details) {
-                switch (detail.type) {
-                  case ReasoningDetailType.Text: {
-                    if (detail.text) {
-                      controller.enqueue({
-                        type: 'reasoning',
-                        textDelta: detail.text,
-                      });
-                    }
-                    if (detail.signature) {
-                      controller.enqueue({
-                        type: 'reasoning-signature',
-                        signature: detail.signature,
-                      });
-                    }
-                    break;
-                  }
-                  case ReasoningDetailType.Encrypted: {
-                    if (detail.data) {
-                      controller.enqueue({
-                        type: 'redacted-reasoning',
-                        data: detail.data,
-                      });
-                    }
-                    break;
-                  }
-                  case ReasoningDetailType.Summary: {
-                    if (detail.summary) {
-                      controller.enqueue({
-                        type: 'reasoning',
-                        textDelta: detail.summary,
-                      });
-                    }
-                    break;
-                  }
-                  default: {
-                    detail satisfies never;
-                    break;
-                  }
-                }
-              }
-            }
+            // remove the handling of reasoning_details to avoid duplicated reasoning chunks
+            // if (delta.reasoning_details && delta.reasoning_details.length > 0) {
+            //   for (const detail of delta.reasoning_details) {
+            //     switch (detail.type) {
+            //       case ReasoningDetailType.Text: {
+            //         if (detail.text) {
+            //           controller.enqueue({
+            //             type: 'reasoning',
+            //             textDelta: detail.text,
+            //           });
+            //         }
+            //         if (detail.signature) {
+            //           controller.enqueue({
+            //             type: 'reasoning-signature',
+            //             signature: detail.signature,
+            //           });
+            //         }
+            //         break;
+            //       }
+            //       case ReasoningDetailType.Encrypted: {
+            //         if (detail.data) {
+            //           controller.enqueue({
+            //             type: 'redacted-reasoning',
+            //             data: detail.data,
+            //           });
+            //         }
+            //         break;
+            //       }
+            //       case ReasoningDetailType.Summary: {
+            //         if (detail.summary) {
+            //           controller.enqueue({
+            //             type: 'reasoning',
+            //             textDelta: detail.summary,
+            //           });
+            //         }
+            //         break;
+            //       }
+            //       default: {
+            //         detail satisfies never;
+            //         break;
+            //       }
+            //     }
+            //   }
+            // }
             const mappedLogprobs = mapOpenRouterChatLogProbsOutput(
               choice?.logprobs,
             );
