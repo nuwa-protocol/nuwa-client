@@ -1,34 +1,20 @@
-import type { Message, UIMessage } from 'ai';
-
-export function convertToUIMessage(message: Message): UIMessage {
-  if (!message.parts) {
-    return {
-      id: message.id,
-      role: message.role,
-      content: message.content,
-      parts: [],
-    };
-  }
-  return {
-    id: message.id,
-    role: message.role,
-    content: message.content,
-    parts: message.parts,
-  };
-}
-
-import { Sentry } from '@/shared/services/sentry';
 import { PaymentErrorCode } from '@nuwa-ai/payment-kit';
+import { Sentry } from '@/shared/services/sentry';
+
+export enum ChatErrorCode {
+  INSUFFICIENT_FUNDS = 'INSUFFICIENT_FUNDS',
+  RAV_CONFLICT = 'RAV_CONFLICT',
+  PAYMENT_REQUIRED = 'PAYMENT_REQUIRED',
+  PAYMENT_ERROR = 'PAYMENT_ERROR',
+  IGNORED_ERROR = 'IGNORED_ERROR',
+  NETWORK_ERROR = 'NETWORK_ERROR',
+}
 
 // Configuration: Error patterns to ignore (case-insensitive matching) for the client user
 const IGNORED_ERROR_PATTERNS = ['json parsing', 'payeedid'];
 
 // Configuration: Error patterns to ignore (case-insensitive matching) for the developer
 const IGNORED_ERROR_PATTERNS_DEVELOPER = ['aborterror'];
-
-// Configuration: Standard error message returned to client
-const CLIENT_ERROR_MESSAGE =
-  'Please check your network connection and try again.';
 
 const shouldIgnoreErrorForClient = (errorMessage: string): boolean => {
   const lowerMessage = errorMessage.toLowerCase();
@@ -44,13 +30,20 @@ const shouldIgnoreErrorForDeveloper = (errorMessage: string): boolean => {
   );
 };
 
-function isPaymentKitErrorLike(e: unknown): e is { code?: string; httpStatus?: number } {
+function isPaymentKitErrorLike(
+  e: unknown,
+): e is { code?: string; httpStatus?: number } {
   return !!e && typeof e === 'object' && typeof (e as any).code === 'string';
 }
 
 function getErrorMessage(e: unknown): string {
   if (typeof e === 'string') return e;
-  if (e && typeof e === 'object' && 'message' in e && typeof (e as any).message === 'string') {
+  if (
+    e &&
+    typeof e === 'object' &&
+    'message' in e &&
+    typeof (e as any).message === 'string'
+  ) {
     return (e as any).message as string;
   }
   return 'Unknown error occurred';
@@ -75,7 +68,7 @@ type ErrorWithOptionalMeta = Error & {
 };
 
 function hasOwn(obj: unknown, key: string): boolean {
-  return typeof obj === 'object' && obj !== null && Object.prototype.hasOwnProperty.call(obj, key);
+  return typeof obj === 'object' && obj !== null && Object.hasOwn(obj, key);
 }
 
 function getCause(err: unknown): unknown | undefined {
@@ -103,12 +96,12 @@ function getRootError(err: unknown): unknown {
   return chain[chain.length - 1] ?? err;
 }
 
-export const processErrorMessage = (error: unknown): string => {
+export const processErrorMessage = (error: unknown): ChatErrorCode => {
   // Try to parse JSON error from ai-sdk's getErrorMessage
   let actualError: unknown = error;
   let statusCode: number | undefined;
   let responseBody: string | undefined;
-  
+
   if (error instanceof Error && error.message) {
     try {
       const parsed = JSON.parse(error.message);
@@ -116,13 +109,13 @@ export const processErrorMessage = (error: unknown): string => {
         // Extract statusCode and responseBody if available
         statusCode = parsed.statusCode;
         responseBody = parsed.responseBody;
-        
+
         // Reconstruct error-like object from parsed JSON
         actualError = {
           ...parsed,
           toString: () => parsed.message || error.message,
         };
-        
+
         // If responseBody contains nested error, try to parse it
         if (responseBody && typeof responseBody === 'string') {
           try {
@@ -131,7 +124,8 @@ export const processErrorMessage = (error: unknown): string => {
               actualError = {
                 ...bodyParsed.error,
                 statusCode,
-                toString: () => bodyParsed.error.message || parsed.message || error.message,
+                toString: () =>
+                  bodyParsed.error.message || parsed.message || error.message,
               };
             }
           } catch {
@@ -143,45 +137,47 @@ export const processErrorMessage = (error: unknown): string => {
       // Not JSON, use original error
     }
   }
-  
-  const code = extractPaymentCode(actualError);
-  if (code) {
-    switch (code) {
-      case PaymentErrorCode.HUB_INSUFFICIENT_FUNDS:
-        return 'Insufficient funds, please top up your balance';
-      case PaymentErrorCode.RAV_CONFLICT:
-        return 'Payment conflict, please try again';
-      case PaymentErrorCode.PAYMENT_REQUIRED:
-        return 'Payment required, please retry or top up';
-      default:
-        return 'Payment error, please try again';
-    }
-  }
-
-  // Check for 402 status code
-  if (statusCode === 402) {
-    return 'Payment required, please retry or top up';
-  }
 
   const errorMessage = getErrorMessage(actualError);
 
   // Log root error to console for quick view
   const root = getRootError(actualError) as ErrorWithOptionalMeta;
-  //console.error('Chat Stream (root)', root);
 
-  // Check if error should be ignored for developer, if true, not sending errors to sentry
-  if (shouldIgnoreErrorForDeveloper(errorMessage)) {
-    return 'IGNORED_ERROR';
+  // Determine the error code to return
+  let errorCode: ChatErrorCode;
+
+  const code = extractPaymentCode(actualError);
+  if (code) {
+    switch (code) {
+      case PaymentErrorCode.HUB_INSUFFICIENT_FUNDS:
+        errorCode = ChatErrorCode.INSUFFICIENT_FUNDS;
+        break;
+      case PaymentErrorCode.RAV_CONFLICT:
+        errorCode = ChatErrorCode.RAV_CONFLICT;
+        break;
+      case PaymentErrorCode.PAYMENT_REQUIRED:
+        errorCode = ChatErrorCode.PAYMENT_REQUIRED;
+        break;
+      default:
+        errorCode = ChatErrorCode.PAYMENT_ERROR;
+        break;
+    }
+  } else if (statusCode === 402) {
+    errorCode = ChatErrorCode.PAYMENT_REQUIRED;
+  } else if (shouldIgnoreErrorForDeveloper(errorMessage)) {
+    errorCode = ChatErrorCode.IGNORED_ERROR;
+  } else if (shouldIgnoreErrorForClient(errorMessage)) {
+    errorCode = ChatErrorCode.IGNORED_ERROR;
+  } else {
+    errorCode = ChatErrorCode.NETWORK_ERROR;
   }
 
-  // Capture root error with Sentry for better grouping
-  Sentry.captureException(root ?? actualError);
-
-  // Check if error should be ignored, errors are still sent to sentry
-  if (shouldIgnoreErrorForClient(errorMessage)) {
-    return 'IGNORED_ERROR';
+  // Always process the error (log and send to Sentry) unless it should be ignored for developer
+  if (!shouldIgnoreErrorForDeveloper(errorMessage)) {
+    console.error(root ?? actualError);
+    // Capture root error with Sentry for better grouping
+    Sentry.captureException(root ?? actualError);
   }
 
-  // Always return the same message to client
-  return CLIENT_ERROR_MESSAGE;
+  return errorCode;
 };

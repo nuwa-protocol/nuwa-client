@@ -23,7 +23,9 @@ export function createPaymentFetch(
         ? ((input as any).signal as AbortSignal | undefined)
         : undefined;
     const finalInit: RequestInit | undefined =
-      !init?.signal && incomingSignal ? { ...init, signal: incomingSignal } : init;
+      !init?.signal && incomingSignal
+        ? { ...init, signal: incomingSignal }
+        : init;
 
     const methodFromInit = (finalInit?.method ?? 'POST').toUpperCase() as
       | 'GET'

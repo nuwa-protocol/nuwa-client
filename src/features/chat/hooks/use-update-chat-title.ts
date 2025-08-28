@@ -1,7 +1,7 @@
-import * as Sentry from '@sentry/react';
 import { useCallback } from 'react';
 import { generateTitleFromUserMessage } from '../services';
 import { ChatStateStore } from '../stores';
+import { getErrorMessage, processErrorMessage } from '../utils';
 
 export const useUpdateChatTitle = (chatId: string) => {
   const store = ChatStateStore();
@@ -22,8 +22,7 @@ export const useUpdateChatTitle = (chatId: string) => {
 
       await store.updateSession(chatId, { title: title });
     } catch (error) {
-      console.error('Update Chat Title:', error);
-      Sentry.captureException(error);
+      processErrorMessage(getErrorMessage(error));
     }
   }, [chatId]);
 

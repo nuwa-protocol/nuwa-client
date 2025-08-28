@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { generateUUID } from '@/shared/utils';
 import { createClientAIFetch } from '../services';
-import { processErrorMessage } from '../utils';
+import { ChatErrorCode, processErrorMessage } from '../utils/error-process';
 import { useChatSessions } from './use-chat-sessions';
 import { useUpdateChatTitle } from './use-update-chat-title';
 
@@ -17,11 +17,23 @@ export const useChatDefault = (
   const { addCurrentCapsToChat, getSession } = useChatSessions();
 
   const handleUseChatError = (error: Error) => {
-    const errorMessage = processErrorMessage(error);
-    if (errorMessage !== 'IGNORED_ERROR') {
-      // Use the actual error message from processErrorMessage
+    const errorCode = processErrorMessage(error);
+    if (errorCode === ChatErrorCode.IGNORED_ERROR) {
+      return;
+    }
+
+    if (errorCode === ChatErrorCode.INSUFFICIENT_FUNDS) {
+      toast.warning('Insufficient funds', {
+        description: 'Please top up your balance to continue',
+        duration: 8000,
+        action: {
+          label: 'Go to Wallet',
+          onClick: () => navigate('/wallet'),
+        },
+      });
+    } else {
       toast.error('An error occurred', {
-        description: errorMessage,
+        description: 'Please check your network connection and try again.',
         action: {
           label: 'Retry',
           onClick: () => reload(),
