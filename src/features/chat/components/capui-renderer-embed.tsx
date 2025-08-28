@@ -1,24 +1,41 @@
+import { AlertCircle } from 'lucide-react';
 import { connect, WindowMessenger } from 'penpal';
 import { useCallback, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/shared/components';
 
+const ErrorDisplay = ({ error, url }: { error: Error; url: string }) => {
+    return (
+        <div className="flex items-center justify-center">
+            <span className="text-muted-foreground text-sm flex items-center gap-2">
+                <AlertCircle className="w-4 h-4" />
+                Failed to load Cap UI
+            </span>
+        </div>
+    );
+};
+
+const isValidUrl = (url: string): boolean => {
+    try {
+        const parsedUrl = new URL(url);
+        return parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
+    } catch {
+        return false;
+    }
+};
+
 export type CapUIRendererProps = {
     srcUrl: string;
-    height: number;
     title?: string;
 };
 
-export const CapUIRenderer = ({
-    srcUrl,
-    height,
-    title,
-}: CapUIRendererProps) => {
-    const CONNECTION_TIMEOUT = 15000;
+export const CapUIRenderer = ({ srcUrl, title }: CapUIRendererProps) => {
+    const CONNECTION_TIMEOUT = 1000;
 
     const iframeRef = useRef<HTMLIFrameElement | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
+    const [height, setHeight] = useState<number>(100); // Default height
+    const [isConnected, setIsConnected] = useState(false);
 
     const sendMessage = (message: string) => {
         toast.success(`Message received from Cap UI: ${message}`);
@@ -33,51 +50,62 @@ export const CapUIRenderer = ({
     const connectToPenpal = useCallback(async () => {
         try {
             if (!iframeRef.current?.contentWindow) {
-                throw new Error('Iframe contentWindow not available');
+                throw new Error('Iframe content not accessible');
             }
-
-            setIsLoading(false);
 
             const messenger = new WindowMessenger({
                 remoteWindow: iframeRef.current.contentWindow,
                 allowedOrigins: ['*'],
             });
 
-            const conn = connect({
+            await connect({
                 messenger,
                 methods: {
                     sendMessage,
                     sendPrompt,
+                    setUIHeight: (newHeight: number) => {
+                        setHeight(newHeight);
+                    },
                 },
                 timeout: CONNECTION_TIMEOUT,
-            });
+            }).promise;
+
+            // Wait for connection to be established
+            setIsConnected(true);
 
             console.log('Successfully connected to Cap UI', title ?? srcUrl);
         } catch (error) {
             const err =
-                error instanceof Error ? error : new Error('Unknown connection error');
+                error instanceof Error
+                    ? error
+                    : new Error('Failed to establish connection with Cap UI');
+            console.error("Cap UI Connection Error:", {
+                error: err.message,
+                url: srcUrl,
+            });
             setError(err);
-        } finally {
-            setIsLoading(false);
         }
-    }, []);
+    }, [title, srcUrl]);
 
     const sandbox = 'allow-scripts';
 
     if (!srcUrl) {
-        return (
-            <p className="text-orange-500">No URL provided for HTML resource.</p>
-        );
+        const err = new Error('No URL provided for HTML resource');
+        return <ErrorDisplay error={err} url="" />;
+    }
+
+    if (!isValidUrl(srcUrl)) {
+        const err = new Error(`Invalid URL format: ${srcUrl}`);
+        return <ErrorDisplay error={err} url={srcUrl} />;
     }
 
     if (error) {
-        console.error('Error loading Cap UI', error);
-        return <p className="text-red-500">Error loading Cap UI</p>;
+        return <ErrorDisplay error={error} url={srcUrl} />;
     }
 
     return (
         <div className="relative">
-            {isLoading && (
+            {!isConnected && (
                 <Skeleton className="w-full rounded-3xl" style={{ height }} />
             )}
             <iframe
@@ -111,16 +139,31 @@ export const CapUIRenderer = ({
          screen-wake-lock 'none'; 
          web-share 'none'; 
          xr-spatial-tracking 'none';"
-                style={{
-                    width: '100%',
-                    height,
-                    display: isLoading ? 'none' : 'block',
-                }}
+                style={
+                    !isConnected || error
+                        ? {
+                            width: 0,
+                            height: 0,
+                            position: 'absolute',
+                            border: 0,
+                        }
+                        : {
+                            width: '100%',
+                            height,
+                        }
+                }
                 sandbox={sandbox}
                 title={title ?? 'Nuwa Cap UI'}
                 ref={iframeRef}
                 onLoad={connectToPenpal}
-                onError={(e) => setError(new Error('UI failed to load'))}
+                onError={() => {
+                    const err = new Error(`Failed to load Cap UI from ${srcUrl}`);
+                    console.error("Cap UI Iframe Error:", {
+                        error: err.message,
+                        url: srcUrl,
+                    });
+                    setError(err);
+                }}
             />
         </div>
     );

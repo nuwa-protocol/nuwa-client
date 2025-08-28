@@ -3,31 +3,17 @@ import { memo, useMemo } from 'react';
 import { CapUIRenderer } from '@/features/chat/components/capui-renderer-embed';
 import { Response } from './message-ai';
 
-function parseCapUIAttributes(text: string): { url: string; height: number; title?: string } | null {
-  const match = text.match(/^\[capui:(.+?)\]$/);
+function parseCapUIAttributes(text: string): { url: string; title?: string } | null {
+  // Match ![capui:::title](url) or ![capui:::](url) format
+  const match = text.match(/^!\[capui:::(.*)\]\((.+?)\)$/);
   if (!match) return null;
 
-  const attributesString = match[1];
-  const attributes: Record<string, string> = {};
+  const title = match[1] || undefined; // Empty string becomes undefined
+  const url = match[2];
 
-  const attrRegex = /(\w+)="([^"]+)"/g;
-  let attrMatch: RegExpExecArray | null = attrRegex.exec(attributesString);
+  if (!url) return null;
 
-  while (attrMatch) {
-    attributes[attrMatch[1]] = attrMatch[2];
-    attrMatch = attrRegex.exec(attributesString);
-  }
-
-  const url = attributes.url;
-  const heightStr = attributes.height;
-  const title = attributes.title;
-
-  if (!url || !heightStr) return null;
-
-  const height = Number.parseInt(heightStr, 10);
-  if (Number.isNaN(height)) return null;
-
-  return { url, height, title };
+  return { url, title };
 }
 
 interface CapUIMarkdownProps extends HTMLAttributes<HTMLDivElement> {
@@ -60,7 +46,7 @@ export const ResponseWithCapUI = memo(
       for (const line of lines) {
         const trimmedLine = line.trim();
 
-        if (trimmedLine.startsWith('[capui:') && trimmedLine.endsWith(']')) {
+        if (trimmedLine.startsWith('![capui:::') && trimmedLine.includes('](')) {
           // Save any accumulated markdown
           if (currentMarkdown.trim()) {
             parts.push({ type: 'markdown', content: currentMarkdown.trim() });
@@ -73,7 +59,7 @@ export const ResponseWithCapUI = memo(
             parts.push({ type: 'capui', content: capuiData });
           } else {
             // If parsing failed, treat as regular markdown
-            currentMarkdown += line + '\n';
+            currentMarkdown += `${line}\n`;
           }
         } else {
           currentMarkdown += line + '\n';
@@ -90,14 +76,13 @@ export const ResponseWithCapUI = memo(
 
     return (
       <div className={className} {...props}>
-        {processedContent.map((part, index) => {
+        {processedContent.map((part) => {
           if (part.type === 'capui') {
-            const data = part.content as { url: string; height: number; title?: string };
+            const data = part.content as { url: string; title?: string };
             return (
               <CapUIRenderer
                 key={data.url}
                 srcUrl={data.url}
-                height={data.height}
                 title={data.title}
               />
             );
