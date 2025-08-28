@@ -1,10 +1,9 @@
 import { AlertCircle } from 'lucide-react';
 import { connect, WindowMessenger } from 'penpal';
 import { useCallback, useRef, useState } from 'react';
-import { toast } from 'sonner';
 import { Skeleton } from '@/shared/components';
 
-const ErrorDisplay = ({ error, url }: { error: Error; url: string }) => {
+const ErrorDisplay = () => {
     return (
         <div className="flex items-center justify-center">
             <span className="text-muted-foreground text-sm flex items-center gap-2">
@@ -29,8 +28,11 @@ export type CapUIRendererProps = {
     title?: string;
 };
 
-export const CapUIRenderer = ({ srcUrl, title }: CapUIRendererProps) => {
-    const CONNECTION_TIMEOUT = 1000;
+export const CapUIRenderer = ({
+    srcUrl,
+    title,
+}: CapUIRendererProps) => {
+    const CONNECTION_TIMEOUT = 3000;
 
     const iframeRef = useRef<HTMLIFrameElement | null>(null);
     const [error, setError] = useState<Error | null>(null);
@@ -38,8 +40,7 @@ export const CapUIRenderer = ({ srcUrl, title }: CapUIRendererProps) => {
     const [isConnected, setIsConnected] = useState(false);
 
     const sendMessage = (message: string) => {
-        toast.success(`Message received from Cap UI: ${message}`);
-        console.log('Message received from Cap UI', message);
+        console.log(`Message received from UI "${title}": ${message}`);
     };
 
     const sendPrompt = (prompt: string) => {
@@ -79,7 +80,7 @@ export const CapUIRenderer = ({ srcUrl, title }: CapUIRendererProps) => {
                 error instanceof Error
                     ? error
                     : new Error('Failed to establish connection with Cap UI');
-            console.error("Cap UI Connection Error:", {
+            console.error('Cap UI Connection Error:', {
                 error: err.message,
                 url: srcUrl,
             });
@@ -91,16 +92,16 @@ export const CapUIRenderer = ({ srcUrl, title }: CapUIRendererProps) => {
 
     if (!srcUrl) {
         const err = new Error('No URL provided for HTML resource');
-        return <ErrorDisplay error={err} url="" />;
+        return <ErrorDisplay />;
     }
 
     if (!isValidUrl(srcUrl)) {
         const err = new Error(`Invalid URL format: ${srcUrl}`);
-        return <ErrorDisplay error={err} url={srcUrl} />;
+        return <ErrorDisplay />;
     }
 
     if (error) {
-        return <ErrorDisplay error={error} url={srcUrl} />;
+        return <ErrorDisplay />;
     }
 
     return (
@@ -156,14 +157,6 @@ export const CapUIRenderer = ({ srcUrl, title }: CapUIRendererProps) => {
                 title={title ?? 'Nuwa Cap UI'}
                 ref={iframeRef}
                 onLoad={connectToPenpal}
-                onError={() => {
-                    const err = new Error(`Failed to load Cap UI from ${srcUrl}`);
-                    console.error("Cap UI Iframe Error:", {
-                        error: err.message,
-                        url: srcUrl,
-                    });
-                    setError(err);
-                }}
             />
         </div>
     );
