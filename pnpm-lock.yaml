@@ -45,8 +45,8 @@ importers:
         specifier: ^0.5.2
         version: 0.5.2(react@19.1.0)(typescript@5.8.3)
       '@nuwa-ai/payment-kit':
-        specifier: ^0.5.11
-        version: 0.5.11(express@5.1.0)(typescript@5.8.3)
+        specifier: ^0.5.12
+        version: 0.5.12(express@5.1.0)(typescript@5.8.3)
       '@radix-ui/react-accordion':
         specifier: ^1.2.11
         version: 1.2.11(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -1273,8 +1273,8 @@ packages:
   '@nuwa-ai/identity-kit@0.5.1':
     resolution: {integrity: sha512-4IAAAs/NEg97rvLcp0OTxAHsXFU5Z7JojzXViDGrlVYQBlcNMV7wjghpDZYf2d1EHc04CthIzE/N9BeF4g9Xtg==}
 
-  '@nuwa-ai/payment-kit@0.5.11':
-    resolution: {integrity: sha512-WIS9tfeexTKoXAqh65PMB6b294CT01cxLiLLupkgWvimwNEJmDk4PjxX4MpLBS8gHMUVwFqw/4Ari762ES6Bbw==}
+  '@nuwa-ai/payment-kit@0.5.12':
+    resolution: {integrity: sha512-ZQh9Q9x2N9PfG5X55v40VHa5XETQYc1/1y3iPPR/fHYpIIfse0toHO4ivjmO8mrjCC1fdeILYnNYZW8O3eoTxQ==}
     peerDependencies:
       express: '>=4'
       pg: '>=8'
@@ -8690,7 +8690,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@nuwa-ai/payment-kit@0.5.11(express@5.1.0)(typescript@5.8.3)':
+  '@nuwa-ai/payment-kit@0.5.12(express@5.1.0)(typescript@5.8.3)':
     dependencies:
       '@nuwa-ai/identity-kit': 0.5.1(typescript@5.8.3)
       '@roochnetwork/rooch-sdk': 0.3.6(typescript@5.8.3)
