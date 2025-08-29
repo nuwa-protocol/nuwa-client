@@ -2,13 +2,13 @@ import {
   IdentityKitWeb,
   type UseIdentityKitOptions,
 } from '@nuwa-ai/identity-kit-web';
+import { cadopConfig } from '../config/cadop';
 import { capKitConfig } from '../config/capkit';
 import { cleanupPaymentClientsOnLogout } from './payment-clients';
 
 export const NuwaIdentityKit = (options: UseIdentityKitOptions = {}) => {
   const identityKit = IdentityKitWeb.init({
-    appName: 'Nuwa Client',
-    storage: 'local',
+    ...cadopConfig,
     ...options,
   });
 
@@ -31,15 +31,13 @@ export const NuwaIdentityKit = (options: UseIdentityKitOptions = {}) => {
   };
 
   const logout = async () => {
-    await identityKit.then(async (identityKit) => {
-      try {
-        // Cleanup payment clients on logout first to avoid race condition
-        await cleanupPaymentClientsOnLogout();
-        await identityKit.logout();
-      } catch (error) {
-        console.error('Error during logout:', error);
-      }
-    });
+    try {
+      await cleanupPaymentClientsOnLogout();
+      const kit = await identityKit;
+      await kit.logout();
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   };
 
   const handleCallback = async (search: string) => {

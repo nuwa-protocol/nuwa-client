@@ -2,16 +2,11 @@ import {
   type UseIdentityKitOptions,
   useIdentityKit,
 } from '@nuwa-ai/identity-kit-web';
+import { cadopConfig } from '../config/cadop';
 
 export const useAuth = (options: UseIdentityKitOptions = {}) => {
   const { state, sdk } = useIdentityKit({
-    appName: 'Nuwa Assistant',
-    cadopDomain:
-      typeof window !== 'undefined'
-        ? (localStorage.getItem('cadop-domain') ?? 'https://test-id.nuwa.dev')
-        : 'https://test-id.nuwa.dev',
-    storage: 'local',
-    autoConnect: false,
+    ...cadopConfig,
     ...options,
   });
 
