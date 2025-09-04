@@ -4,7 +4,7 @@ import type { UIMessage } from 'ai';
 import cx from 'classnames';
 import { ArrowUpIcon, PaperclipIcon, StopCircleIcon } from 'lucide-react';
 import type React from 'react';
-import { memo, useCallback, useEffect, useId, useState } from 'react';
+import { memo, useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useWindowSize } from 'usehooks-ts';
@@ -13,9 +13,11 @@ import { Button } from '@/shared/components/ui/button';
 import { useCurrentCap } from '@/shared/hooks/use-current-cap';
 import type { Cap } from '@/shared/types';
 import { useChatContext } from '../contexts/chat-context';
+import { useMessageQueue } from '../hooks/use-message-queue';
 import { usePersistentInput } from '../hooks/use-persistent-input';
 import { useUpdateMessages } from '../hooks/use-update-messages';
 import { PreviewAttachment } from './preview-attachment';
+import { QueuedMessageBubble } from './queued-message-bubble';
 import { SuggestedActions } from './suggested-actions';
 
 function PureMultimodalInput({ className }: { className?: string }) {
@@ -25,6 +27,15 @@ function PureMultimodalInput({ className }: { className?: string }) {
     chat,
   });
   const { input, setInput, textareaRef, clearInput } = usePersistentInput();
+  const {
+    queue,
+    addToQueue,
+    removeFromQueue,
+    dequeueMessage,
+    clearQueue,
+    hasQueue,
+  } = useMessageQueue(chat.id);
+  const processingQueueRef = useRef(false);
   const { width } = useWindowSize();
   const { currentCap, isCurrentCapMCPInitialized, isCurrentCapMCPError } =
     useCurrentCap();
@@ -145,6 +156,34 @@ function PureMultimodalInput({ className }: { className?: string }) {
     }
   }, [attachments.length]);
 
+  // Auto-send queued messages when AI becomes ready (with delay to prevent errors)
+  useEffect(() => {
+    if (status === 'ready' && hasQueue && !processingQueueRef.current) {
+      // Add a small delay to ensure the AI is fully ready
+      processingQueueRef.current = true;
+      const timeoutId = setTimeout(() => {
+        const nextMessage = dequeueMessage();
+        if (nextMessage) {
+          // Send the next queued message
+          sendMessage({
+            text: nextMessage.text,
+            files: nextMessage.files,
+          });
+
+          if (pathname !== `/chat?cid=${chat.id}`) {
+            navigate(`/chat?cid=${chat.id}`, { replace: true });
+          }
+        }
+        processingQueueRef.current = false;
+      }, 1000); // 1000ms delay
+
+      return () => {
+        clearTimeout(timeoutId);
+        processingQueueRef.current = false;
+      };
+    }
+  }, [status, hasQueue, pathname, chat.id]);
+
   const handleSend = async () => {
     // Check if Cap has MCP servers and if they are initialized
     const hasMCPServers =
@@ -157,6 +196,22 @@ function PureMultimodalInput({ className }: { className?: string }) {
     }
 
     if (input.trim() || attachments.length > 0) {
+      // If AI is busy (streaming) OR processing queue, add to queue instead of sending immediately
+      if (status === 'submitted' || status === 'streaming' || processingQueueRef.current) {
+        addToQueue({
+          text: input,
+          files: attachments.length > 0 ? [...attachments] : undefined,
+        });
+
+        clearInput();
+        setAttachments([]);
+        setShowAttachments(false);
+
+        toast.info('Message added to queue. It will be sent when AI finishes responding.');
+        return;
+      }
+
+      // Send message immediately if AI is ready
       sendMessage({
         text: input,
         files: attachments.length > 0 ? attachments : undefined,
@@ -179,6 +234,17 @@ function PureMultimodalInput({ className }: { className?: string }) {
   return (
     <div className="relative w-full flex flex-col gap-4">
       {messages.length === 0 && <SuggestedActions />}
+
+      {/* Queued Messages Bubble */}
+      {hasQueue && (
+        <div className="flex flex-row items-end justify-end">
+          <QueuedMessageBubble
+            queue={queue}
+            onRemoveMessage={removeFromQueue}
+            onClearQueue={clearQueue}
+          />
+        </div>
+      )}
 
       {showAttachments && attachments.length > 0 && (
         <div className="flex flex-wrap gap-2 p-2">
@@ -223,13 +289,6 @@ function PureMultimodalInput({ className }: { className?: string }) {
               !event.nativeEvent.isComposing
             ) {
               event.preventDefault();
-
-              if (status !== 'ready') {
-                console.warn(
-                  'The model is not ready to respond. Currnet status:',
-                  status,
-                );
-              }
 
               handleSend();
             }
