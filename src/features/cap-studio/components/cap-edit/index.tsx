@@ -13,11 +13,11 @@ import { useLocalCaps } from '../../hooks';
 import { useEditForm } from '../../hooks/use-edit-form';
 import { getErrorDescription } from '../../utils';
 import { DashboardLayout } from '../layout/dashboard-layout';
+import { Artifact } from './artifact';
 import { GeneralTab } from './general';
 import { McpTab } from './mcp';
 import { ModelTab } from './model';
 import { PromptTab } from './prompt';
-import { UiTab } from './ui';
 
 export function CapEdit() {
   const { id } = useParams();
@@ -83,7 +83,7 @@ export function CapEdit() {
                 <TabsTrigger value="general">General</TabsTrigger>
                 <TabsTrigger value="model">Model</TabsTrigger>
                 <TabsTrigger value="prompt">Prompt</TabsTrigger>
-                <TabsTrigger value="ui">UI</TabsTrigger>
+                <TabsTrigger value="artifact">Artifact</TabsTrigger>
                 <TabsTrigger value="mcp">MCP</TabsTrigger>
               </TabsList>
 
@@ -103,8 +103,8 @@ export function CapEdit() {
               </TabsContent>
 
               {/* UI Tab */}
-              <TabsContent value="ui" className="space-y-6">
-                <UiTab form={form} />
+              <TabsContent value="artifact" className="space-y-6">
+                <Artifact form={form} />
               </TabsContent>
 
               {/* MCP Tab */}
@@ -127,9 +127,12 @@ export function CapEdit() {
                   onClick={form.handleSubmit(
                     (data) => handleFormSave(data),
                     (error) => {
-                      toast.error('Please complete the fields or fix the errors', {
-                        description: getErrorDescription(error),
-                      });
+                      toast.error(
+                        'Please complete the fields or fix the errors',
+                        {
+                          description: getErrorDescription(error),
+                        },
+                      );
                       console.error(error);
                     },
                   )}

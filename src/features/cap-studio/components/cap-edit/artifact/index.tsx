@@ -17,11 +17,11 @@ import {
 } from '@/shared/components/ui';
 import { DashboardGrid } from '../../layout/dashboard-layout';
 
-interface UiTabProps {
+interface ArtifactProps {
   form: UseFormReturn<any>;
 }
 
-export function UiTab({ form }: UiTabProps) {
+export function Artifact({ form }: ArtifactProps) {
   const navigate = useNavigate();
   const currentUiUrl = form.watch('core.uiUrl') || '';
   const [isEditing, setIsEditing] = useState(!currentUiUrl);
@@ -89,10 +89,10 @@ export function UiTab({ form }: UiTabProps) {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="text-base">
-                      UI Configuration
+                      Artifact Configuration
                     </CardTitle>
                     <CardDescription>
-                      Set the URL for your Cap's user interface
+                      Set the URL for your Cap's artifact
                     </CardDescription>
                   </div>
                   {currentUiUrl && !isEditing && (
@@ -123,7 +123,7 @@ export function UiTab({ form }: UiTabProps) {
                 {currentUiUrl && !isEditing && (
                   <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/50">
                     <div className="min-w-0 flex-1">
-                      <div className="font-medium text-sm">UI URL</div>
+                      <div className="font-medium text-sm">Artifact URL</div>
                       <div className="text-xs text-muted-foreground truncate">
                         {currentUiUrl}
                       </div>
@@ -148,9 +148,9 @@ export function UiTab({ form }: UiTabProps) {
                     <CardContent className="pt-6">
                       <div className="space-y-4">
                         <div className="space-y-2">
-                          <Label htmlFor="ui-url">UI URL</Label>
+                          <Label htmlFor="ui-url">Artifact URL</Label>
                           <Input
-                            placeholder="https://example.com/your-ui"
+                            placeholder="https://example.com/your-artifact"
                             value={tempUrl}
                             onChange={(e) => {
                               const value = e.target.value;
