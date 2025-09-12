@@ -17,12 +17,8 @@ import {
 } from '../types/mcp-client';
 import { createDidAuthSigner, SignedSSEClientTransport } from './mcp-transport';
 
-/**
- * Cached MCP client instances keyed by server URL.
- * We cache a *Promise* to avoid duplicate connections when multiple
- * callers race to create a client for the same URL.
- */
-const CACHE = new Map<string, Promise<NuwaMCPClient>>();
+// Note: Client caching is now handled by GlobalMCPManager at a higher level
+// This allows for better lifecycle management and Cap-based organization
 
 /**
  * Creates a Nuwa-specific wrapper around the AI SDK's MCPClient
@@ -36,14 +32,8 @@ export async function createNuwaMCPClient(
   url: string,
   transportType?: McpTransportType,
 ): Promise<NuwaMCPClient> {
-  // Check cache first - only use URL as key, ignoring transportType
-  // This ensures we reuse the same connection regardless of how transportType is specified
-  if (CACHE.has(url)) {
-    return CACHE.get(url) as Promise<NuwaMCPClient>;
-  }
-
-  // Create a new client promise
-  const promise = (async () => {
+  // Create a new client instance (caching is handled by GlobalMCPManager)
+  return (async () => {
     // 1. Prepare DIDAuth header (one-time per connection)
     const signer = await createDidAuthSigner(url);
     const initialHeader = await signer({});
@@ -272,8 +262,7 @@ export async function createNuwaMCPClient(
       // Utility methods
       async close() {
         await rawClient.close();
-        // Remove from cache when closed
-        CACHE.delete(url);
+        // Note: Cache cleanup is handled by GlobalMCPManager
       },
     };
 
@@ -282,28 +271,16 @@ export async function createNuwaMCPClient(
 
     return client;
   })();
-
-  // Store in cache
-  CACHE.set(url, promise);
-
-  return promise;
 }
 
 /**
  * Close and remove a cached client instance.
+ * Note: This function is deprecated. Client lifecycle is now managed by GlobalMCPManager.
+ * Use GlobalMCPManager.cleanup() instead.
  */
 export async function closeNuwaMCPClient(url: string): Promise<void> {
-  const clientPromise = CACHE.get(url);
-  if (!clientPromise) return;
-
-  try {
-    const client = await clientPromise;
-    await client.close();
-  } catch (err) {
-    // ignore
-  }
-
-  CACHE.delete(url);
+  console.warn('closeNuwaMCPClient is deprecated. Use GlobalMCPManager.cleanup() instead.');
+  // No-op since caching is handled by GlobalMCPManager
 }
 
 /**

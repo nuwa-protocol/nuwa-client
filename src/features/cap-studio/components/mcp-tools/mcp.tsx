@@ -29,9 +29,9 @@ import {
   SelectValue,
 } from '@/shared/components/ui';
 import {
-  closeNuwaMCPClient,
   createNuwaMCPClient,
 } from '@/shared/services/mcp-client';
+import { createPaymentMcpClient } from '@/shared/services/payment-mcp-client';
 import type { McpTransportType, NuwaMCPClient } from '@/shared/types';
 import type { LocalCap } from '../../types';
 import { DashboardGrid } from '../layout/dashboard-layout';
@@ -103,7 +103,12 @@ export function Mcp({ cap, serverName }: McpProps) {
         message: `Connecting to ${url} with transport: ${transport || 'httpStream'}`,
       });
 
-      const newClient = await createNuwaMCPClient(url, transport || undefined);
+      let newClient;
+      if (transport === 'httpStream') {
+        newClient = await createPaymentMcpClient(url);
+      } else {
+        newClient = await createNuwaMCPClient(url, transport || undefined);
+      }
 
       setClient(newClient);
       setConnected(true);
@@ -125,7 +130,8 @@ export function Mcp({ cap, serverName }: McpProps) {
 
       toast.error(String(err));
 
-      await closeNuwaMCPClient(url);
+      // Note: In cap-studio, clients are created directly and don't need explicit cleanup
+      // since they're not cached at this level
     } finally {
       setConnecting(false);
     }

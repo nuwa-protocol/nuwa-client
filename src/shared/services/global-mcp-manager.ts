@@ -1,4 +1,5 @@
 import { createNuwaMCPClient } from '@/shared/services/mcp-client';
+import { createPaymentMcpClient } from '@/shared/services/payment-mcp-client';
 import type { Cap } from '@/shared/types/cap';
 
 interface MCPInstance {
@@ -21,7 +22,7 @@ class GlobalMCPManager {
     return GlobalMCPManager.instance;
   }
 
-  async initializeForCap(cap: Cap): Promise<Record<string, any>> {
+  async initializeForCap(cap: Cap, usePaymentClient: boolean = true): Promise<Record<string, any>> {
     // If already initialized for this cap, return existing tools
     if (
       this.currentMCPInstance &&
@@ -43,10 +44,17 @@ class GlobalMCPManager {
     // Initialize all MCP clients
     for (const [serverName, serverConfig] of Object.entries(mcpServers)) {
       try {
-        const client = await createNuwaMCPClient(
-          serverConfig.url,
-          serverConfig.transport,
-        );
+        let client;
+        if (usePaymentClient) {
+          // Use payment-enabled MCP client
+          client = await createPaymentMcpClient(serverConfig.url);
+        } else {
+          // Use standard MCP client
+          client = await createNuwaMCPClient(
+            serverConfig.url,
+            serverConfig.transport,
+          );
+        }
         clients.set(serverName, client);
       } catch (error) {
         throw new Error(
