@@ -1,8 +1,8 @@
 import { X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Title } from '@/shared/components/title';
 import { Button } from '@/shared/components/ui/button';
 import { useChatContext } from '../../chat/contexts/chat-context';
-import { ArtifactTitle } from './artifact-title';
 
 export const ArtifactHeader = ({ title }: { title: string }) => {
     const navigate = useNavigate();
@@ -29,7 +29,7 @@ export const ArtifactHeader = ({ title }: { title: string }) => {
             </div>
             {/* Center: Title (editable) */}
             <div className="justify-self-center min-w-0 max-w-[min(70vw,700px)]">
-                <ArtifactTitle title={title} />
+                <Title title={title} onCommit={() => { }} />
             </div>
             {/* Right: Placeholder to balance center */}
             <div className="justify-self-end"></div>

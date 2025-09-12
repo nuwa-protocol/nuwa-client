@@ -4,7 +4,7 @@ import cx from 'classnames';
 import { ArrowUpIcon, StopCircleIcon, TextSelect, X } from 'lucide-react';
 import type React from 'react';
 import { memo, useCallback, useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useWindowSize } from 'usehooks-ts';
 import { CapSelector } from '@/features/cap-store/components';
@@ -32,6 +32,7 @@ function PureMultimodalInput({ className }: { className?: string }) {
   const [attachments, setAttachments] = useState<AttachmentData[]>([]);
   const { chatSessions, removeSelectionFromChatSession } = ChatSessionsStore();
   const selections = chatSessions[chat.id]?.selections;
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Remove attachment
   const removeAttachment = useCallback((index: number) => {
@@ -73,8 +74,11 @@ function PureMultimodalInput({ className }: { className?: string }) {
       clearInput();
       setAttachments([]);
 
-      if (pathname !== `/chat?cid=${chat.id}`) {
-        navigate(`/chat?cid=${chat.id}`, { replace: true });
+      const currentUrlCid = searchParams.get('cid');
+      if (currentUrlCid !== chat.id) {
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.set('cid', chat.id);
+        setSearchParams(newSearchParams);
       }
     }
 

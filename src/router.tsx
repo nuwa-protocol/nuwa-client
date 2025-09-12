@@ -1,4 +1,5 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+import ChatLayout from './layout/chat-layout';
 import MainLayout from './layout/main-layout';
 import RootLayout from './layout/root-layout';
 import ArtifactsPage from './pages/artifacts';
@@ -27,8 +28,13 @@ const router = createBrowserRouter([
         errorElement: <ErrorPage />,
         children: [
           { index: true, element: <Navigate to="/chat" replace /> },
-          { path: 'chat', element: <ChatPage /> },
-          { path: 'artifacts', element: <ArtifactsPage /> },
+          {
+            element: <ChatLayout />,
+            children: [
+              { path: 'chat', element: <ChatPage /> },
+              { path: 'artifacts', element: <ArtifactsPage /> },
+            ],
+          },
           { path: 'wallet', element: <WalletPage /> },
           { path: 'settings', element: <SettingsPage /> },
           { path: 'explore/*', element: <ExplorePage /> },

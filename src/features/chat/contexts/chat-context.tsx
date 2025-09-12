@@ -25,11 +25,11 @@ interface ChatProviderProps {
 
 export function ChatProvider({ children }: ChatProviderProps) {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { chatSessions } = ChatSessionsStore();
   const newChatIdRef = useRef<string | null>(null);
   const isNavigatingRef = useRef(false);
   const [chatId, setChatId] = useState<string>(generateUUID());
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Get chat ID from URL
   const urlChatId = searchParams.get('cid');
@@ -48,7 +48,9 @@ export function ChatProvider({ children }: ChatProviderProps) {
       const session = chatSessions[chatId];
       if (session && session.messages.length > 0 && !isNavigatingRef.current) {
         isNavigatingRef.current = true;
-        navigate(`/chat?cid=${chatId}`, { replace: true });
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.set('cid', chatId);
+        setSearchParams(newSearchParams);
       }
     }
 

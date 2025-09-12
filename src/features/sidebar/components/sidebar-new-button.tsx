@@ -1,6 +1,6 @@
 import { ChevronDown, EditIcon, FilePlusIcon } from 'lucide-react';
 import React, { useLayoutEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,10 +18,15 @@ export function SidebarNewButton() {
   const { setOpenMobile } = useSidebar();
   const floatingContext = useAppSidebar();
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = useLocation().pathname;
 
   const handleNewChat = React.useCallback(() => {
     setOpenMobile(false);
-    navigate('/chat');
+    if (pathname.includes('artifacts')) {
+      navigate('/artifacts');
+    } else {
+      navigate('/chat');
+    }
   }, [navigate, setOpenMobile]);
 
   // Keyboard shortcut: Cmd/Ctrl + K
