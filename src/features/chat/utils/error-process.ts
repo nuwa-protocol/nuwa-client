@@ -11,7 +11,7 @@ export enum ChatErrorCode {
 }
 
 // Configuration: Error patterns to ignore (case-insensitive matching) for the client user
-const IGNORED_ERROR_PATTERNS = ['json parsing', 'payeedid'];
+const IGNORED_ERROR_PATTERNS = ['payeedid'];
 
 // Configuration: Error patterns to ignore (case-insensitive matching) for the developer
 const IGNORED_ERROR_PATTERNS_DEVELOPER = ['aborterror'];
@@ -172,9 +172,10 @@ export const processErrorMessage = (error: unknown): ChatErrorCode => {
     errorCode = ChatErrorCode.NETWORK_ERROR;
   }
 
+  console.error({ errorCode, errorMessage, root, actualError });
+
   // Always process the error (log and send to Sentry) unless it should be ignored for developer
   if (!shouldIgnoreErrorForDeveloper(errorMessage)) {
-    console.error(root ?? actualError);
     // Capture root error with Sentry for better grouping
     Sentry.captureException(root ?? actualError);
   }

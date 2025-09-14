@@ -45,8 +45,8 @@ importers:
         specifier: ^0.5.2
         version: 0.5.2(react@19.1.0)(typescript@5.8.3)
       '@nuwa-ai/payment-kit':
-        specifier: ^0.5.15
-        version: 0.5.15(express@5.1.0)(react@19.1.0)(typescript@5.8.3)
+        specifier: ^0.5.16
+        version: 0.5.16(express@5.1.0)(react@19.1.0)(typescript@5.8.3)
       '@radix-ui/react-accordion':
         specifier: ^1.2.11
         version: 1.2.11(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -1276,8 +1276,8 @@ packages:
   '@nuwa-ai/identity-kit@0.5.1':
     resolution: {integrity: sha512-4IAAAs/NEg97rvLcp0OTxAHsXFU5Z7JojzXViDGrlVYQBlcNMV7wjghpDZYf2d1EHc04CthIzE/N9BeF4g9Xtg==}
 
-  '@nuwa-ai/payment-kit@0.5.15':
-    resolution: {integrity: sha512-bDtMPIRXgdogjkPWYasUNJUDi1vOPnld60ZH4+3mT/7/gief4Trf2AV3vmkIRSC5KZnwu0lB/md6HFpHg/8pFA==}
+  '@nuwa-ai/payment-kit@0.5.16':
+    resolution: {integrity: sha512-NlvhoJYHP3rtfTXjStNtVNL4PvxqpWzTB5rou/brrwCyaLjur3xibFmhuuT3nbLF3CLMyz44Lmvow67pzwV6ZQ==}
     peerDependencies:
       express: '>=4'
       pg: '>=8'
@@ -4469,8 +4469,8 @@ packages:
   fast-uri@3.0.6:
     resolution: {integrity: sha512-Atfo14OibSv5wAp4VWNsFYE1AchQRTv9cBGWET4pZWHzYshFSS9NQI6I57rdKn9croWVMbYFbLhJ+yJvmZIIHw==}
 
-  fastmcp@3.16.0:
-    resolution: {integrity: sha512-hg31w1MZzy7dtBx/SBgTyPojvLwMzAsnInYk4U1jKaEK2rothwC+XwgQHMe9nNYAGoolW5JZ2HLAccW63R0ZJw==}
+  fastmcp@3.17.0:
+    resolution: {integrity: sha512-mNSPP/oG0qXFkPMA5TFXde8Zg5IjBvZE6QP/TMqcMpYYLTRJX1UJGDG7WyCKaPDF8JtgTWJigi1Osqo5rri+6A==}
     hasBin: true
 
   fastq@1.19.1:
@@ -8876,7 +8876,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@nuwa-ai/payment-kit@0.5.15(express@5.1.0)(react@19.1.0)(typescript@5.8.3)':
+  '@nuwa-ai/payment-kit@0.5.16(express@5.1.0)(react@19.1.0)(typescript@5.8.3)':
     dependencies:
       '@modelcontextprotocol/sdk': 1.18.0
       '@nuwa-ai/identity-kit': 0.5.1(typescript@5.8.3)
@@ -8884,7 +8884,7 @@ snapshots:
       '@types/js-yaml': 4.0.9
       '@types/pg': 8.15.5
       ai: 4.3.16(react@19.1.0)(zod@3.25.67)
-      fastmcp: 3.16.0
+      fastmcp: 3.17.0
       js-yaml: 4.1.0
       lossless-json: 4.2.0
       mcp-proxy: 5.5.6
@@ -13816,7 +13816,7 @@ snapshots:
 
   fast-uri@3.0.6: {}
 
-  fastmcp@3.16.0:
+  fastmcp@3.17.0:
     dependencies:
       '@modelcontextprotocol/sdk': 1.18.0
       '@standard-schema/spec': 1.0.0

@@ -162,8 +162,7 @@ export class PaymentMcpClientAdapter implements NuwaMCPClient {
   }
 
   async close(): Promise<void> {
-    // PaymentChannelMcpClient doesn't have a close method, but we can clean up if needed
-    // For now, this is a no-op
+    await this.paymentClient.close();
   }
 
   // Additional payment-specific methods that can be accessed via the adapter
