@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://nuwa.ai/sitemap.xml
+
+# Allow crawling of cap store pages
+Allow: /cap-store
+Allow: /cap-studio
+
+# Block sensitive areas
+Disallow: /api/
+Disallow: /admin/
+Disallow: /settings/
+Disallow: /wallet/
+
+# Crawl delay
+Crawl-delay: 1
