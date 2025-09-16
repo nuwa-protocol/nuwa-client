@@ -6,5 +6,6 @@ export * from './use-debounce-value';
 export * from './use-dev-mode';
 export * from './use-language';
 export * from './use-mobile';
+export * from './use-seo';
 export * from './use-storage';
 export * from './use-unmount';

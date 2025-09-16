@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { Copy, Home, Play, Star, Tag, Download, Heart, BadgeCheck } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useId } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import {
@@ -16,14 +16,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/shared/components/ui';
-import { ShareDialog } from '@/shared/components/ui/shadcn-io/share-dialog';
-import { APP_URL } from '@/shared/config/app';
 import { useCopyToClipboard } from '@/shared/hooks/use-copy-to-clipboard';
 import { useCapStore } from '../hooks/use-cap-store';
 import { CapAvatar } from './cap-avatar';
 import { useCapStoreModal } from './cap-store-modal-context';
 import { StarRating } from './star-rating';
 import { useCapKit } from '@/shared/hooks/use-capkit';
+import { useSEO, generateCapSEO } from '@/shared/hooks/use-seo';
+import { StructuredData, generateSoftwareApplicationSchema } from '@/shared/components/structured-data';
 
 export function CapDetails() {
   const { runCap, rateCap, addCapToFavorite, removeCapFromFavorite, isCapFavorite, fetchFavoriteStatus } =
@@ -34,6 +34,10 @@ export function CapDetails() {
   const [copyToClipboard, isCopied] = useCopyToClipboard();
   const navigate = useNavigate();
   const [isFetchingFavorite, setIsFetchingFavorite] = useState(true);
+  const structuredDataId = useId();
+  
+  // Update SEO when cap data changes
+  useSEO(cap ? generateCapSEO(cap) : {});
   
   useEffect(() => {
     if (cap && capKit) {
@@ -115,6 +119,14 @@ export function CapDetails() {
 
   return (
     <div className="flex flex-col h-full">
+      {/* Structured Data for SEO */}
+      {cap && (
+        <StructuredData 
+          data={generateSoftwareApplicationSchema(cap)}
+          id={structuredDataId}
+        />
+      )}
+      
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-6 md:p-8 mb-4 hide-scrollbar">
         <div className="max-w-6xl mx-auto">
