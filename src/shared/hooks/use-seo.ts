@@ -78,7 +78,9 @@ export function useSEO(seoData: Partial<SEOData> = {}) {
     }
     if (data.tags) {
       // Remove existing article:tag meta tags
-      document.querySelectorAll('meta[property="article:tag"]').forEach(tag => tag.remove());
+      document.querySelectorAll('meta[property="article:tag"]').forEach(tag => {
+        tag.remove();
+      });
       // Add new article:tag meta tags
       data.tags.forEach(tag => {
         updateMetaTag('article:tag', tag, true);

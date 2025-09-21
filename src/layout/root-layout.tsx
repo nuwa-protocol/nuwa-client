@@ -34,8 +34,8 @@ export default function RootLayout() {
         // Render only the blocking page on mobile
         <>
         <MobileWarning />
-        <StructuredData data={generateWebSiteSchema()} id="website-schema" />
-        <StructuredData data={generateOrganizationSchema()} id="organization-schema" />
+        <StructuredData data={generateWebSiteSchema()} />
+        <StructuredData data={generateOrganizationSchema()} />
         </>
       ) : (
         <AuthGuard>
