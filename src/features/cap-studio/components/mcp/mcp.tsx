@@ -678,9 +678,10 @@ export function Mcp({ mcpServerUrl, mcpUIUrl }: McpProps) {
                 ) : (
                   filteredTools.map(([toolName, tool]) => {
                     const toolSchema =
-                      mcpType === 'Remote MCP'
-                        ? tool.parameters.properties || {}
-                        : tool.inputSchema.jsonSchema.properties || {};
+                      tool.inputSchema?.properties || 
+                      tool.inputSchema?.jsonSchema?.properties || 
+                      tool.parameters?.properties || 
+                      {};
 
                     const hasParams = Object.keys(toolSchema).length > 0;
 
@@ -713,9 +714,10 @@ export function Mcp({ mcpServerUrl, mcpUIUrl }: McpProps) {
                               </div>
                               <Form
                                 schema={
-                                  mcpType === 'Remote MCP'
-                                    ? tool.parameters
-                                    : tool.inputSchema.jsonSchema
+                                  tool.inputSchema || 
+                                  tool.inputSchema?.jsonSchema || 
+                                  tool.parameters || 
+                                  {}
                                 }
                                 validator={validator}
                                 formData={toolParams[toolName] || {}}
