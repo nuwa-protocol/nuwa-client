@@ -70,11 +70,12 @@ class RemoteMCPManager {
         const serverTools = await client.tools();
         for (const [toolName, toolDefinition] of Object.entries(serverTools)) {
           const prefixedToolName = `${serverName}_${toolName}`;
-          allTools[prefixedToolName] = {
-            ...(toolDefinition as Record<string, any>),
+          // Preserve the original tool structure, especially the type property
+          const enhancedTool = Object.assign(toolDefinition as object, {
             _serverName: serverName,
             _originalName: toolName,
-          };
+          });
+          allTools[prefixedToolName] = enhancedTool;
         }
       } catch (error) {
         console.warn(
@@ -90,7 +91,7 @@ class RemoteMCPManager {
       initialized: true,
     };
     this.currentCapId = cap.id;
-
+    
     return allTools;
   }
 

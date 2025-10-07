@@ -677,11 +677,22 @@ export function Mcp({ mcpServerUrl, mcpUIUrl }: McpProps) {
                   </p>
                 ) : (
                   filteredTools.map(([toolName, tool]) => {
-                    const toolSchema =
-                      tool.inputSchema?.properties || 
-                      tool.inputSchema?.jsonSchema?.properties || 
-                      tool.parameters?.properties || 
-                      {};
+                    // Extract schema from nested structure - handle both old and new formats
+                    let toolSchema = {};
+                    let formSchema = {};
+                    
+                    // Try to get the actual schema object
+                    const rawSchema = tool.inputSchema || tool.parameters || {};
+                    
+                    // Handle nested jsonSchema structure (new format from McpToolConverter)
+                    if (rawSchema.jsonSchema) {
+                      toolSchema = rawSchema.jsonSchema.properties || {};
+                      formSchema = rawSchema.jsonSchema;
+                    } else {
+                      // Handle direct schema (old format)
+                      toolSchema = rawSchema.properties || {};
+                      formSchema = rawSchema;
+                    }
 
                     const hasParams = Object.keys(toolSchema).length > 0;
 
@@ -713,12 +724,7 @@ export function Mcp({ mcpServerUrl, mcpUIUrl }: McpProps) {
                                 Parameters
                               </div>
                               <Form
-                                schema={
-                                  tool.inputSchema || 
-                                  tool.inputSchema?.jsonSchema || 
-                                  tool.parameters || 
-                                  {}
-                                }
+                                schema={formSchema}
                                 validator={validator}
                                 formData={toolParams[toolName] || {}}
                                 onChange={(e) =>
@@ -727,11 +733,11 @@ export function Mcp({ mcpServerUrl, mcpUIUrl }: McpProps) {
                                 uiSchema={{
                                   ...Object.keys(toolSchema).reduce(
                                     (acc, paramName) => {
-                                      const paramDef = toolSchema[paramName];
+                                      const paramDef = (toolSchema as any)[paramName];
                                       acc[paramName] = {
-                                        'ui:title': `${paramName} ${paramDef.type ? `(${paramDef.type})` : ''}`,
+                                        'ui:title': `${paramName} ${paramDef?.type ? `(${paramDef.type})` : ''}`,
                                         'ui:placeholder':
-                                          paramDef.description ||
+                                          paramDef?.description ||
                                           `Enter ${paramName}`,
                                       };
                                       return acc;
