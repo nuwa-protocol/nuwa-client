@@ -1,6 +1,6 @@
 import {
   createMcpClient,
-  PaymentChannelMcpClient,
+  UniversalMcpClient,
   type CreateMcpClientOptions,
 } from '@nuwa-ai/payment-kit';
 import { IdentityKitWeb } from '@nuwa-ai/identity-kit-web';
@@ -14,20 +14,20 @@ import type {
 import { MCPError } from '../types/mcp-client';
 
 /**
- * Adapter that wraps PaymentChannelMcpClient to provide NuwaMCPClient interface
+ * Adapter that wraps UniversalMcpClient to provide NuwaMCPClient interface
  * This enables seamless integration with existing MCP client usage patterns
- * while adding payment capabilities.
+ * while supporting both payment-enabled and standard MCP servers.
  */
 export class PaymentMcpClientAdapter implements NuwaMCPClient {
-  constructor(private paymentClient: PaymentChannelMcpClient) {}
+  constructor(private universalClient: UniversalMcpClient) {}
 
   get raw() {
-    return this.paymentClient;
+    return this.universalClient;
   }
 
   async tools(): Promise<Record<string, any>> {
     try {
-      return await this.paymentClient.tools();
+      return await this.universalClient.tools();
     } catch (err: any) {
       throw new MCPError({
         message: `Failed to list tools: ${err.message}`,
@@ -39,7 +39,7 @@ export class PaymentMcpClientAdapter implements NuwaMCPClient {
 
   async prompts(): Promise<Record<string, PromptDefinition>> {
     try {
-      const result = await this.paymentClient.listPrompts();
+      const result = await this.universalClient.listPrompts();
       const promptsMap: Record<string, PromptDefinition> = {};
 
       if (result && Array.isArray(result.prompts)) {
@@ -74,7 +74,7 @@ export class PaymentMcpClientAdapter implements NuwaMCPClient {
     args?: Record<string, unknown>,
   ): Promise<PromptMessagesResult> {
     try {
-      const content = await this.paymentClient.loadPrompt(name, args);
+      const content = await this.universalClient.loadPrompt(name, args);
 
       // Convert string content to PromptMessagesResult format
       return {
@@ -102,8 +102,8 @@ export class PaymentMcpClientAdapter implements NuwaMCPClient {
   > {
     try {
       const [resources, templates] = await Promise.all([
-        this.paymentClient.listResources(),
-        this.paymentClient.listResourceTemplates(),
+        this.universalClient.listResources(),
+        this.universalClient.listResourceTemplates(),
       ]);
 
       const resourcesMap: Record<
@@ -150,7 +150,7 @@ export class PaymentMcpClientAdapter implements NuwaMCPClient {
 
   async readResource<T = unknown>(uri: string): Promise<T> {
     try {
-      const result = await this.paymentClient.readResource(uri);
+      const result = await this.universalClient.readResource(uri);
       return result as T;
     } catch (err: any) {
       throw new MCPError({
@@ -166,7 +166,7 @@ export class PaymentMcpClientAdapter implements NuwaMCPClient {
     args: Record<string, unknown>,
   ): Promise<T> {
     try {
-      const result = await this.paymentClient.readResource({
+      const result = await this.universalClient.readResource({
         uri: uriTemplate,
         ...args,
       });
@@ -181,18 +181,32 @@ export class PaymentMcpClientAdapter implements NuwaMCPClient {
   }
 
   async close(): Promise<void> {
-    await this.paymentClient.close();
+    await this.universalClient.close();
   }
 
-  // Additional payment-specific methods that can be accessed via the adapter
-  getPaymentClient(): PaymentChannelMcpClient {
-    return this.paymentClient;
+  // Additional methods that provide access to Universal client capabilities
+  getUniversalClient(): UniversalMcpClient {
+    return this.universalClient;
+  }
+
+  // Convenience methods for checking server capabilities
+  getServerType() {
+    return this.universalClient.getServerType();
+  }
+
+  supportsPayment() {
+    return this.universalClient.supportsPayment();
+  }
+
+  supportsAuth() {
+    return this.universalClient.supportsAuth();
   }
 }
 
 /**
  * Creates a PaymentMcpClientAdapter with DID authentication
- * This is the main entry point for creating payment-enabled MCP clients
+ * This is the main entry point for creating universal MCP clients
+ * that support both payment-enabled and standard MCP servers
  */
 export async function createPaymentMcpClient(
   url: string,
@@ -201,7 +215,7 @@ export async function createPaymentMcpClient(
   // Initialize identity kit for DID authentication
   const sdk = await IdentityKitWeb.init({ storage: 'local' });
 
-  const paymentClient = await createMcpClient({
+  const universalClient = await createMcpClient({
     baseUrl: url,
     env: sdk.getIdentityEnv(),
     //TODO: maxAmount should be configurable
@@ -210,5 +224,5 @@ export async function createPaymentMcpClient(
     ...options,
   });
 
-  return new PaymentMcpClientAdapter(paymentClient);
+  return new PaymentMcpClientAdapter(universalClient);
 }
