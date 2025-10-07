@@ -69,14 +69,14 @@ importers:
         specifier: ^0.6.0
         version: 0.6.0(react@19.1.1)(typescript@5.8.3)
       '@nuwa-ai/payment-kit':
-        specifier: ^0.6.0
-        version: 0.6.0(express@5.1.0)(typescript@5.8.3)
+        specifier: ^0.6.1
+        version: 0.6.1(express@5.1.0)(typescript@5.8.3)
       '@nuwa-ai/ui-kit':
         specifier: ^0.6.0
         version: 0.6.0(react@19.1.1)
       '@openrouter/ai-sdk-provider':
         specifier: ^1.2.0
-        version: 1.2.0(ai@5.0.44(zod@3.25.76))(zod@3.25.76)
+        version: 1.2.0(ai@5.0.60(zod@3.25.76))(zod@3.25.76)
       '@radix-ui/react-accordion':
         specifier: ^1.2.11
         version: 1.2.12(@types/react-dom@19.1.9(@types/react@19.1.13))(@types/react@19.1.13)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -198,8 +198,8 @@ importers:
         specifier: ^4.0.19
         version: 4.0.24(react@19.1.1)(typescript@5.8.3)
       ai:
-        specifier: ^5.0.41
-        version: 5.0.44(zod@3.25.76)
+        specifier: ^5.0.60
+        version: 5.0.60(zod@3.25.76)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -419,6 +419,12 @@ packages:
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4
+
+  '@ai-sdk/gateway@1.0.33':
+    resolution: {integrity: sha512-v9i3GPEo4t3fGcSkQkc07xM6KJN75VUv7C1Mqmmsu2xD8lQwnQfsrgAXyNuWe20yGY0eHuheSPDZhiqsGKtH1g==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
 
   '@ai-sdk/google@2.0.17':
     resolution: {integrity: sha512-6LyuUrCZuiULg0rUV+kT4T2jG19oUntudorI4ttv1ARkSbwl8A39ue3rA487aDDy6fUScdbGFiV5Yv/o4gidVA==}
@@ -1303,8 +1309,8 @@ packages:
   '@nuwa-ai/identity-kit@0.6.0':
     resolution: {integrity: sha512-AV08WPJBnk826jiZ8af7OCNx8Grns2mByqpT56h2ZM9/3srtnXzlXs4M9YcyJiar3vn7lfJqpDADkMVQdXs9Kg==}
 
-  '@nuwa-ai/payment-kit@0.6.0':
-    resolution: {integrity: sha512-OGhXMPPG39qPiSIKXlzFQOgUv6ZZyxHmy3XXm318IR5p338iAGV5GY5ixm3GgJOheKynAo0EDAJlmJZuLIiyWA==}
+  '@nuwa-ai/payment-kit@0.6.1':
+    resolution: {integrity: sha512-CXiKNvpEwUG5GBf1kgBrB/NrKEyujBRcS68xcyC40Hm91o+kLDJtXfO2EooMpBnp5BzzmFKl5XQcmEa/9EzFNQ==}
     peerDependencies:
       express: '>=4'
       pg: '>=8'
@@ -2907,6 +2913,10 @@ packages:
     peerDependencies:
       react: '>= 16.8.0'
 
+  '@vercel/oidc@3.0.1':
+    resolution: {integrity: sha512-V/YRVrJDqM6VaMBjRUrd6qRMrTKvZjHdVdEmdXsOZMulTa3iK98ijKTc3wldBmst6W5rHpqMoKllKcBAHgN7GQ==}
+    engines: {node: '>= 20'}
+
   '@vitejs/plugin-react-swc@3.11.0':
     resolution: {integrity: sha512-YTJCGFdNMHCMfjODYtxRNVAYmTWQ1Lb8PulP/2/f/oEEtglw8oKxKIZmmRkyXrVrHfsKOaVkAc3NT9/dMutO5w==}
     peerDependencies:
@@ -3108,6 +3118,12 @@ packages:
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4
+
+  ai@5.0.60:
+    resolution: {integrity: sha512-80U/3kmdBW6g+JkLXpz/P2EwkyEaWlPlYtuLUpx/JYK9F7WZh9NnkYoh1KvUi1Sbpo0NyurBTvX0a2AG9mmbDA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
 
   ajv-formats@2.1.1:
     resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
@@ -4259,8 +4275,8 @@ packages:
   fast-uri@3.1.0:
     resolution: {integrity: sha512-iPeeDKJSWf4IEOasVVrknXpaBV0IApz/gp7S2bb7Z4Lljbl2MGJRqInZiUrQwV16cpzw/D3S5j5Julj/gT52AA==}
 
-  fastmcp@3.18.0:
-    resolution: {integrity: sha512-Td8+QMHmA8WeLTczlMIvV+/Xvk164d/047Hku3kwExuwm3tgMTrwmTI10euP04lNE5WCFZ1xdF9XISnMxeJ3yw==}
+  fastmcp@3.19.1:
+    resolution: {integrity: sha512-XiEFTW26i5lDStmWOCVhDx8v2jQfQvtd6KC4PHuRg9z5eoo8rP9YUt1yuzgPD4BByNTeksZnxGtXttr+GQK23Q==}
     hasBin: true
 
   fastq@1.19.1:
@@ -5102,8 +5118,8 @@ packages:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
     hasBin: true
 
-  lossless-json@4.2.0:
-    resolution: {integrity: sha512-bsHH3x+7acZfqokfn9Ks/ej96yF/z6oGGw1aBmXesq4r3fAjhdG4uYuqzDgZMk5g1CZUd5w3kwwIp9K1LOYUiA==}
+  lossless-json@4.3.0:
+    resolution: {integrity: sha512-ToxOC+SsduRmdSuoLZLYAr5zy1Qu7l5XhmPWM3zefCZ5IcrzW/h108qbJUKfOlDlhvhjUK84+8PSVX0kxnit0g==}
 
   lowlight@1.20.0:
     resolution: {integrity: sha512-8Ktj+prEb1RoCPkEOrPMYUN/nCggB7qAWe3a7OpMjWQkh3l2RD5wKRQ+o8Q8YuI9RG/xs95waaI/E6ym/7NsTw==}
@@ -5182,8 +5198,8 @@ packages:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
 
-  mcp-proxy@5.6.1:
-    resolution: {integrity: sha512-307KBxoJ4YS4fsa26MFkHLcuWYUoy/bTj/VNG/Km8/elgydEh0o+YpJiG7ywUrHhSsaYKpBc9OgMRxibUCjKKA==}
+  mcp-proxy@5.8.0:
+    resolution: {integrity: sha512-qNdLNQzpFGj80UXu473Z7ZwZqRYMG6bvf64Wnmqqiaz8SU0GHaVD7U9odW++xYLSEI6EEZNl7SH3Vjw5NEdLXw==}
     hasBin: true
 
   mdast-util-find-and-replace@3.0.2:
@@ -7910,6 +7926,13 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.9(zod@3.25.76)
       zod: 3.25.76
 
+  '@ai-sdk/gateway@1.0.33(zod@3.25.76)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.10(zod@3.25.76)
+      '@vercel/oidc': 3.0.1
+      zod: 3.25.76
+
   '@ai-sdk/google@2.0.17(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
@@ -9088,7 +9111,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@nuwa-ai/identity-kit': 0.6.0(typescript@5.8.3)
       '@roochnetwork/rooch-sdk': 0.4.0(typescript@5.8.3)
-      ai: 5.0.44(zod@3.25.76)
+      ai: 5.0.60(zod@3.25.76)
       js-yaml: 4.1.0
       multiformats: 9.9.0
       zod: 3.25.76
@@ -9115,18 +9138,18 @@ snapshots:
       - supports-color
       - typescript
 
-  '@nuwa-ai/payment-kit@0.6.0(express@5.1.0)(typescript@5.8.3)':
+  '@nuwa-ai/payment-kit@0.6.1(express@5.1.0)(typescript@5.8.3)':
     dependencies:
-      '@modelcontextprotocol/sdk': 1.18.0
+      '@modelcontextprotocol/sdk': 1.18.2
       '@nuwa-ai/identity-kit': 0.6.0(typescript@5.8.3)
       '@roochnetwork/rooch-sdk': 0.4.0(typescript@5.8.3)
       '@types/js-yaml': 4.0.9
       '@types/pg': 8.15.5
-      ai: 5.0.44(zod@3.25.76)
-      fastmcp: 3.18.0
+      ai: 5.0.60(zod@3.25.76)
+      fastmcp: 3.19.1
       js-yaml: 4.1.0
-      lossless-json: 4.2.0
-      mcp-proxy: 5.6.1
+      lossless-json: 4.3.0
+      mcp-proxy: 5.8.0
       on-headers: 1.1.0
       zod: 3.25.76
       zod-to-json-schema: 3.24.6(zod@3.25.76)
@@ -9148,9 +9171,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@openrouter/ai-sdk-provider@1.2.0(ai@5.0.44(zod@3.25.76))(zod@3.25.76)':
+  '@openrouter/ai-sdk-provider@1.2.0(ai@5.0.60(zod@3.25.76))(zod@3.25.76)':
     dependencies:
-      ai: 5.0.44(zod@3.25.76)
+      ai: 5.0.60(zod@3.25.76)
       zod: 3.25.76
 
   '@opentelemetry/api@1.9.0': {}
@@ -11413,6 +11436,8 @@ snapshots:
       '@use-gesture/core': 10.3.1
       react: 19.1.1
 
+  '@vercel/oidc@3.0.1': {}
+
   '@vitejs/plugin-react-swc@3.11.0(vite@6.3.6(@types/node@24.5.0)(jiti@1.21.7)(tsx@4.20.5)(yaml@2.8.1))':
     dependencies:
       '@rolldown/pluginutils': 1.0.0-beta.27
@@ -12282,6 +12307,14 @@ snapshots:
       '@ai-sdk/gateway': 1.0.23(zod@3.25.76)
       '@ai-sdk/provider': 2.0.0
       '@ai-sdk/provider-utils': 3.0.9(zod@3.25.76)
+      '@opentelemetry/api': 1.9.0
+      zod: 3.25.76
+
+  ai@5.0.60(zod@3.25.76):
+    dependencies:
+      '@ai-sdk/gateway': 1.0.33(zod@3.25.76)
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.10(zod@3.25.76)
       '@opentelemetry/api': 1.9.0
       zod: 3.25.76
 
@@ -13619,14 +13652,14 @@ snapshots:
 
   fast-uri@3.1.0: {}
 
-  fastmcp@3.18.0:
+  fastmcp@3.19.1:
     dependencies:
-      '@modelcontextprotocol/sdk': 1.18.0
+      '@modelcontextprotocol/sdk': 1.18.2
       '@standard-schema/spec': 1.0.0
       execa: 9.6.0
       file-type: 21.0.0
       fuse.js: 7.1.0
-      mcp-proxy: 5.6.1
+      mcp-proxy: 5.8.0
       strict-event-emitter-types: 2.0.0
       undici: 7.16.0
       uri-templates: 0.2.0
@@ -14628,7 +14661,7 @@ snapshots:
     dependencies:
       js-tokens: 4.0.0
 
-  lossless-json@4.2.0: {}
+  lossless-json@4.3.0: {}
 
   lowlight@1.20.0:
     dependencies:
@@ -14689,7 +14722,7 @@ snapshots:
 
   math-intrinsics@1.1.0: {}
 
-  mcp-proxy@5.6.1: {}
+  mcp-proxy@5.8.0: {}
 
   mdast-util-find-and-replace@3.0.2:
     dependencies:
