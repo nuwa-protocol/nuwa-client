@@ -6,10 +6,12 @@ import {
   ArrowUpDown,
   Bot,
   Search,
+  Wrench,
 } from 'lucide-react';
 import type React from 'react';
 import { useMemo, useState } from 'react';
 import { Button } from '@/shared/components';
+import { Checkbox } from '@/shared/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -49,6 +51,7 @@ export const LLMModelSelector = ({
   const [sortBy, setSortBy] = useState<'name' | 'price-asc' | 'price-desc'>(
     'name',
   );
+  const [showToolsOnly, setShowToolsOnly] = useState(false);
 
   // Generate categories and providers from models
   const { providers } = useMemo(() => {
@@ -85,6 +88,11 @@ export const LLMModelSelector = ({
             providerName.includes(keyword.toLowerCase()),
         );
       });
+    }
+
+    // Filter by tool support if enabled
+    if (showToolsOnly) {
+      filtered = filtered.filter((model) => model.supports_tools);
     }
 
     // Apply sorting
@@ -230,6 +238,20 @@ export const LLMModelSelector = ({
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
               />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="tools-only"
+                checked={showToolsOnly}
+                onCheckedChange={(checked) => setShowToolsOnly(checked as boolean)}
+              />
+              <label
+                htmlFor="tools-only"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-1 cursor-pointer"
+              >
+                <Wrench className="h-4 w-4" />
+                Tools Only
+              </label>
             </div>
             <Select
               value={sortBy}

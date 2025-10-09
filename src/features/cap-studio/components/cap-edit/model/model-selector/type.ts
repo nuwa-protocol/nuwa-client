@@ -53,4 +53,6 @@ export type ModelDetails = {
   };
   supported_inputs: string[];
   supported_parameters: string[];
+  // Add tool calling support detection
+  supports_tools?: boolean;
 };

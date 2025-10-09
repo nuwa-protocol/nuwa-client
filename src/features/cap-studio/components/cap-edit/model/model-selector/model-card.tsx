@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Wrench, WrenchIcon } from 'lucide-react';
 import type React from 'react';
 import type { ModelDetails } from '@/features/cap-studio/components/cap-edit/model/model-selector/type';
 import {
@@ -7,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/shared/components/ui/card';
+import { Badge } from '@/shared/components/ui/badge';
 import { useLocale } from '@/shared/locales/use-locale';
 import { cn } from '@/shared/utils';
 import { ProviderAvatar } from '../../../../../../shared/components/provider-avatar';
@@ -33,9 +35,17 @@ export const ModelCard: React.FC<ModelCardProps> = ({ model, onClick }) => {
             <div className="flex items-center gap-3">
               <ProviderAvatar provider={model.providerName} size="md" />
               <div>
-                <CardTitle className="text-base">
-                  {getModelName(model)}
-                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-base">
+                    {getModelName(model)}
+                  </CardTitle>
+                  {model.supports_tools && (
+                    <Badge variant="secondary" className="text-xs">
+                      <Wrench className="h-3 w-3 mr-1" />
+                      Tools
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-sm text-muted-foreground">
                   {getProviderName(model)}
                 </p>

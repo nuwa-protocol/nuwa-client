@@ -26,6 +26,23 @@ async function modelFetch(gatewayUrl: string): Promise<OpenRouterAPIResponse> {
   }
 }
 
+function detectToolSupport(model: OpenRouterModel): boolean {
+  // Check if the model supports function calling based on supported parameters
+  const toolSupportParams = [
+    'tools', 
+    'tool_choice', 
+    'function_call', 
+    'functions',
+    'parallel_tool_calls'
+  ];
+  
+  const hasToolParams = model.supported_parameters.some(param => 
+    toolSupportParams.includes(param.toLowerCase())
+  ); 
+  
+  return hasToolParams;
+}
+
 function parseModelInfo(model: OpenRouterModel) {
   const id = model.id;
   const baseId = model.id.split(':')[0];
@@ -72,6 +89,7 @@ export async function fetchModels(gatewayUrl: string): Promise<ModelDetails[]> {
         },
         supported_inputs: model.architecture.input_modalities,
         supported_parameters: model.supported_parameters,
+        supports_tools: detectToolSupport(model),
       };
     });
 }
