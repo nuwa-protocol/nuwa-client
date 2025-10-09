@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Wrench, WrenchIcon } from 'lucide-react';
+import { Wrench } from 'lucide-react';
 import type React from 'react';
 import type { ModelDetails } from '@/features/cap-studio/components/cap-edit/model/model-selector/type';
 import {
