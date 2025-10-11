@@ -4,9 +4,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CapUIRendererProps } from '@/shared/components/cap-ui-renderer';
 import { useTheme } from '@/shared/components/theme-provider';
 import {
-  closeNuwaMCPClient,
-  createNuwaMCPClient,
-} from '@/shared/services/mcp-client';
+  closeUnifiedMcpClient,
+  createUnifiedMcpClient,
+} from '@/shared/services/unified-mcp-client';
 import { type URLValidationResult, validateURL } from '@/shared/utils';
 
 export type ChildMethods = {
@@ -197,7 +197,7 @@ export const useCapUIRender = ({
         throw new Error('Iframe not ready');
       }
 
-      const mcpClient = await createNuwaMCPClient(srcUrl, 'postMessage', {
+      const mcpClient = await createUnifiedMcpClient(srcUrl, 'postMessage', {
         targetWindow: iframeRef.current?.contentWindow,
       });
 
@@ -210,7 +210,7 @@ export const useCapUIRender = ({
           ? error
           : new Error(`Failed to connect to ${title ?? srcUrl} over MCP`);
       onMCPConnectionError?.(err);
-      await closeNuwaMCPClient(srcUrl);
+      await closeUnifiedMcpClient(srcUrl);
     }
   }, [title, srcUrl]);
 
@@ -236,7 +236,7 @@ export const useCapUIRender = ({
       connectionRef.current = null;
       childMethodsRef.current = null;
       // Best-effort close of MCP client for this srcUrl
-      closeNuwaMCPClient(srcUrl).catch(() => {});
+      closeUnifiedMcpClient(srcUrl).catch(() => {});
     };
   }, [srcUrl]);
 

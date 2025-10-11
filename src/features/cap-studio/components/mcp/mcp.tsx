@@ -32,10 +32,9 @@ import {
   SelectValue,
 } from '@/shared/components/ui';
 import {
-  closeNuwaMCPClient,
-  createNuwaMCPClient,
-} from '@/shared/services/mcp-client';
-import { createPaymentMcpClient } from '@/shared/services/payment-mcp-client';
+  closeUnifiedMcpClient,
+  createUnifiedMcpClient,
+} from '@/shared/services/unified-mcp-client';
 import type { NuwaMCPClient } from '@/shared/types';
 
 interface LogEntry {
@@ -119,12 +118,8 @@ export function Mcp({ mcpServerUrl, mcpUIUrl }: McpProps) {
         );
       }
 
-      let newClient: any;
-      if (mcpType === 'Remote MCP') {
-        newClient = await createPaymentMcpClient(url);
-      } else {
-        newClient = await createNuwaMCPClient(url, 'postMessage');
-      }
+      // Use unified MCP client which automatically detects server type
+      const newClient = await createUnifiedMcpClient(url);
       setClient(newClient);
 
       pushLog({
@@ -144,7 +139,7 @@ export function Mcp({ mcpServerUrl, mcpUIUrl }: McpProps) {
 
       toast.error(String(err));
 
-      await closeNuwaMCPClient(url);
+      await closeUnifiedMcpClient(url);
     } finally {
       setConnecting(false);
     }

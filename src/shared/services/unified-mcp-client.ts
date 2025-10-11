@@ -1,9 +1,6 @@
 import { IdentityKitWeb } from '@nuwa-ai/identity-kit-web';
-import {
-  type CreateMcpClientOptions,
-  createMcpClient,
-  type UniversalMcpClient,
-} from '@nuwa-ai/payment-kit';
+import { createMcpClient } from '@nuwa-ai/payment-kit';
+import { PostMessageMCPTransport } from '@nuwa-ai/ui-kit';
 import type {
   NuwaMCPClient,
   PromptDefinition,
@@ -18,8 +15,8 @@ import { MCPError } from '../types/mcp-client';
  * This enables seamless integration with existing MCP client usage patterns
  * while supporting both payment-enabled and standard MCP servers.
  */
-export class PaymentMcpClientAdapter implements NuwaMCPClient {
-  constructor(private universalClient: UniversalMcpClient) {}
+export class UnifiedMcpClientAdapter implements NuwaMCPClient {
+  constructor(private universalClient: any) {}
 
   get raw() {
     return this.universalClient;
@@ -185,7 +182,7 @@ export class PaymentMcpClientAdapter implements NuwaMCPClient {
   }
 
   // Additional methods that provide access to Universal client capabilities
-  getUniversalClient(): UniversalMcpClient {
+  getUniversalClient() {
     return this.universalClient;
   }
 
@@ -204,25 +201,58 @@ export class PaymentMcpClientAdapter implements NuwaMCPClient {
 }
 
 /**
- * Creates a PaymentMcpClientAdapter with DID authentication
- * This is the main entry point for creating universal MCP clients
- * that support both payment-enabled and standard MCP servers
+ * Creates a unified MCP client that supports both HTTP and PostMessage transports
+ * This is the main entry point for creating MCP clients in nuwa-client
  */
-export async function createPaymentMcpClient(
+export async function createUnifiedMcpClient(
   url: string,
-  options: Partial<CreateMcpClientOptions> = {},
-): Promise<PaymentMcpClientAdapter> {
+  transportType: 'httpStream' | 'postMessage' = 'httpStream',
+  postMessageOptions?: {
+    targetWindow: Window;
+    targetOrigin?: string;
+    allowedOrigins?: string[];
+    debug?: boolean;
+    timeout?: number;
+  },
+): Promise<UnifiedMcpClientAdapter> {
   // Initialize identity kit for DID authentication
   const sdk = await IdentityKitWeb.init({ storage: 'local' });
 
+  let customTransport;
+  
+  if (transportType === 'postMessage') {
+    if (!postMessageOptions) {
+      throw new Error('PostMessage transport requires postMessageOptions');
+    }
+    
+    // Create PostMessage transport using ui-kit
+    customTransport = new PostMessageMCPTransport({
+      targetWindow: postMessageOptions.targetWindow,
+      targetOrigin: postMessageOptions.targetOrigin,
+      allowedOrigins: postMessageOptions.allowedOrigins,
+      debug: postMessageOptions.debug,
+      timeout: postMessageOptions.timeout,
+    });
+  }
+
+  // Create universal client with custom transport if provided
   const universalClient = await createMcpClient({
     baseUrl: url,
     env: sdk.getIdentityEnv(),
-    //TODO: maxAmount should be configurable
     maxAmount: BigInt(0), // Default max amount, can be overridden
     debug: true,
-    ...options,
+    // Pass custom transport if using PostMessage
+    ...(customTransport && { customTransport }),
   });
 
-  return new PaymentMcpClientAdapter(universalClient);
+  return new UnifiedMcpClientAdapter(universalClient);
+}
+
+/**
+ * Close and remove a cached client instance.
+ * This function maintains compatibility with the old API.
+ */
+export async function closeUnifiedMcpClient(url: string): Promise<void> {
+  // No-op since caching is handled by the client itself
+  // This maintains compatibility with the old API
 }

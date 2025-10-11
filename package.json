@@ -35,7 +35,7 @@
     "@nuwa-ai/cap-kit": "0.6.5",
     "@nuwa-ai/identity-kit": "^0.6.0",
     "@nuwa-ai/identity-kit-web": "^0.6.0",
-    "@nuwa-ai/payment-kit": "^0.6.1",
+    "@nuwa-ai/payment-kit": "^0.6.3",
     "@nuwa-ai/ui-kit": "^0.6.0",
     "@openrouter/ai-sdk-provider": "^1.2.0",
     "@radix-ui/react-accordion": "^1.2.11",
