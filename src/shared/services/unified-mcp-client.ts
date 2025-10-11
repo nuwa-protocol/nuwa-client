@@ -1,5 +1,5 @@
 import { IdentityKitWeb } from '@nuwa-ai/identity-kit-web';
-import { createMcpClient } from '@nuwa-ai/payment-kit';
+import { createMcpClient, UniversalMcpClient, McpServerType } from '@nuwa-ai/payment-kit';
 import { PostMessageMCPTransport } from '@nuwa-ai/ui-kit';
 import type {
   NuwaMCPClient,
@@ -16,7 +16,7 @@ import { MCPError } from '../types/mcp-client';
  * while supporting both payment-enabled and standard MCP servers.
  */
 export class UnifiedMcpClientAdapter implements NuwaMCPClient {
-  constructor(private universalClient: any) {}
+  constructor(private universalClient: UniversalMcpClient) {}
 
   get raw() {
     return this.universalClient;
@@ -182,27 +182,35 @@ export class UnifiedMcpClientAdapter implements NuwaMCPClient {
   }
 
   // Additional methods that provide access to Universal client capabilities
-  getUniversalClient() {
+  getUniversalClient(): UniversalMcpClient {
     return this.universalClient;
   }
 
   // Convenience methods for checking server capabilities
-  getServerType() {
+  getServerType(): McpServerType {
     return this.universalClient.getServerType();
   }
 
-  supportsPayment() {
+  supportsPayment(): boolean {
     return this.universalClient.supportsPayment();
   }
 
-  supportsAuth() {
+  supportsAuth(): boolean {
     return this.universalClient.supportsAuth();
   }
 }
 
+// Lightweight URL-based client cache to prevent immediate reconnection storms
+// For application-level client management, use RemoteMCPManager instead
+const clientCache = new Map<string, UnifiedMcpClientAdapter>();
+
 /**
  * Creates a unified MCP client that supports both HTTP and PostMessage transports
  * This is the main entry point for creating MCP clients in nuwa-client
+ * 
+ * Note: This function creates a new client instance each time. For application-level
+ * client management (e.g., Cap-based MCP servers), use RemoteMCPManager instead.
+ * This lightweight caching is only for preventing immediate reconnections in error scenarios.
  */
 export async function createUnifiedMcpClient(
   url: string,
@@ -215,6 +223,27 @@ export async function createUnifiedMcpClient(
     timeout?: number;
   },
 ): Promise<UnifiedMcpClientAdapter> {
+  // Lightweight caching to prevent immediate reconnections in error scenarios
+  const cacheKey = url;
+  
+  // Return existing client if available and still connected
+  const existingClient = clientCache.get(cacheKey);
+  if (existingClient) {
+    try {
+      // Test if the client is still functional by checking server type
+      existingClient.getServerType();
+      return existingClient;
+    } catch (error) {
+      // Client is no longer functional, remove from cache
+      clientCache.delete(cacheKey);
+      try {
+        await existingClient.close();
+      } catch (closeError) {
+        console.warn('Failed to close stale MCP client:', closeError);
+      }
+    }
+  }
+
   // Initialize identity kit for DID authentication
   const sdk = await IdentityKitWeb.init({ storage: 'local' });
 
@@ -245,14 +274,58 @@ export async function createUnifiedMcpClient(
     ...(customTransport && { customTransport }),
   });
 
-  return new UnifiedMcpClientAdapter(universalClient);
+  const clientAdapter = new UnifiedMcpClientAdapter(universalClient);
+  
+  // Cache the client for immediate reuse (prevents reconnection storms)
+  clientCache.set(cacheKey, clientAdapter);
+  
+  return clientAdapter;
 }
 
 /**
  * Close and remove a cached client instance.
- * This function maintains compatibility with the old API.
+ * This function properly closes the client connection and removes it from cache
+ * to prevent resource leaks.
  */
 export async function closeUnifiedMcpClient(url: string): Promise<void> {
-  // No-op since caching is handled by the client itself
-  // This maintains compatibility with the old API
+  const client = clientCache.get(url);
+  if (client) {
+    try {
+      await client.close();
+    } catch (error) {
+      console.warn(`Failed to close MCP client for ${url}:`, error);
+    } finally {
+      // Always remove from cache, even if close failed
+      clientCache.delete(url);
+    }
+  }
+}
+
+/**
+ * Close all cached client instances.
+ * Useful for application shutdown or cleanup.
+ */
+export async function closeAllUnifiedMcpClients(): Promise<void> {
+  const closePromises: Promise<void>[] = [];
+  
+  for (const [cacheKey, client] of clientCache.entries()) {
+    closePromises.push(
+      client.close().catch((error) => {
+        console.warn(`Failed to close MCP client ${cacheKey}:`, error);
+      })
+    );
+  }
+  
+  // Wait for all clients to close
+  await Promise.allSettled(closePromises);
+  
+  // Clear the cache
+  clientCache.clear();
+}
+
+/**
+ * Get the number of cached clients (for debugging/monitoring)
+ */
+export function getCachedClientCount(): number {
+  return clientCache.size;
 }
