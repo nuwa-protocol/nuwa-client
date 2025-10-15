@@ -24,6 +24,14 @@ export function createPaymentFetch(_options?: { maxAmount?: bigint }) {
         ? { ...init, signal: incomingSignal }
         : init;
 
+    // Remove any Authorization header from upstream since DID Payment protocol
+    // handles authentication through its own mechanism
+    if (finalInit?.headers) {
+      const headers = new Headers(finalInit.headers);
+      headers.delete('Authorization');
+      finalInit.headers = headers;
+    }
+
     const methodFromInit = (finalInit?.method ?? 'POST').toUpperCase() as
       | 'GET'
       | 'POST'
