@@ -37,11 +37,11 @@ class CapKitService {
     try {
       this.isInitializing = true;
 
-      const keyManager = await NuwaIdentityKit().getKeyManager();
+      const identityEnv = await NuwaIdentityKit().getIdentityEnv();
 
       this.capKit = new CapKit({
         ...capKitConfig,
-        signer: keyManager,
+        env: identityEnv,
       });
 
       return this.capKit;
@@ -58,6 +58,7 @@ class CapKitService {
    * Reset the CapKit instance (useful for logout/login scenarios)
    */
   reset(): void {
+    this.capKit?.mcpClose();
     this.capKit = null;
     this.initializationPromise = null;
     this.isInitializing = false;

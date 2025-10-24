@@ -54,8 +54,8 @@ importers:
         specifier: ^1.13.2
         version: 1.18.0
       '@nuwa-ai/cap-kit':
-        specifier: 0.6.5
-        version: 0.6.5(typescript@5.8.3)
+        specifier: 0.6.6
+        version: 0.6.6(express@5.1.0)(typescript@5.8.3)
       '@nuwa-ai/identity-kit':
         specifier: ^0.6.0
         version: 0.6.0(typescript@5.8.3)
@@ -1082,8 +1082,8 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@nuwa-ai/cap-kit@0.6.5':
-    resolution: {integrity: sha512-RwCpbSXgGw03uypIZ8n2G8y7uRntUXJ1dkg5uhu9Zns9oRxSsYjueVMdOU1LfVEHPeKrMKbRU7ef9nOitJj3FA==}
+  '@nuwa-ai/cap-kit@0.6.6':
+    resolution: {integrity: sha512-CnMCtJyGfzwMPGC2fBG1o0vFpaG7xgRU5ShRFaQiakO6bdzCRMdvwWLJ6Nx1+joECRJ0yDF2E01PlHi0vvgNMg==}
 
   '@nuwa-ai/identity-kit-web@0.6.0':
     resolution: {integrity: sha512-kiRGLfKVU+dXlT7TN94AwFo9+Vmb0to12emKe9EQ04xDrN2qo1k1b9Ec2xZc5z0V+BYr0ndPOxgpF9DwxYh2uQ==}
@@ -6723,19 +6723,25 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
 
-  '@nuwa-ai/cap-kit@0.6.5(typescript@5.8.3)':
+  '@nuwa-ai/cap-kit@0.6.6(express@5.1.0)(typescript@5.8.3)':
     dependencies:
-      '@modelcontextprotocol/sdk': 1.18.0
+      '@modelcontextprotocol/sdk': 1.18.2
       '@noble/curves': 1.9.7
       '@noble/hashes': 1.8.0
       '@nuwa-ai/identity-kit': 0.6.0(typescript@5.8.3)
+      '@nuwa-ai/payment-kit': 0.6.9(express@5.1.0)(typescript@5.8.3)
       '@roochnetwork/rooch-sdk': 0.4.0(typescript@5.8.3)
-      ai: 5.0.76(zod@3.25.76)
       js-yaml: 4.1.0
       multiformats: 9.9.0
       zod: 3.25.76
     transitivePeerDependencies:
+      - '@valibot/to-json-schema'
+      - arktype
+      - effect
+      - express
+      - pg
       - supports-color
+      - sury
       - typescript
 
   '@nuwa-ai/identity-kit-web@0.6.0(react@19.1.1)(typescript@5.8.3)':
