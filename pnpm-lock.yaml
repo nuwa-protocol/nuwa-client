@@ -54,8 +54,8 @@ importers:
         specifier: ^1.13.2
         version: 1.18.0
       '@nuwa-ai/cap-kit':
-        specifier: 0.6.6
-        version: 0.6.6(express@5.1.0)(typescript@5.8.3)
+        specifier: 0.6.9
+        version: 0.6.9(express@5.1.0)(typescript@5.8.3)
       '@nuwa-ai/identity-kit':
         specifier: ^0.6.0
         version: 0.6.0(typescript@5.8.3)
@@ -1082,8 +1082,8 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@nuwa-ai/cap-kit@0.6.6':
-    resolution: {integrity: sha512-CnMCtJyGfzwMPGC2fBG1o0vFpaG7xgRU5ShRFaQiakO6bdzCRMdvwWLJ6Nx1+joECRJ0yDF2E01PlHi0vvgNMg==}
+  '@nuwa-ai/cap-kit@0.6.9':
+    resolution: {integrity: sha512-vY41MWS12Su1hT65iNMMkN4WOvtrmMiRSNXbUNLAvmMPT0iHaEZHyJQUJC+Gzlv7n8/CS2HyewG9UsdJVJbdng==}
 
   '@nuwa-ai/identity-kit-web@0.6.0':
     resolution: {integrity: sha512-kiRGLfKVU+dXlT7TN94AwFo9+Vmb0to12emKe9EQ04xDrN2qo1k1b9Ec2xZc5z0V+BYr0ndPOxgpF9DwxYh2uQ==}
@@ -6723,9 +6723,8 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
 
-  '@nuwa-ai/cap-kit@0.6.6(express@5.1.0)(typescript@5.8.3)':
+  '@nuwa-ai/cap-kit@0.6.9(express@5.1.0)(typescript@5.8.3)':
     dependencies:
-      '@modelcontextprotocol/sdk': 1.18.2
       '@noble/curves': 1.9.7
       '@noble/hashes': 1.8.0
       '@nuwa-ai/identity-kit': 0.6.0(typescript@5.8.3)
