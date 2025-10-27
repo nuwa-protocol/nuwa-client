@@ -1,2 +1,3 @@
-export const IFRAME_SANDBOX = 'allow-scripts';
-export const IFRAME_ALLOW_PERMISSIONS = 'clipboard-read; clipboard-write';
+export const IFRAME_SANDBOX = 'allow-scripts allow-same-origin';
+export const IFRAME_ALLOW_PERMISSIONS =
+  'publickey-credentials-create; publickey-credentials-get';
