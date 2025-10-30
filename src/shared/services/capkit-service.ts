@@ -1,11 +1,12 @@
-import { CapKit } from '@nuwa-ai/cap-kit';
+import { CapKitMcp, CapKitRestful } from '@nuwa-ai/cap-kit';
 import { capKitConfig } from '../config/capkit';
 import { NuwaIdentityKit } from './identity-kit';
 
 class CapKitService {
   private static instance: CapKitService;
-  private capKit: CapKit | null = null;
-  private initializationPromise: Promise<CapKit> | null = null;
+  private capKitMcp: CapKitMcp | null = null;
+  private capKitRestful: CapKitRestful | null = null;
+  private initializationPromise: Promise<CapKitMcp> | null = null;
   private isInitializing = false;
 
   private constructor() {}
@@ -17,10 +18,18 @@ class CapKitService {
     return CapKitService.instance;
   }
 
-  async getCapKit(): Promise<CapKit> {
+  async getCapKitRestful(): Promise<CapKitRestful> {
+    if (this.capKitRestful) {
+      return this.capKitRestful;
+    }
+    this.capKitRestful = new CapKitRestful(`${capKitConfig.appUrl}/api`);
+    return this.capKitRestful;
+  }
+
+  async getCapKit(): Promise<CapKitMcp> {
     // If already initialized, return the instance
-    if (this.capKit) {
-      return this.capKit;
+    if (this.capKitMcp) {
+      return this.capKitMcp;
     }
 
     // If currently initializing, wait for the existing initialization
@@ -33,18 +42,20 @@ class CapKitService {
     return this.initializationPromise;
   }
 
-  private async initializeCapKit(): Promise<CapKit> {
+  private async initializeCapKit(): Promise<CapKitMcp> {
     try {
       this.isInitializing = true;
 
       const identityEnv = await NuwaIdentityKit().getIdentityEnv();
 
-      this.capKit = new CapKit({
-        ...capKitConfig,
+      this.capKitMcp = new CapKitMcp({
+        mcpUrl: `${capKitConfig.appUrl}/mcp`,
+        roochUrl: capKitConfig.roochUrl,
+        contractAddress: capKitConfig.contractAddress,
         env: identityEnv,
       });
 
-      return this.capKit;
+      return this.capKitMcp;
     } catch (error) {
       // Reset initialization state on error
       this.initializationPromise = null;
@@ -58,8 +69,8 @@ class CapKitService {
    * Reset the CapKit instance (useful for logout/login scenarios)
    */
   reset(): void {
-    this.capKit?.mcpClose();
-    this.capKit = null;
+    this.capKitMcp?.mcpClose();
+    this.capKitMcp = null;
     this.initializationPromise = null;
     this.isInitializing = false;
   }
@@ -75,7 +86,7 @@ class CapKitService {
    * Check if CapKit is already initialized
    */
   isInitialized(): boolean {
-    return this.capKit !== null;
+    return this.capKitMcp !== null;
   }
 }
 

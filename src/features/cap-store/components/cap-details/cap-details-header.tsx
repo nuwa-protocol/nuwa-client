@@ -99,7 +99,7 @@ export function CapDetailsHeader({
               {/* CID (next line) */}
               <div className="flex items-center gap-2 min-w-0">
                 <Fingerprint className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">CID:</span>
+                <span className="text-xs text-muted-foreground">ID:</span>
                 <TooltipProvider delayDuration={100}>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -110,14 +110,14 @@ export function CapDetailsHeader({
                       >
                         <button
                           type="button"
-                          aria-label="Copy CID"
+                          aria-label="Copy ID"
                           onClick={() => {
-                            navigator.clipboard.writeText(capQueryData.cid);
+                            navigator.clipboard.writeText(capQueryData.id);
                             setCidCopied(true);
                             setTimeout(() => setCidCopied(false), 1500);
                           }}
                         >
-                          {truncate(capQueryData.cid)}
+                          {truncate(capQueryData.id)}
                         </button>
                       </Badge>
                     </TooltipTrigger>

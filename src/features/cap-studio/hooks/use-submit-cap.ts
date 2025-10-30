@@ -36,7 +36,7 @@ export const useSubmitCap = () => {
         return {
           success: true,
           capId: cid,
-          message: `Capability "@${capData.idName}" registered successfully with CID: ${cid}`,
+          message: `Capability "@${capData.idName}" registered successfully with ID: ${cid}`,
         };
       } catch (error) {
         const errorMessage =

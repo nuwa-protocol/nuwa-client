@@ -127,7 +127,7 @@ export const useCapStore = create<CapStoreState>()((set, get) => {
       params: UseRemoteCapParams = {},
       append = false,
     ): Promise<Result<Page<ResultCap>>> => {
-      const capKit = await capKitService.getCapKit();
+      const capKitRestful = await capKitService.getCapKitRestful();
 
       const {
         searchQuery: queryString = '',
@@ -146,13 +146,13 @@ export const useCapStore = create<CapStoreState>()((set, get) => {
       set({ error: null, lastSearchParams: params });
 
       try {
-        const response = await capKit.queryByName(queryString, {
-          tags: tagsArray,
-          page: pageNum,
-          size: sizeNum,
-          sortBy: sortByParam,
-          sortOrder: sortOrderParam,
-        });
+        const response = await capKitRestful.queryCaps(queryString, 
+          tagsArray,
+          pageNum,
+          sizeNum,
+          sortByParam,
+          sortOrderParam,
+        );
 
         const newRemoteCaps: RemoteCap[] = mapResultsToRemoteCaps(response);
 
@@ -269,8 +269,8 @@ export const useCapStore = create<CapStoreState>()((set, get) => {
       if (cachedCap) {
         return cachedCap;
       }
-      const capKit = await capKitService.getCapKit();
-      const cap = await capKit.downloadByID(id);
+      const capKit = await capKitService.getCapKitRestful();
+      const cap = await capKit.downloadCap(id);
       set({ downloadedCaps: { ...get().downloadedCaps, [id]: cap } });
       return cap;
     },
