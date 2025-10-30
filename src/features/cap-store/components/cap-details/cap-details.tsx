@@ -34,7 +34,6 @@ export function CapDetails({ capId }: { capId: string }) {
   const [isCapFavorite, setIsCapFavorite] = useState<boolean>(false);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState<boolean>(false);
   const { downloadCapByIDWithCache } = useCapStore();
-  const { fetchInstalledCaps } = InstalledCapsStore();
 
   // Fetch full cap data when selectedCap changes
   useEffect(() => {
@@ -44,6 +43,7 @@ export function CapDetails({ capId }: { capId: string }) {
     const fetchCap = async () => {
       try {
         const downloadedCap = await downloadCapByIDWithCache(capId);
+        console.log('downloadedCap', downloadedCap);
         setDownloadedCapData(downloadedCap);
       } catch (error) {
         console.error('Failed to download cap data:', error);
@@ -56,7 +56,8 @@ export function CapDetails({ capId }: { capId: string }) {
       const capKit = await capKitService.getCapKit();
 
       try {
-        const favoriteStatus = await capKit.favorite(capId, 'isFavorite');
+        const favoriteStatus = await capKit.install(capId, 'isInstall');
+        console.log('favoriteStatus', favoriteStatus);
         setIsCapFavorite(favoriteStatus.data ?? false);
       } catch (error) {
         console.error('Failed to fetch installed status:', error);
@@ -64,10 +65,10 @@ export function CapDetails({ capId }: { capId: string }) {
     };
 
     const queryCap = async () => {
-      const capKit = await capKitService.getCapKit();
+      const capKit = await capKitService.getCapKitRestful();
 
       try {
-        const queriedCap = await capKit.queryByID({ id: capId });
+        const queriedCap = await capKit.queryCap(capId);
         setCapQueryData(mapResultToRemoteCap(queriedCap));
       } catch (error) {
         console.error('Failed to download cap data:', error);

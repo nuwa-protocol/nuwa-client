@@ -4,6 +4,7 @@ import { rehydrationTracker } from '@/shared/hooks/use-rehydration';
 import { capKitService } from '@/shared/services/capkit-service';
 import { createInstalledCapsPersistConfig } from '@/shared/storage/indexeddb-config';
 import type { Cap } from '@/shared/types';
+import { NuwaIdentityKit } from '../services/identity-kit';
 
 interface InstalledCapsState {
   installedCaps: Cap[];
@@ -29,26 +30,30 @@ export const InstalledCapsStore = create<InstalledCapsState>()(
       installedCapsError: null,
 
       installCap: async (capId: string) => {
+        const capKitRestful = await capKitService.getCapKitRestful();
         const capKit = await capKitService.getCapKit();
-        const cap = await capKit.downloadByID(capId);
+        const cap = await capKitRestful.downloadCap(capId);
         if (!cap) {
           throw new Error('Failed to install cap');
         }
-        await capKit.favorite(capId, 'add');
+        await capKit.install(capId, 'add');
         await set({ installedCaps: [...get().installedCaps, cap] });
         return cap;
       },
 
       uninstallCap: async (capId: string) => {
         const capKit = await capKitService.getCapKit();
-        await capKit.favorite(capId, 'remove');
+        await capKit.install(capId, 'remove');
         set({
           installedCaps: get().installedCaps.filter((c) => c.id !== capId),
         });
       },
 
       fetchInstalledCaps: async () => {
-        const capKit = await capKitService.getCapKit();
+        console.log('fetchInstalledCaps');
+        const capKit = await capKitService.getCapKitRestful();
+        const identityEnv = await NuwaIdentityKit().getIdentityEnv();
+        const did = await identityEnv.keyManager?.getDid();
         if (!capKit) {
           set({ installedCaps: [], isFetchingInstalledCaps: false });
           return [];
@@ -57,19 +62,12 @@ export const InstalledCapsStore = create<InstalledCapsState>()(
         set({ isFetchingInstalledCaps: true, installedCapsError: null });
         try {
           // Backend API still uses the "favorite" concept
-          const response = await capKit.queryMyFavorite();
+          const response = await capKit.queryUserInstalledCaps(did);
           const items = response.data?.items || [];
           const ids = items.map((item) => item.id).filter(Boolean);
 
-          // Download full Cap objects in parallel; tolerate partial failures
-          const results = await Promise.allSettled(
-            ids.map((id: string) => capKit.downloadByID(id)),
-          );
-          const caps: Cap[] = results
-            .filter(
-              (r): r is PromiseFulfilledResult<Cap> => r.status === 'fulfilled',
-            )
-            .map((r) => r.value);
+          const capResult = await capKit.downloadCaps(ids);
+          const caps: Cap[] = Object.values(capResult.successful);
 
           set({ installedCaps: caps, isFetchingInstalledCaps: false });
           return caps;
