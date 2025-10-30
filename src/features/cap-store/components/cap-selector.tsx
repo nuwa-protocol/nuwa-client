@@ -139,7 +139,7 @@ export function CapSelector() {
 
           // Mark as favorite so it shows in Installed
           const capKit = await capKitService.getCapKit();
-          await capKit.favorite(cap.id, 'add');
+          await capKit.install(cap.id, 'add');
 
           setCurrentCap(downloaded);
         })(),
