@@ -5,6 +5,7 @@ import { CurrentCapInfo } from './current-cap-info';
 import Header from './header';
 import { Messages } from './messages';
 import { MultimodalInput } from './multimodal-input';
+import { useChat } from '@ai-sdk/react';
 
 export function ChatContent({
   isReadonly,
@@ -20,7 +21,9 @@ export function ChatContent({
   const { chat } = useChatContext();
   const { currentCap } = CurrentCapStore();
   const { chatSessions } = ChatSessionsStore();
-  const isNewChat = !(chatSessions[chat.id]?.messages.length > 0);
+  const { messages } = useChat({ chat, experimental_throttle: 120 });
+  const isNewChat =
+    (messages?.length ?? 0) === 0 && !(chatSessions[chat.id]?.messages.length > 0);
 
   return (
     <div className="flex flex-col h-full">

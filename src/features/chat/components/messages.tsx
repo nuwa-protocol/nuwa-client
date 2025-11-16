@@ -56,8 +56,6 @@ function PureMessages({ isReadonly }: MessagesProps) {
   const effectiveError =
     resolvedErrorCode === ChatErrorCode.IGNORED_ERROR ? undefined : error;
 
-  console.log(messages)
-
   return (
     <ConversationContent>
       {messages.map((message, index) => {
