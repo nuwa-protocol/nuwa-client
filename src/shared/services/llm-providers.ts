@@ -15,7 +15,7 @@ import type { CapModel } from '@/shared/types';
 export const LLMProvider = (model: CapModel) => {
   const paymentFetch = createPaymentFetch({ extraBody: model.parameters });
   const providerSettings = {
-    apiKey: 'NOT-USED',
+    apiKey: 'NOT-USED', // specify a fake api key to avoid SDK errors, the authorization header will be removed before sending to the gateway
     baseURL: model.customGatewayUrl || LLM_GATEWAY_BASE_URL,
     fetch: paymentFetch,
   };
