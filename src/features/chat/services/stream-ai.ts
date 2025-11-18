@@ -121,24 +121,25 @@ export const CreateAIChatStream = async ({
           handleError(error);
         },
       });
-      writer.merge(
-        result.toUIMessageStream({
-          sendReasoning: true,
-          sendSources: true,
-          onError: (error: any) => {
-            if (error == null) {
-              return 'Unknown error';
-            }
-            if (typeof error === 'string') {
-              return error;
-            }
-            if (error instanceof Error) {
-              return error.message;
-            }
-            return JSON.stringify(error);
-          },
-        }),
-      );
+      // Merge the UI stream for all parts (text, reasoning, sources, etc.)
+      const uiStream = result.toUIMessageStream({
+        sendReasoning: true,
+        sendSources: true,
+        onError: (error: any) => {
+          if (error == null) {
+            return 'Unknown error';
+          }
+          if (typeof error === 'string') {
+            return error;
+          }
+          if (error instanceof Error) {
+            return error.message;
+          }
+          return JSON.stringify(error);
+        },
+      });
+
+      writer.merge(uiStream);
       result.usage.then((usage: LanguageModelUsage) => {
         updateChatSessionContextUsage(chatId, usage);
       });

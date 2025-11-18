@@ -52,6 +52,7 @@ export function createPaymentFetch(_options?: {
       targetUrl.toString(),
       requestInit,
     );
+
     return handle.response;
   };
 }
