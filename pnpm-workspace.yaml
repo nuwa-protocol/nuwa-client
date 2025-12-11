@@ -1,0 +1,3 @@
+# This file marks nuwa-client as an independent workspace root
+# It prevents pnpm from traversing up to the parent workspace
+packages: []

@@ -4,11 +4,13 @@ import {
 } from '@nuwa-ai/identity-kit-web';
 import { cadopConfig } from '../config/cadop';
 import { capKitConfig } from '../config/capkit';
+import { ROOCH_RPC_URL } from '../config/network';
 import { cleanupPaymentClientsOnLogout } from './payment-clients';
 
 export const NuwaIdentityKit = (options: UseIdentityKitOptions = {}) => {
   const identityKit = IdentityKitWeb.init({
     ...cadopConfig,
+    roochRpcUrl: ROOCH_RPC_URL,
     ...options,
   });
 

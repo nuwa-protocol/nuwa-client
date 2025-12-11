@@ -6,7 +6,9 @@ import {
   PaymentHubClient,
   RoochPaymentChannelContract,
 } from '@nuwa-ai/payment-kit';
+import { cadopConfig } from '@/shared/config/cadop';
 import { LLM_GATEWAY } from '@/shared/config/llm-gateway';
+import { ROOCH_RPC_URL, NETWORK } from '@/shared/config/network';
 
 DebugLogger.setGlobalLevel('debug');
 const MAX_AMOUNT = BigInt(1000000000); //max amount per request, 10 rgas, 0.1 usd
@@ -15,7 +17,10 @@ let httpClientPromise: Promise<PaymentChannelHttpClient> | null = null;
 let hubClientPromise: Promise<PaymentHubClient> | null = null;
 
 async function getIdentityEnvAndSigner() {
-  const sdk = await IdentityKitWeb.init({ storage: 'local' });
+  const sdk = await IdentityKitWeb.init({
+    ...cadopConfig,
+    roochRpcUrl: ROOCH_RPC_URL,
+  });
   const env = sdk.getIdentityEnv();
   const signer = env.keyManager;
   return { sdk, env, signer };
@@ -43,11 +48,11 @@ export async function getPaymentHubClient(
 ): Promise<PaymentHubClient> {
   if (!hubClientPromise) {
     hubClientPromise = (async () => {
-      const { env, signer } = await getIdentityEnvAndSigner();
-      const chain = (env as any).chainConfig || undefined;
+      const { signer } = await getIdentityEnvAndSigner();
+      // Use network config directly instead of relying on env.chainConfig
       const contract = new RoochPaymentChannelContract({
-        rpcUrl: chain?.rpcUrl,
-        network: chain?.network,
+        rpcUrl: ROOCH_RPC_URL,
+        network: NETWORK,
         debug: true,
       });
       return new PaymentHubClient({
