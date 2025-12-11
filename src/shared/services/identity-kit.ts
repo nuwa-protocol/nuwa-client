@@ -7,12 +7,21 @@ import { capKitConfig } from '../config/capkit';
 import { ROOCH_RPC_URL } from '../config/network';
 import { cleanupPaymentClientsOnLogout } from './payment-clients';
 
+// Singleton promise to ensure single IdentityKitWeb instance
+let identityKitPromise: Promise<IdentityKitWeb> | null = null;
+
+function getIdentityKitInstance(): Promise<IdentityKitWeb> {
+  if (!identityKitPromise) {
+    identityKitPromise = IdentityKitWeb.init({
+      ...cadopConfig,
+      roochRpcUrl: ROOCH_RPC_URL,
+    });
+  }
+  return identityKitPromise;
+}
+
 export const NuwaIdentityKit = (options: UseIdentityKitOptions = {}) => {
-  const identityKit = IdentityKitWeb.init({
-    ...cadopConfig,
-    roochRpcUrl: ROOCH_RPC_URL,
-    ...options,
-  });
+  const identityKit = getIdentityKitInstance();
 
   const isConnected = identityKit.then((identityKit) => identityKit);
 
